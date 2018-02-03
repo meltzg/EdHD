@@ -1,0 +1,37 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="edhd-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+    <paper-button on-click="gitlogin"></paper-button>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class EdhdApp extends Polymer.Element {
+      static get is() { return 'edhd-app'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'edhd-app'
+          }
+        };
+      }
+      gitlogin() {
+    	  console.log("doop");
+      }
+    }
+
+    window.customElements.define(EdhdApp.is, EdhdApp);
+  </script>
+</dom-module>
