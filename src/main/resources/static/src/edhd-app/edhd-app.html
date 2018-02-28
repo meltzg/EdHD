@@ -44,13 +44,16 @@
             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
             <div main-title>EdHD</div>
             <paper-menu-button no-overlap dynamic-align>
-              <paper-icon-button icon="account-circle" slot="dropdown-trigger"></paper-icon-button>
+              <paper-button slot="dropdown-trigger">
+                <span>[[_userInfo.name]]</span>
+                <iron-icon icon="account-circle"></iron-icon>
+              </paper-button>
               <paper-listbox slot="dropdown-content">
                 <template is="dom-if" if="{{signedIn}}">
                   <paper-item>Settings</paper-item>
                   <paper-item>Sign Out</paper-item>
                 </template>
-                <template is="dom-if" if="{{!signedIn}}">
+                <template is="dom-if" if="{{!_userInfo.authenticated}}">
                   <a href="/login">
                     <paper-item>Sign In</paper-item>
                   </a>
@@ -61,8 +64,7 @@
         </app-header>
       </app-header-layout>
     </app-drawer-layout>
-
-    <iron-ajax id="requestLogin" url="/login" on-response="handleLogin"></iron-ajax>
+    <iron-ajax id="requestUser" url="/user"></iron-ajax>
   </template>
 
   <script>
@@ -74,18 +76,25 @@
       static get is() { return 'edhd-app'; }
       static get properties() {
         return {
-          signedIn: {
-            type: Boolean,
-            value: false,
+          _userInfo: {
+            type: Object,
+            value: null,
             readOnly: true
           }
         };
       }
-      handleLogin(data) {
-        console.log(JSON.stringify(data, null, 2));
+      ready() {
+        super.ready();
+        let request = this.$.requestUser.generateRequest();
+        request.completes.then(this.handleUser.bind(this), this.handleUserError.bind(this));
       }
-      signIn() {
-        this.$.requestLogin.generateRequest();
+      handleUser(event) {
+        let userInfo = event.__data.response;
+        this._set_userInfo(userInfo);
+      }
+      handleUserError(rejected) {
+        this._set_userInfo(null);
+        console.log(rejected);
       }
     }
 
