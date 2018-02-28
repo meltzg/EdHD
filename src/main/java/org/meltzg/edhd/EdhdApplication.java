@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +30,11 @@ public class EdhdApplication extends WebSecurityConfigurerAdapter {
 				.antMatchers("/", "/login**", "/bower_components/**", "/src/**")
 				.permitAll()
 			.anyRequest()
-				.authenticated();
+				.authenticated()
+			.and().logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+			.and().csrf()
+				.ignoringAntMatchers("/logout")
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 	}
 
 	public static void main(String[] args) {

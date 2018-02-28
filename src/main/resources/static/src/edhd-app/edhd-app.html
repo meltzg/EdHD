@@ -58,6 +58,9 @@
                     <paper-item>Sign In</paper-item>
                   </a>
                 </template>
+                <template is="dom-if" if="{{_userInfo.authenticated}}">
+                  <paper-item on-click="sendLogout">Sign Out</paper-item>
+                </template>
               </paper-listbox>
             </paper-menu-button>
           </app-toolbar>
@@ -65,6 +68,7 @@
       </app-header-layout>
     </app-drawer-layout>
     <iron-ajax id="requestUser" url="/user"></iron-ajax>
+    <iron-ajax id="logout" url="/logout" method="POST" on-response="handleLogout"></iron-ajax>
   </template>
 
   <script>
@@ -96,8 +100,13 @@
         this._set_userInfo(null);
         console.log(rejected);
       }
+      sendLogout() {
+        this.$.logout.generateRequest();
+      }
+      handleLogout(event) {
+        this.ready();
+      }
     }
-
     window.customElements.define(EdhdApp.is, EdhdApp);
   </script>
 </dom-module>
