@@ -22,9 +22,11 @@
         background-color: #00897B;
         color: #fff;
       }
+
       paper-icon-button {
         --paper-icon-button-ink-color: white;
       }
+
       app-drawer-layout:not([narrow]) [drawer-toggle] {
         display: none;
       }
@@ -42,29 +44,25 @@
             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
             <div main-title>EdHD</div>
             <paper-menu-button no-overlap dynamic-align>
-            	<paper-icon-button icon="account-circle" slot="dropdown-trigger"></paper-icon-button>
-            	<paper-listbox slot="dropdown-content">
-            		<template is="dom-if" if="{{signedIn}}">
-            			<paper-item>Settings</paper-item>
-            			<paper-item>Sign Out</paper-item>
-            		</template>
-            		<template is="dom-if" if="{{!signedIn}}">
-            			<a href="/login">
-            				<paper-item>Sign In</paper-item>
-            			</a>
-            		</template>
-            	</paper-listbox>
+              <paper-icon-button icon="account-circle" slot="dropdown-trigger"></paper-icon-button>
+              <paper-listbox slot="dropdown-content">
+                <template is="dom-if" if="{{signedIn}}">
+                  <paper-item>Settings</paper-item>
+                  <paper-item>Sign Out</paper-item>
+                </template>
+                <template is="dom-if" if="{{!signedIn}}">
+                  <a href="/login">
+                    <paper-item>Sign In</paper-item>
+                  </a>
+                </template>
+              </paper-listbox>
             </paper-menu-button>
           </app-toolbar>
         </app-header>
       </app-header-layout>
-<a href="/login">click here</a>
     </app-drawer-layout>
-    
-    <iron-ajax
-    	id="requestLogin"
-    	url="/login"
-    	on-response="handleLogin"></iron-ajax>
+
+    <iron-ajax id="requestLogin" url="/login" on-response="handleLogin"></iron-ajax>
   </template>
 
   <script>
@@ -84,10 +82,10 @@
         };
       }
       handleLogin(data) {
-    	  console.log(JSON.stringify(data, null, 2));
+        console.log(JSON.stringify(data, null, 2));
       }
       signIn() {
-    	  this.$.requestLogin.generateRequest();
+        this.$.requestLogin.generateRequest();
       }
     }
 

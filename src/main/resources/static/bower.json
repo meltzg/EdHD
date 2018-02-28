@@ -3,7 +3,15 @@
   "main": "index.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
-    "paper-button": "^2.0.0"
+    "paper-button": "^2.0.0",
+    "app-layout": "^2.0.5",
+    "paper-listbox": "^2.0.0",
+    "paper-item": "^2.1.0",
+    "paper-menu-button": "^2.1.0",
+    "iron-icons": "^2.1.0",
+    "paper-icon-button": "^2.1.0",
+    "iron-ajax": "^2.1.2",
+    "web-animations-js": "^2.3.1"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",
