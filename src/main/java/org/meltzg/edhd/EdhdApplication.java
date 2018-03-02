@@ -13,24 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
-@EnableOAuth2Sso
 @RestController
-public class EdhdApplication extends WebSecurityConfigurerAdapter {
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-			.antMatcher("/**")
-			.authorizeRequests()
-				.antMatchers("/", "/login**", "/bower_components/**", "/src/**")
-				.permitAll()
-			.anyRequest()
-				.authenticated()
-			.and().logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-			.and().csrf()
-				.ignoringAntMatchers("/logout")
-				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-	}
-
+public class EdhdApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EdhdApplication.class, args);
 	}
