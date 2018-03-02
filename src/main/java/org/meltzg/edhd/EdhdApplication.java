@@ -16,12 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableOAuth2Sso
 @RestController
 public class EdhdApplication extends WebSecurityConfigurerAdapter {
-	
-	@RequestMapping("/user")
-	public Principal user(Principal principal) {
-		return principal;
-	}
-
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
