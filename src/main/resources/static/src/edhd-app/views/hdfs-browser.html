@@ -1,0 +1,20 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="hdfs-browser">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding: 16px;
+            }
+        </style>
+
+        <h1>HDFS Browser</h1>
+    </template>
+    <script>
+        class HDFSBrowser extends Polymer.Element {
+            static get is() { return 'hdfs-browser'; }
+        }
+        customElements.define(HDFSBrowser.is, HDFSBrowser);
+    </script>
+</dom-module>

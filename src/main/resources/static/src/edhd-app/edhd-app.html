@@ -14,99 +14,133 @@
 <link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
 
 <dom-module id="edhd-app">
-  <template>
-    <style>
-      app-header {
-        background-color: #00897B;
-        color: #fff;
-      }
+    <template>
+        <style>
+            app-header {
+                background-color: #00897B;
+                color: #fff;
+            }
 
-      paper-icon-button {
-        --paper-icon-button-ink-color: white;
-      }
+            paper-icon-button {
+                --paper-icon-button-ink-color: white;
+            }
 
-      app-drawer-layout:not([narrow]) [drawer-toggle] {
-        display: none;
-      }
-    </style>
-    <app-drawer-layout>
+            app-drawer-layout:not([narrow]) [drawer-toggle] {
+                display: none;
+            }
+        </style>
 
-      <app-drawer slot="drawer">
-        <app-toolbar>Menu</app-toolbar>
-      </app-drawer>
+        <app-drawer-layout>
 
-      <app-header-layout>
+            <app-drawer id="drawer" slot="drawer">
+                <app-toolbar>Menu</app-toolbar>
+                <iron-selector selected="{{page}}" attr-for-selected="name">
+                    <paper-item name="all-assignments">Assignments</paper-item>
+                    <paper-item name="hdfs-browser">HDFS Browser</paper-item>
+                    <paper-item name="create-assignment">Create Assignment</paper-item>
+                </iron-selector>
+            </app-drawer>
 
-        <app-header slot="header" reveals effects="waterfall">
-          <app-toolbar>
-            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-            <div main-title>EdHD</div>
-            <paper-menu-button no-overlap dynamic-align>
-              <paper-button slot="dropdown-trigger">
-                <span>[[_userInfo.name]]</span>
-                <iron-icon icon="account-circle"></iron-icon>
-              </paper-button>
-              <paper-listbox slot="dropdown-content">
-                <template is="dom-if" if="{{signedIn}}">
-                  <paper-item>Settings</paper-item>
-                  <paper-item>Sign Out</paper-item>
-                </template>
-                <template is="dom-if" if="{{!_userInfo.authenticated}}">
-                  <a href="/login">
-                    <paper-item>Sign In</paper-item>
-                  </a>
-                </template>
-                <template is="dom-if" if="{{_userInfo.authenticated}}">
-                  <paper-item on-click="sendLogout">Sign Out</paper-item>
-                </template>
-              </paper-listbox>
-            </paper-menu-button>
-          </app-toolbar>
-        </app-header>
-      </app-header-layout>
-    </app-drawer-layout>
-    <iron-ajax id="requestUser" url="/user"></iron-ajax>
-    <iron-ajax id="logout" url="/logout" method="POST" on-response="handleLogout"></iron-ajax>
-  </template>
+            <app-header-layout>
 
-  <script>
-    /**
-     * @customElement
-     * @polymer
-     */
-    class EdhdApp extends Polymer.Element {
-      static get is() { return 'edhd-app'; }
-      static get properties() {
-        return {
-          _userInfo: {
-            type: Object,
-            value: null,
-            readOnly: true
-          }
-        };
-      }
-      ready() {
-        super.ready();
-        let request = this.$.requestUser.generateRequest();
-        request.completes.then(this.handleUser.bind(this), this.handleUserError.bind(this));
-      }
-      handleUser(event) {
-        let userInfo = event.__data.response;
-        this._set_userInfo(userInfo);
-      }
-      handleUserError(rejected) {
-        this._set_userInfo(null);
-        console.log(rejected);
-      }
-      sendLogout() {
-        this.$.logout.generateRequest();
-      }
-      handleLogout(event) {
-        location.reload();
-      }
-    }
-    window.customElements.define(EdhdApp.is, EdhdApp);
-  </script>
+                <app-header slot="header" reveals effects="waterfall">
+                    <app-toolbar>
+                        <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+                        <div main-title>EdHD</div>
+                        <paper-menu-button no-overlap dynamic-align>
+                            <paper-button slot="dropdown-trigger">
+                                <span>[[_userInfo.name]]</span>
+                                <iron-icon icon="account-circle"></iron-icon>
+                            </paper-button>
+                            <paper-listbox slot="dropdown-content">
+                                <template is="dom-if" if="{{signedIn}}">
+                                    <paper-item>Settings</paper-item>
+                                    <paper-item>Sign Out</paper-item>
+                                </template>
+                                <template is="dom-if" if="{{!_userInfo.authenticated}}">
+                                    <a href="/login">
+                                        <paper-item>Sign In</paper-item>
+                                    </a>
+                                </template>
+                                <template is="dom-if" if="{{_userInfo.authenticated}}">
+                                    <paper-item on-click="sendLogout">Sign Out</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-menu-button>
+                    </app-toolbar>
+                </app-header>
+
+                <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="all-assignments" role="main">
+                    <all-assignments name="all-assignments"></all-assignments>
+                    <hdfs-browser name="hdfs-browser"></hdfs-browser>
+                    <create-assignment name="create-assignment"></create-assignment>
+                    <user-settings name="user-settings"></user-settings>
+                </iron-pages>
+            </app-header-layout>
+        </app-drawer-layout>
+        <iron-ajax id="requestUser" url="/user"></iron-ajax>
+        <iron-ajax id="logout" url="/logout" method="POST" on-response="handleLogout"></iron-ajax>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class EdhdApp extends Polymer.Element {
+            static get is() { return 'edhd-app'; }
+            static get properties() {
+                return {
+                    _userInfo: {
+                        type: Object,
+                        value: null,
+                        readOnly: true
+                    },
+                    page: {
+                        type: String,
+                        reflectToAttribute: true,
+                        observer: '_pageChanged',
+                    }
+                };
+            }
+            ready() {
+                super.ready();
+                let request = this.$.requestUser.generateRequest();
+                request.completes.then(this.handleUser.bind(this), this.handleUserError.bind(this));
+            }
+            handleUser(event) {
+                let userInfo = event.__data.response;
+                this._set_userInfo(userInfo);
+            }
+            handleUserError(rejected) {
+                this._set_userInfo(null);
+                console.log(rejected);
+            }
+            sendLogout() {
+                this.$.logout.generateRequest();
+            }
+            handleLogout(event) {
+                location.reload();
+            }
+            _pageChanged(page) {
+                // Load page import on demand. Show 404 page if fails
+                const resolvedPageUrl = this.resolveUrl('views/' + page + '.html');
+                Polymer.importHref(
+                    resolvedPageUrl,
+                    null,
+                    this._showPage404.bind(this),
+                    true);
+            }
+            _showPage404() {
+                this.page = 'all-assignments';
+            }
+        }
+        window.customElements.define(EdhdApp.is, EdhdApp);
+    </script>
 </dom-module>

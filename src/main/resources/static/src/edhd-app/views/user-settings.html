@@ -1,0 +1,20 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="user-settings">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding: 16px;
+            }
+        </style>
+
+        <h1>User Settings</h1>
+    </template>
+    <script>
+        class UserSettings extends Polymer.Element {
+            static get is() { return 'user-settings'; }
+        }
+        customElements.define(UserSettings.is, UserSettings);
+    </script>
+</dom-module>

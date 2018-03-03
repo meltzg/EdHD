@@ -1,0 +1,20 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="create-assignment">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding: 16px;
+            }
+        </style>
+
+        <h1>Create Assignment</h1>
+    </template>
+    <script>
+        class CreateAssignment extends Polymer.Element {
+            static get is() { return 'create-assignment'; }
+        }
+        customElements.define(CreateAssignment.is, CreateAssignment);
+    </script>
+</dom-module>

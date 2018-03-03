@@ -10,3 +10,11 @@ security:
       clientAuthenticationScheme: form
     resource:
       userInfoUri: https://api.github.com/user
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432
+    username: postgres
+    password: PG123User
+edhd:
+  adminPassword: ADMIN123User
+  dbName: edhd
