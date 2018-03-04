@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -63,8 +64,24 @@ public class SecurityService extends DBServiceBase implements ISecurityService {
 	}
 
 	@Override
-	public boolean setAdmin(String user, boolean isAdmin, String password) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean updateAdmin(String user, Map<String, String> options) {
+		String password = options.get("password");
+		if (!this.adminPassword.equals(password)) {
+			return false;
+		}
+		if (options.containsKey("isAdmin")) {
+			boolean isAdmin = Boolean.parseBoolean(options.get("isAdmin"));
+			List<StatementParameter> params = new ArrayList<StatementParameter>();
+			params.add(new StatementParameter(isAdmin, DBType.BOOLEAN));
+			params.add(new StatementParameter(user, DBType.TEXT));
+
+			try {
+				executeUpdate("UPDATE users SET isAdmin = ? WHERE name = ?;", params);
+			} catch (ClassNotFoundException | SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return true;
 	}
 }

@@ -2,9 +2,12 @@ package org.meltzg.edhd.security;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +31,18 @@ public class SecurityController {
 		return Collections.singletonMap("isAdmin", securityService.isAdmin(user));
 	}
 
-	@RequestMapping(value = "/make-admin/{user}/{is-admin}", method = RequestMethod.POST, consumes = "application/json")
-	public Map<String, Boolean> makeAdmin(@PathVariable("user") String user,
-			@PathVariable("is-admin") Boolean isAdmin,
-			@RequestBody Map<String, Boolean> body) {
-		boolean success = false;
-		return Collections.singletonMap("success", success);
+	@RequestMapping(value = "/update-admin/{user}", method = RequestMethod.POST, consumes = "application/json")
+	public ResponseEntity<Map<String, Object>> updateUser(@PathVariable("user") String user,
+			@RequestBody Map<String, String> body) {
+		boolean success = securityService.updateAdmin(user, body);
+		Map<String, Object> returnBody = new HashMap<String, Object>();
+		returnBody.put("success", success);
+		
+		if (success) {
+			return ResponseEntity.ok(returnBody);
+		} else {
+			returnBody.put("message", "Unable to authorize admin setting update");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(returnBody);
+		}
 	}
 }

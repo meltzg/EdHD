@@ -16,8 +16,6 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../../bower_components/app-route/app-location.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
 
 <dom-module id="edhd-app">
     <template>
@@ -43,7 +41,7 @@
                 <iron-selector selected="{{page}}" attr-for-selected="name">
                     <paper-item name="all-assignments">Assignments</paper-item>
                     <paper-item name="hdfs-browser">HDFS Browser</paper-item>
-                    <paper-item name="create-assignment">Create Assignment</paper-item>
+                    <paper-item name="create-assignment" disabled="[[!_isAdmin]]">Create Assignment</paper-item>
                 </iron-selector>
             </app-drawer>
 
@@ -69,6 +67,7 @@
                                     </a>
                                 </template>
                                 <template is="dom-if" if="{{_userInfo.authenticated}}">
+                                    <paper-item on-click="openSettings">User Settings</paper-item>
                                     <paper-item on-click="sendLogout">Sign Out</paper-item>
                                 </template>
                             </paper-listbox>
@@ -80,11 +79,13 @@
                     <all-assignments name="all-assignments"></all-assignments>
                     <hdfs-browser name="hdfs-browser"></hdfs-browser>
                     <create-assignment name="create-assignment"></create-assignment>
-                    <user-settings name="user-settings"></user-settings>
+                    <user-settings name="user-settings" is-admin="[[_isAdmin]]" user="[[_userInfo.name]]"></user-settings>
                 </iron-pages>
             </app-header-layout>
         </app-drawer-layout>
+        
         <iron-ajax id="requestUser" url="/user"></iron-ajax>
+        <iron-ajax id="isAdmin" url="/is-admin/{{_userInfo.name}}" on-response="handleIsAdmin"></iron-ajax>
         <iron-ajax id="logout" url="/logout" method="POST" on-response="handleLogout"></iron-ajax>
     </template>
 
@@ -102,6 +103,11 @@
                         value: null,
                         readOnly: true
                     },
+                    _isAdmin: {
+                        type: Boolean,
+                        value: false,
+                        readOnly: true
+                    },
                     page: {
                         type: String,
                         reflectToAttribute: true,
@@ -114,19 +120,26 @@
                 let request = this.$.requestUser.generateRequest();
                 request.completes.then(this.handleUser.bind(this), this.handleUserError.bind(this));
             }
+            sendLogout() {
+                this.$.logout.generateRequest();
+            }
             handleUser(event) {
                 let userInfo = event.__data.response;
                 this._set_userInfo(userInfo);
+                let request = this.$.isAdmin.generateRequest();
             }
             handleUserError(rejected) {
                 this._set_userInfo(null);
                 console.log(rejected);
             }
-            sendLogout() {
-                this.$.logout.generateRequest();
-            }
             handleLogout(event) {
                 location.reload();
+            }
+            handleIsAdmin(event) {
+                this._set_isAdmin(event.detail.response.isAdmin);
+            }
+            openSettings() {
+                this.page = 'user-settings';
             }
             _pageChanged(page) {
                 // Load page import on demand. Show 404 page if fails
