@@ -31,10 +31,10 @@ public class SecurityController {
 		return Collections.singletonMap("isAdmin", securityService.isAdmin(user));
 	}
 
-	@RequestMapping(value = "/update-admin/{user}", method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<Map<String, Object>> updateUser(@PathVariable("user") String user,
+	@RequestMapping(value = "/update-admin", method = RequestMethod.POST, consumes = "application/json")
+	public ResponseEntity<Map<String, Object>> updateUser(Principal principal,
 			@RequestBody Map<String, String> body) {
-		boolean success = securityService.updateAdmin(user, body);
+		boolean success = securityService.updateAdmin(principal.getName(), body);
 		Map<String, Object> returnBody = new HashMap<String, Object>();
 		returnBody.put("success", success);
 		

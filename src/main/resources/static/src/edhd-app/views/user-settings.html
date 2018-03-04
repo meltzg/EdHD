@@ -35,16 +35,13 @@
             <paper-toast id="errorToast" always-on-top></paper-toast>
         </div>
 
-        <iron-ajax id="updateAdmin" url="/update-admin/{{user}}" method="POST" content-type="application/json"></iron-ajax>
+        <iron-ajax id="updateAdmin" url="/update-admin" method="POST" content-type="application/json"></iron-ajax>
     </template>
     <script>
         class UserSettings extends Polymer.Element {
             static get is() { return 'user-settings'; }
             static get properties() {
                 return {
-                    user: {
-                        type: String
-                    },
                     isAdmin: {
                         type: Boolean,
                         value: false
