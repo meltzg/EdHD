@@ -19,7 +19,7 @@
             }
         </style>
 
-        <div>
+        <div style="width: calc(50% - 5px); padding-right: 10px; float: left;">
             <h2>Standard Options</h2>
             <paper-input label="Mapper Class"></paper-input>
             <paper-input label="Partitioner Class"></paper-input>
@@ -32,11 +32,11 @@
             <paper-input label="Output Value Class"></paper-input>
             <paper-input label="Input Path Class"></paper-input>
         </div>
-        <div>
+        <div style="width: calc(50% - 5px); float: right;">
             <h2>Custom Configurations</h2>
             <template is="dom-repeat" items="{{customConfigs}}" as="config">
                 <h3>[[config.name]]</h3>
-                <table>
+                <table style="width: 100%;">
                     <tr>
                         <th>Value</th>
                     </tr>
