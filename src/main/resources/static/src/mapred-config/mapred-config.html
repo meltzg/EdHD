@@ -1,0 +1,101 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="mapred-config">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            #errorToast {
+                --paper-toast-background-color: red;
+                --paper-toast-color: white;
+            }
+        </style>
+
+        <div>
+            <h2>Standard Options</h2>
+            <paper-input label="Mapper Class"></paper-input>
+            <paper-input label="Partitioner Class"></paper-input>
+            <paper-input label="Sort Comparator Class"></paper-input>
+            <paper-input label="Grouping Comparator Class"></paper-input>
+            <paper-input label="Combiner Key Grouping Comparator Class"></paper-input>
+            <paper-input label="Combiner Class"></paper-input>
+            <paper-input label="Reducer Class"></paper-input>
+            <paper-input label="Output Key Class"></paper-input>
+            <paper-input label="Output Value Class"></paper-input>
+            <paper-input label="Input Path Class"></paper-input>
+        </div>
+        <div>
+            <h2>Custom Configurations</h2>
+            <template is="dom-repeat" items="{{customConfigs}}" as="config">
+                <h3>[[config.name]]</h3>
+                <table>
+                    <tr>
+                        <th>Value</th>
+                    </tr>
+                    <template is="dom-repeat" items="{{config.value}}">
+                        <td><paper-input value="{{item::input}}"></paper-input></td>
+                    </template>
+                </table>
+            </template>
+            <paper-input id="customConfName" label="Custom Configuraition Name (Hit 'Enter' to add)" on-keyup="addCustomConf"></paper-input>
+        </div>
+        <paper-toast id="errorToast" always-on-top></paper-toast>
+    </template>
+
+    <script>
+        /**
+        * `mapred-config`
+        * Form for creating a GenMapred config
+        *
+        * @customElement
+        * @polymer
+        * @demo demo/index.html
+        */
+        class MapredConfig extends Polymer.Element {
+            static get is() { return 'mapred-config'; }
+            static get properties() {
+                return {
+                    customConfigs: {
+                        type: Object,
+                        value: []
+                    }
+                };
+            }
+            addCustomConf(e) {
+                if (e.keyCode !== 13) {
+                    return;
+                }
+                if (!this.$.customConfName.value || this.$.customConfName.value.length <= 0) {
+                    this.showError('Custom Configuration Name must be at least 1 character!');
+                    return;
+                }
+                
+                let confName = this.$.customConfName.value;
+                if (this.customConfigs.filter(conf => (conf.name === confName)).length) {
+                    this.showError('Custom Configuration with name "' + confName + '" already exists!');
+                    return;
+                }
+                
+                this.push('customConfigs', {
+                    name: confName,
+                    isAppendable: false,
+                    value: ['']
+                });
+            }
+            showError(msg) {
+                this.$.errorToast.fitInto = this;
+                this.$.errorToast.show({ text: msg });
+            }
+        }
+
+        window.customElements.define(MapredConfig.is, MapredConfig);
+    </script>
+</dom-module>

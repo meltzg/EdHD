@@ -62,7 +62,7 @@
                 request.completes.then(function (event) {
                     location.reload();
                 }, function (rejected) {
-                    this.$.errorToast.fitInto = this.$.settingsContainer;
+                    this.$.errorToast.fitInto = this;
                     this.$.errorToast.show({ text: 'Could not update admin settings.' });
                 }.bind(this));
             }
