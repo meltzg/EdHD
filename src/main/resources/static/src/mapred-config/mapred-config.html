@@ -5,6 +5,8 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
 
 <dom-module id="mapred-config">
     <template>
@@ -17,36 +19,55 @@
                 --paper-toast-background-color: red;
                 --paper-toast-color: white;
             }
-        </style>
 
-        <div style="width: calc(50% - 5px); padding-right: 10px; float: left;">
-            <h2>Standard Options</h2>
-            <paper-input label="Mapper Class"></paper-input>
-            <paper-input label="Partitioner Class"></paper-input>
-            <paper-input label="Sort Comparator Class"></paper-input>
-            <paper-input label="Grouping Comparator Class"></paper-input>
-            <paper-input label="Combiner Key Grouping Comparator Class"></paper-input>
-            <paper-input label="Combiner Class"></paper-input>
-            <paper-input label="Reducer Class"></paper-input>
-            <paper-input label="Output Key Class"></paper-input>
-            <paper-input label="Output Value Class"></paper-input>
-            <paper-input label="Input Path Class"></paper-input>
+            .row,
+            .cell {
+                -mox-box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+
+            .row {
+                overflow: hidden;
+                padding: 1% 0 0 1%;
+            }
+
+            .cell {
+                display: inline-block;
+                float: left;
+                margin: 0 1% 1% 0;
+            }
+        </style>
+        <div class="row">
+            <div class="cell" style="width: 48%;">
+                <h2>Standard Options</h2>
+                <paper-input label="Mapper Class" value="{{standardConfigs.mapperClass::input}}"></paper-input>
+                <paper-input label="Partitioner Class" value="{{standardConfigs.partitionerClass::input}}"></paper-input>
+                <paper-input label="Sort Comparator Class" value="{{standardConfigs.sortComparatorClass::input}}"></paper-input>
+                <paper-input label="Grouping Comparator Class" value="{{standardConfigs.groupingComparatorClass::input}}"></paper-input>
+                <paper-input label="Combiner Key Grouping Comparator Class" value="{{standardConfigs.combinerComparatorClass::input}}"></paper-input>
+                <paper-input label="Combiner Class" value="{{standardConfigs.combinerClass::input}}"></paper-input>
+                <paper-input label="Reducer Class" value="{{standardConfigs.reducerClass::input}}"></paper-input>
+                <paper-input label="Output Key Class" value="{{standardConfigs.outputKeyClass::input}}"></paper-input>
+                <paper-input label="Output Value Class" value="{{standardConfigs.outputValueClass::input}}"></paper-input>
+                <paper-input label="Input Path Class" value="{{standardConfigs.inputPath::input}}"></paper-input>
+            </div>
+            <div class="cell" style="width: 48%;">
+                <h2>Custom Configurations</h2>
+                <template is="dom-repeat" items="{{customConfigs}}">
+                    <div class="row">
+                        <paper-input label="{{item.name}}" value="{{item.value::input}}" class="cell" style="width: 74%;"></paper-input>
+                        <div class="cell" style="width: 24%;">
+                            <paper-icon-button icon="cancel" on-click="removeCustomConf"></paper-icon-button>
+                            <paper-toggle-button checked="{{item.isAppendable}}">Appendable</paper-toggle-button>
+                        </div>
+                    </div>
+
+                </template>
+                <paper-input id="customConfName" label="Custom Configuraition Name (Hit 'Enter' to add)" on-keyup="addCustomConf"></paper-input>
+            </div>
         </div>
-        <div style="width: calc(50% - 5px); float: right;">
-            <h2>Custom Configurations</h2>
-            <template is="dom-repeat" items="{{customConfigs}}" as="config">
-                <h3>[[config.name]]</h3>
-                <table style="width: 100%;">
-                    <tr>
-                        <th>Value</th>
-                    </tr>
-                    <template is="dom-repeat" items="{{config.value}}">
-                        <td><paper-input value="{{item::input}}"></paper-input></td>
-                    </template>
-                </table>
-            </template>
-            <paper-input id="customConfName" label="Custom Configuraition Name (Hit 'Enter' to add)" on-keyup="addCustomConf"></paper-input>
-        </div>
+
         <paper-toast id="errorToast" always-on-top></paper-toast>
     </template>
 
@@ -63,11 +84,40 @@
             static get is() { return 'mapred-config'; }
             static get properties() {
                 return {
-                    customConfigs: {
+                    standardConfigs: {
                         type: Object,
+                        value: {}
+                    },
+                    customConfigs: {
+                        type: Array,
                         value: []
+                    },
+                    fullConfig: {
+                        type: Object
+                        // computed: 'buildConfig(standardConfigs, customConfigs)'
+                    },
+                    _standardConfigs: {
+                        type: Array,
+                        readOnly: true,
+                        value: [
+                            "mapperClass",
+                            "partitionerClass",
+                            "sortComparatorClass",
+                            "groupingComparatorClass",
+                            "combinerComparatorClass",
+                            "combinerClass",
+                            "reducerClass",
+                            "outputKeyClass",
+                            "outputValueClass",
+                            "inputPath"
+                        ]
                     }
                 };
+            }
+            static get observers() {
+                return [
+                    'buildConfig(standardConfigs.*, customConfigs.*)'
+                ];
             }
             addCustomConf(e) {
                 if (e.keyCode !== 13) {
@@ -77,18 +127,55 @@
                     this.showError('Custom Configuration Name must be at least 1 character!');
                     return;
                 }
-                
+
                 let confName = this.$.customConfName.value;
                 if (this.customConfigs.filter(conf => (conf.name === confName)).length) {
                     this.showError('Custom Configuration with name "' + confName + '" already exists!');
                     return;
                 }
-                
+                if (this._standardConfigs.includes(confName)) {
+                    this.showError(confName + ' is a reserved configuration name');
+                    return;
+                }
+
                 this.push('customConfigs', {
                     name: confName,
                     isAppendable: false,
-                    value: ['']
+                    value: null
                 });
+            }
+            removeCustomConf(e) {
+                for (let i = 0; i < this.customConfigs.length; i++) {
+                    if (this.customConfigs[i].name === e.model.item.name) {
+                        this.splice('customConfigs', i, 1);
+                    }
+                }
+            }
+            buildConfig(standardConfigs, customConfigs) {
+                let fullConfig = {}
+
+                this._standardConfigs.forEach(function (config) {
+                    if (this.isValidVal(standardConfigs.base[config])) {
+                        fullConfig[config] = {
+                            val: standardConfigs.base[config]
+                        };
+                    }
+                }.bind(this));
+
+                customConfigs.base.forEach(function (config) {
+                    if (this.isValidVal(config.value)) {
+                        fullConfig[config.name] = {
+                            val: config.value,
+                            isAppendable: config.isAppendable
+                        }
+                    }
+                }.bind(this));
+
+                // console.log(JSON.stringify(fullConfig, null, 2));
+                this.fullConfig = fullConfig;
+            }
+            isValidVal(val) {
+                return val !== undefined && val !== null && val.length > 0;
             }
             showError(msg) {
                 this.$.errorToast.fitInto = this;
