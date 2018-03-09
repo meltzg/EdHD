@@ -41,22 +41,22 @@
         <div class="row">
             <div class="cell" style="width: 48%;">
                 <h2>Standard Options</h2>
-                <paper-input label="Mapper Class" value="{{standardConfigs.mapperClass::input}}"></paper-input>
-                <paper-input label="Partitioner Class" value="{{standardConfigs.partitionerClass::input}}"></paper-input>
-                <paper-input label="Sort Comparator Class" value="{{standardConfigs.sortComparatorClass::input}}"></paper-input>
-                <paper-input label="Grouping Comparator Class" value="{{standardConfigs.groupingComparatorClass::input}}"></paper-input>
-                <paper-input label="Combiner Key Grouping Comparator Class" value="{{standardConfigs.combinerComparatorClass::input}}"></paper-input>
-                <paper-input label="Combiner Class" value="{{standardConfigs.combinerClass::input}}"></paper-input>
-                <paper-input label="Reducer Class" value="{{standardConfigs.reducerClass::input}}"></paper-input>
-                <paper-input label="Output Key Class" value="{{standardConfigs.outputKeyClass::input}}"></paper-input>
-                <paper-input label="Output Value Class" value="{{standardConfigs.outputValueClass::input}}"></paper-input>
-                <paper-input label="Input Path Class" value="{{standardConfigs.inputPath::input}}"></paper-input>
+                <paper-input label="Mapper Class" value="{{standardConfigs.mapperClass}}" disabled="[[isValidVal(primaryConfig.mapperClass.val)]]"></paper-input>
+                <paper-input label="Partitioner Class" value="{{standardConfigs.partitionerClass}}" disabled="[[isValidVal(primaryConfig.partitionerClass.val)]]"></paper-input>
+                <paper-input label="Sort Comparator Class" value="{{standardConfigs.sortComparatorClass}}" disabled="[[isValidVal(primaryConfig.sortComparatorClass.val)]]"></paper-input>
+                <paper-input label="Grouping Comparator Class" value="{{standardConfigs.groupingComparatorClass}}" disabled="[[isValidVal(primaryConfig.groupingComparatorClass.val)]]"></paper-input>
+                <paper-input label="Combiner Key Grouping Comparator Class" value="{{standardConfigs.combinerComparatorClass}}" disabled="[[isValidVal(primaryConfig.combinerComparatorClass.val)]]"></paper-input>
+                <paper-input label="Combiner Class" value="{{standardConfigs.combinerClass}}" disabled="[[isValidVal(primaryConfig.combinerClass.val)]]"></paper-input>
+                <paper-input label="Reducer Class" value="{{standardConfigs.reducerClass}}" disabled="[[isValidVal(primaryConfig.reducerClass.val)]]"></paper-input>
+                <paper-input label="Output Key Class" value="{{standardConfigs.outputKeyClass}}" disabled="[[isValidVal(primaryConfig.outputKeyClass.val)]]"></paper-input>
+                <paper-input label="Output Value Class" value="{{standardConfigs.outputValueClass}}" disabled="[[isValidVal(primaryConfig.outputValueClass.val)]]"></paper-input>
+                <paper-input label="Input Path Class" value="{{standardConfigs.inputPath}}" disabled="[[isValidVal(primaryConfig.inputPath.val)]]"></paper-input>
             </div>
             <div class="cell" style="width: 48%;">
                 <h2>Custom Configurations</h2>
                 <template is="dom-repeat" items="{{customConfigs}}">
                     <div class="row">
-                        <paper-input label="{{item.name}}" value="{{item.value::input}}" class="cell" style="width: 74%;"></paper-input>
+                        <paper-input label="{{item.name}}" value="{{item.value}}" class="cell" style="width: 74%;"></paper-input>
                         <div class="cell" style="width: 24%;">
                             <paper-icon-button icon="cancel" on-click="removeCustomConf"></paper-icon-button>
                             <paper-toggle-button checked="{{item.isAppendable}}">Appendable</paper-toggle-button>
@@ -93,8 +93,12 @@
                         value: []
                     },
                     fullConfig: {
-                        type: Object
-                        // computed: 'buildConfig(standardConfigs, customConfigs)'
+                        type: Object,
+                        notify: true
+                    },
+                    primaryConfig: {
+                        type: Object,
+                        value: {}
                     },
                     _standardConfigs: {
                         type: Array,
@@ -116,7 +120,8 @@
             }
             static get observers() {
                 return [
-                    'buildConfig(standardConfigs.*, customConfigs.*)'
+                    'buildConfig(standardConfigs.*, customConfigs.*)',
+                    'reconcilePrimary(primaryConfig.*)'
                 ];
             }
             addCustomConf(e) {
@@ -138,6 +143,7 @@
                     return;
                 }
 
+                this.$.customConfName.value = '';
                 this.push('customConfigs', {
                     name: confName,
                     isAppendable: false,
@@ -155,14 +161,14 @@
                 let fullConfig = {}
 
                 this._standardConfigs.forEach(function (config) {
-                    if (this.isValidVal(standardConfigs.base[config])) {
+                    if (!(this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) && this.isValidVal(this.standardConfigs[config])) {
                         fullConfig[config] = {
-                            val: standardConfigs.base[config]
+                            val: this.standardConfigs[config]
                         };
                     }
                 }.bind(this));
 
-                customConfigs.base.forEach(function (config) {
+                this.customConfigs.forEach(function (config) {
                     if (this.isValidVal(config.value)) {
                         fullConfig[config.name] = {
                             val: config.value,
@@ -172,7 +178,18 @@
                 }.bind(this));
 
                 // console.log(JSON.stringify(fullConfig, null, 2));
-                this.fullConfig = fullConfig;
+                this.set('fullConfig', fullConfig);
+            }
+            reconcilePrimary(primaryConfig) {
+                this._standardConfigs.forEach(function (config) {
+                    if (this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) {
+                        this.set('standardConfigs.' + config, this.primaryConfig[config].val);
+                    }
+                }.bind(this));
+                let temp = JSON.parse(JSON.stringify(this.standardConfigs));
+                this.set('standardConfigs', {});
+                this.set('standardConfigs', temp);
+                console.log();
             }
             isValidVal(val) {
                 return val !== undefined && val !== null && val.length > 0;
