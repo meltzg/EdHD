@@ -16,7 +16,8 @@
     "paper-toggle-button": "PolymerElements/paper-toggle-button#^2.0.0",
     "paper-input": "PolymerElements/paper-input#^2.1.1",
     "paper-toast": "PolymerElements/paper-toast#^2.1.0",
-    "paper-icon-button": "PolymerElements/paper-icon-button#^2.1.0"
+    "paper-icon-button": "PolymerElements/paper-icon-button#^2.1.0",
+    "vaadin-grid": "vaadin/vaadin-grid#^4.1.7"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

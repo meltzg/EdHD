@@ -6,7 +6,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 
 <dom-module id="mapred-config">
     <template>
@@ -66,6 +66,23 @@
 
                 </template>
                 <paper-input id="customConfName" label="Custom Configuraition Name (Hit 'Enter' to add)" on-keyup="addCustomConf"></paper-input>
+                <template is="dom-if" if="[[_hasPrimaryCustoms(_primaryCustomConfigs)]]">
+                    <h2>Custom Configurations from Primary</h2>
+                    <vaadin-grid items="[[_toArray(_primaryCustomConfigs)]]">
+                        <vaadin-grid-column>
+                            <template class="header">Name</template>
+                            <template>[[item.name]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column>
+                            <template class="header">Value</template>
+                            <template>[[item.value.val]]</template>
+                        </vaadin-grid-column>
+                        <vaadin-grid-column>
+                            <template class="header">Appendable</template>
+                            <template>[[item.value.isAppendable]]</template>
+                        </vaadin-grid-column>
+                    </vaadin-grid>
+                </template>
             </div>
         </div>
 

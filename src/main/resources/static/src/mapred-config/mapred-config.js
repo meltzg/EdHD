@@ -161,6 +161,17 @@ class MapredConfig extends Polymer.Element {
         this.$.errorToast.positionTarget = this.$.top;
         this.$.errorToast.show({ text: msg });
     }
+    _toArray(obj) {
+        return Object.keys(obj).map(function (key) {
+            return {
+                name: key,
+                value: obj[key]
+            };
+        });
+    }
+    _hasPrimaryCustoms(primaryCustomConfigs) {
+        return Object.keys(primaryCustomConfigs).length > 0;
+    }
 }
 
 window.customElements.define(MapredConfig.is, MapredConfig);
