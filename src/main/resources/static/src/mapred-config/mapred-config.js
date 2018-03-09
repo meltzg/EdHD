@@ -27,6 +27,11 @@ class MapredConfig extends Polymer.Element {
                 type: Object,
                 value: function () { return {}; }
             },
+            _oldPrimaryConfig: {
+                type: Object,
+                readOnly: true,
+                value: function () { return {}; }
+            },
             _primaryCustomConfigs: {
                 type: Object,
                 readOnly: true,
@@ -120,6 +125,10 @@ class MapredConfig extends Polymer.Element {
         this._standardConfigs.forEach(function (config) {
             if (this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) {
                 this.set('standardConfigs.' + config, this.primaryConfig[config].val);
+            } else if (!(this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) &&
+                (this._oldPrimaryConfig[config] && this.isValidVal(this._oldPrimaryConfig[config].val))) {
+                // a standard config was removed
+                this.set('standardConfigs.' + config, '');
             }
         }.bind(this));
         // resetting the entire object shouldn't be necessary, but the values
@@ -138,8 +147,11 @@ class MapredConfig extends Polymer.Element {
                 }
             }
         }
+        // remove the non-appendable primary configs from this
         this.set('customConfigs', this.customConfigs.filter(conf => (!nonAppendables.includes(conf.name))));
+
         this._set_primaryCustomConfigs(primatyCustomConfigs);
+        this._set_oldPrimaryConfig(JSON.parse(JSON.stringify(this.primaryConfig)));
     }
     isValidVal(val) {
         return val !== undefined && val !== null && val.length > 0;
