@@ -1,4 +1,6 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../mapred-config/mapred-config.html">
 
 <dom-module id="create-assignment">
@@ -11,8 +13,17 @@
         </style>
 
         <h1>Create Assignment</h1>
-        <mapred-config id="primary" full-config="{{primaryConfig}}"></mapred-config>
-        <mapred-config id="secondary" primary-config="{{primaryConfig}}"></mapred-config>
+        <paper-tabs selected="{{selectedConf}}">
+            <paper-tab>Assignment</paper-tab>
+            <paper-tab>Validation</paper-tab>
+        </paper-tabs>
+
+        <template is="dom-if" if="{{!selectedConf}}">
+            <mapred-config id="primary" full-config="{{primaryConfig}}"></mapred-config>
+        </template>
+        <template is="dom-if" if="{{selectedConf}}">
+            <mapred-config id="secondary" primary-config="{{primaryConfig}}"></mapred-config>
+        </template>
     </template>
     <script src="create-assignment.js"></script>
 </dom-module>
