@@ -1,30 +1,36 @@
 /**
-        * `mapred-config`
-        * Form for creating a GenMapred config
-        *
-        * @customElement
-        * @polymer
-        * @demo demo/index.html
-        */
+* `mapred-config`
+* Form for creating a GenMapred config
+*
+* @customElement
+* @polymer
+* @demo demo/index.html
+*/
 class MapredConfig extends Polymer.Element {
     static get is() { return 'mapred-config'; }
     static get properties() {
         return {
             standardConfigs: {
                 type: Object,
-                value: {}
+                value: function () { return {}; }
             },
             customConfigs: {
                 type: Array,
-                value: []
+                value: function () { return []; }
             },
             fullConfig: {
                 type: Object,
-                notify: true
+                notify: true,
+                value: function () { return {}; }
             },
             primaryConfig: {
                 type: Object,
-                value: {}
+                value: function () { return {}; }
+            },
+            _primaryCustomConfigs: {
+                type: Object,
+                readOnly: true,
+                value: function () { return {}; }
             },
             _standardConfigs: {
                 type: Array,
@@ -66,6 +72,10 @@ class MapredConfig extends Polymer.Element {
         }
         if (this._standardConfigs.includes(confName)) {
             this.showError(confName + ' is a reserved configuration name');
+            return;
+        }
+        if (this._primaryCustomConfigs.hasOwnProperty(confName) && !this._primaryCustomConfigs[confName].isAppendable) {
+            this.showError('Cannot add non-appendable primary, custom configuration.');
             return;
         }
 
@@ -112,16 +122,31 @@ class MapredConfig extends Polymer.Element {
                 this.set('standardConfigs.' + config, this.primaryConfig[config].val);
             }
         }.bind(this));
+        // resetting the entire object shouldn't be necessary, but the values
+        // won't update in the UI correctly otherwise
         let temp = JSON.parse(JSON.stringify(this.standardConfigs));
         this.set('standardConfigs', {});
         this.set('standardConfigs', temp);
-        console.log();
+
+        let primatyCustomConfigs = {};
+        let nonAppendables = [];
+        for (let config in this.primaryConfig) {
+            if (!this._standardConfigs.includes(config)) {
+                primatyCustomConfigs[config] = this.primaryConfig[config];
+                if (!this.primaryConfig[config].isAppendable) {
+                    nonAppendables.push(config);
+                }
+            }
+        }
+        this.set('customConfigs', this.customConfigs.filter(conf => (!nonAppendables.includes(conf.name))));
+        this._set_primaryCustomConfigs(primatyCustomConfigs);
     }
     isValidVal(val) {
         return val !== undefined && val !== null && val.length > 0;
     }
     showError(msg) {
         this.$.errorToast.fitInto = this;
+        this.$.errorToast.positionTarget = this.$.top;
         this.$.errorToast.show({ text: msg });
     }
 }
