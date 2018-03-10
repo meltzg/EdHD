@@ -161,6 +161,12 @@ class MapredConfig extends Polymer.Element {
         this.$.errorToast.positionTarget = this.$.top;
         this.$.errorToast.show({ text: msg });
     }
+    getFile() {
+        if (this.$.srcZip.files.length) {
+            return this.$.srcZip.files[0];
+        }
+        return null;
+    }
     _toArray(obj) {
         return Object.keys(obj).map(function (key) {
             return {

@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/vaadin-upload/vaadin-upload.html">
 
 <dom-module id="mapred-config">
     <template>
@@ -38,6 +39,13 @@
                 margin: 0 1% 1% 0;
             }
         </style>
+
+        <h2>Assignment Source</h2>
+        <!-- <vaadin-upload id="srcZip" max-files="1" accept=".zip">
+            <span slot="drop-label">Drop your assignment src here (ZIP files only)</span>
+        </vaadin-upload> -->
+        <input id="srcZip" name="srcZip" type="file" accept".zip">
+
         <div class="row">
             <div id="top"></div>
             <div class="cell" style="width: 48%;">

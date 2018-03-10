@@ -1,6 +1,10 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
 <link rel="import" href="../../mapred-config/mapred-config.html">
 
 <dom-module id="create-assignment">
@@ -13,17 +17,26 @@
         </style>
 
         <h1>Create Assignment</h1>
-        <paper-tabs selected="{{selectedConf}}">
+
+        <div>
+            <paper-input label="Assignment Name" value="{{assignmentName}}"></paper-input>
+            <paper-textarea label="Description" value="{{assignmentDesc}}"></paper-textarea>
+            <vaadin-date-picker label="Due Date" value="{{dueDate}}"></vaadin-date-picker>
+        </div>
+
+        <paper-tabs selected="{{_selectedConf}}">
             <paper-tab>Assignment</paper-tab>
             <paper-tab>Validation</paper-tab>
         </paper-tabs>
-
-        <template is="dom-if" if="{{!selectedConf}}">
+        <template is="dom-if" if="{{!_selectedConf}}">
             <mapred-config id="primary" full-config="{{primaryConfig}}"></mapred-config>
         </template>
-        <template is="dom-if" if="{{selectedConf}}">
-            <mapred-config id="secondary" primary-config="{{primaryConfig}}"></mapred-config>
+        <template is="dom-if" if="{{_selectedConf}}">
+            <mapred-config id="secondary" primary-config="{{primaryConfig}}" full-config="{{secondaryConfig}}"></mapred-config>
         </template>
+
+        <paper-button on-click="submitCreateAssignment" raised>Create Assignment</paper-button>
+        <iron-ajax id="createAssignment" url="/create-assignment" method="POST"></iron-ajax>
     </template>
     <script src="create-assignment.js"></script>
 </dom-module>

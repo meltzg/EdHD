@@ -4,6 +4,7 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+		maven { url 'https://jitpack.io' }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -21,6 +22,7 @@ sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
 }
 
 
@@ -30,7 +32,9 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.security.oauth:spring-security-oauth2')
 	compile('org.postgresql:postgresql')
+	compile('com.github.meltzg:GenMapred:master-SNAPSHOT')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
 }
 
 war {
