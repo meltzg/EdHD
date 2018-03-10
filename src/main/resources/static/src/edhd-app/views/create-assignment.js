@@ -59,8 +59,8 @@ class CreateAssignment extends Polymer.Element {
             dueDate: this._dueUnixDate,
             name: this.assignmentName,
             desc: this.assignmentDesc,
-            primaryConfig: this.primaryConfig,
-            secondaryConfig: this.secondaryConfig
+            primaryConfig: this.primaryConfig || {},
+            secondaryConfig: this.secondaryConfig || {}
         });
     }
     submitCreateAssignment() {
@@ -69,8 +69,11 @@ class CreateAssignment extends Polymer.Element {
             type: 'application/json'
         }));
 
-        let primaryFile = this.shadowRoot.querySelector('#primary').getFile();
-        let secondaryFile = this.shadowRoot.querySelector('#secondary').getFile();
+        let primaryElem = this.shadowRoot.querySelector('#primary');
+        let secondaryElem = this.shadowRoot.querySelector('#secondary')
+        
+        let primaryFile = primaryElem ? primaryElem.getFile() : null;
+        let secondaryFile = secondaryElem ? secondaryElem.getFile() : null;
 
         if (primaryFile) {
             formData.append('primarySrc', primaryFile);
