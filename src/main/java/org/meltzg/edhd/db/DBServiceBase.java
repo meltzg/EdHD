@@ -26,7 +26,7 @@ public class DBServiceBase {
 	@Value("${edhd.dbName}")
 	private String dbName;
 
-	protected void init() throws ClassNotFoundException, SQLException {
+	protected void init() throws Exception {
 		Connection conn;
 		try {
 			conn = getConnection();
@@ -92,6 +92,9 @@ public class DBServiceBase {
 							((List) prm.getValue()).toArray());
 					stmt.setArray(i, tempArray);
 					break;
+				case BIGINT:
+					stmt.setLong(i, (Long) prm.getValue());
+					break;
 				case BOOLEAN:
 					stmt.setBoolean(i, (Boolean) prm.getValue());
 					break;
@@ -102,7 +105,7 @@ public class DBServiceBase {
 					stmt.setInt(i, (Integer) prm.getValue());
 					break;
 				case UUID:
-					stmt.setString(i, ((UUID) prm.getValue()).toString());
+					stmt.setObject(i, ((UUID) prm.getValue()));
 					break;
 				case TEXT:
 					stmt.setString(i, (String) prm.getValue());
@@ -116,7 +119,7 @@ public class DBServiceBase {
 	}
 
 	protected enum DBType {
-		ARRAY("array"), BOOLEAN("boolean"), DOUBLE("double"), INT("integer"), UUID("uuid"), TEXT("text");
+		ARRAY("array"), BIGINT("bigint"), BOOLEAN("boolean"), DOUBLE("double"), INT("integer"), UUID("uuid"), TEXT("text");
 
 		private final String name;
 

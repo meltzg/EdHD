@@ -61,16 +61,22 @@ public class AssignmentCreationProperties {
 		this.desc = desc;
 	}
 
-	public Map<String, PropValue> getPrimaryConfig() {
-		return primaryConfig;
+	public GenJobConfiguration getPrimaryConfig() {
+		if (primaryConfig.isEmpty()) {
+			return null;
+		}
+		return new GenJobConfiguration(primaryConfig);
 	}
 
 	public void setPrimaryConfig(Map<String, PropValue> primaryConfig) {
 		this.primaryConfig = primaryConfig;
 	}
 
-	public Map<String, PropValue> getSecondaryConfig() {
-		return secondaryConfig;
+	public GenJobConfiguration getSecondaryConfig() {
+		if (secondaryConfig.isEmpty()) {
+			return null;
+		}
+		return new GenJobConfiguration(secondaryConfig);
 	}
 
 	public void setSecondaryConfig(Map<String, PropValue> secondaryConfig) {

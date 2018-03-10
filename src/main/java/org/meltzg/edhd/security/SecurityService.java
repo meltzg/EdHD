@@ -21,7 +21,7 @@ public class SecurityService extends DBServiceBase implements ISecurityService {
 	private String adminPassword;
 
 	@PostConstruct
-	public void init() throws SQLException, ClassNotFoundException {
+	public void init() throws Exception {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
