@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../mapred-config/mapred-config.html">
 <link rel="import" href="../common-styles/common-styles.html">
 
 <dom-module id="assignment-card">
@@ -16,9 +17,17 @@
         <paper-card heading="[[assignmentProps.name]] Due: [[_formattedDate]]">
             <div class="card-content">
                 <paper-textarea label="Description" value="[[assignmentProps.desc]]" disabled></paper-textarea>
+                <paper-button on-click="toggle" raised></paper-button>
+                <iron-collapse id="collapse_config">
+                    <mapred-config primary-config="[[assignmentProps.primaryConfig]]"></mapred-config>
+                </iron-collapse>
             </div>
             <div class="card-actions">
-
+                <paper-button on-click="submit" raised>Submit</paper-button>
+                <template is="dom-if" if="{{isAdmin}}">
+                    <paper-icon-button on-click="editAssignment" icon="create"></paper-icon-button>
+                    <paper-icon-button on-click="deleteAssignment" icon="delete-forever"></paper-icon-button>
+                </template>
             </div>
         </paper-card>
     </template>

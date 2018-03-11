@@ -8,7 +8,7 @@ class AssignmentCard extends Polymer.Element {
             },
             assignmentProps: {
                 type: Object,
-                value: function() {
+                value: function () {
                     return {};
                 }
             },
@@ -24,6 +24,18 @@ class AssignmentCard extends Polymer.Element {
     }
     updateDueDate(dueDate) {
         this._set_formattedDate(new Date(this.assignmentProps.dueDate));
+    }
+    submit() {
+        console.log("TODO submission");
+    }
+    editAssignment() {
+        console.log("TODO edit");
+    }
+    deleteAssignment() {
+        console.log("TODO delete");
+    }
+    toggle() {
+        this.$.collapse_config.toggle();
     }
 }
 
