@@ -101,7 +101,7 @@ class MapredConfig extends Polymer.Element {
         let fullConfig = {}
 
         this._standardConfigs.forEach(function (config) {
-            if (!(this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) && this.isValidVal(this.standardConfigs[config])) {
+            if (!(this.primaryConfig && this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) && this.isValidVal(this.standardConfigs[config])) {
                 fullConfig[config] = {
                     val: this.standardConfigs[config]
                 };

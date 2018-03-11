@@ -22,7 +22,7 @@
                 <paper-input id="adminPasswordInput" label="EdHD Admin Password" type="password"></paper-input>
                 <paper-button on-click="updateAdmin" raised>Update Admin Settings</paper-button>
             </div>
-            <paper-toast id="errorToast" always-on-top></paper-toast>
+            <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
         </div>
 
         <iron-ajax id="updateAdmin" url="/update-admin" method="POST" content-type="application/json"></iron-ajax>

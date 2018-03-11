@@ -36,6 +36,7 @@
             <paper-button class="cell" on-click="reset" raised>Reset</paper-button>
         </div>
         <iron-ajax id="createAssignment" url="/create-assignment" method="POST"></iron-ajax>
+        <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
     </template>
     <script src="create-assignment.js"></script>
 </dom-module>

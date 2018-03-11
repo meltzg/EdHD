@@ -89,6 +89,12 @@ class CreateAssignment extends Polymer.Element {
             'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
         }
         let request = this.$.createAssignment.generateRequest();
+        request.completes.then(function(event){
+            console.log("Assignment created");
+            this.reset();
+        }.bind(this), function(rejected) {
+            this.showError('Error creating assignment');
+        }.bind(this));
     }
     reset() {
         this.id = null;
@@ -99,6 +105,11 @@ class CreateAssignment extends Polymer.Element {
         this.config = {};
         this.shadowRoot.querySelector('#primary').reset();
         this.shadowRoot.querySelector('#secondary').reset();
+    }
+    showError(msg) {
+        this.$.errorToast.fitInto = this;
+        this.$.errorToast.positionTarget = this.$.top;
+        this.$.errorToast.show({ text: msg });
     }
 }
 customElements.define(CreateAssignment.is, CreateAssignment);
