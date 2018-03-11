@@ -6,13 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
-import org.meltzg.edhd.db.DBServiceBase;
 import org.meltzg.edhd.storage.AbstractStorageService;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
@@ -60,14 +60,14 @@ public class AssignmentService extends AbstractAssignmentService {
 		UUID primaryConfigLoc = null;
 		UUID secondaryConfigLoc = null;
 
-		GenJobConfiguration primaryConfig = props.getPrimaryConfig();
-		GenJobConfiguration secondaryConfig = props.getConfig();
+		Map<String, PropValue> primaryConfig = props.getPrimaryConfig();
+		Map<String, PropValue> secondaryConfig = props.getConfig();
 
 		if (primaryConfig != null) {
-			primaryConfigLoc = storageService.putFile(primaryConfig);
+			primaryConfigLoc = storageService.putFile(new GenJobConfiguration(primaryConfig));
 		}
 		if (secondaryConfig != null) {
-			secondaryConfigLoc = storageService.putFile(secondaryConfig);
+			secondaryConfigLoc = storageService.putFile(new GenJobConfiguration(secondaryConfig));
 		}
 		if (primarySrc != null) {
 			primarySrcLoc = storageService.putFile(primarySrc);
@@ -115,7 +115,7 @@ public class AssignmentService extends AbstractAssignmentService {
 				Long dueDate = rs.getLong(DUEDATE);
 				String name = rs.getString(ASSIGNMENTNAME);
 				String desc = rs.getString(ASSIGNMENTDESC);
-				Map<String, PropValue> primaryConfig = null;
+				Map<String, PropValue> primaryConfig = new HashMap<String, PropValue>();
 				String primarySrcName = null;
 
 				UUID primaryConfigLoc = (UUID) rs.getObject(PRIMARYCONFIGLOC);
@@ -123,6 +123,7 @@ public class AssignmentService extends AbstractAssignmentService {
 				if (primaryConfigLoc != null) {
 					GenJobConfiguration gConfig = new GenJobConfiguration(
 							storageService.getFile(primaryConfigLoc).getAbsolutePath());
+					primaryConfig = gConfig.getconfigProps();
 				}
 				if (primarySrcLoc != null) {
 					primarySrcName = storageService.getFile(primarySrcLoc).getName();

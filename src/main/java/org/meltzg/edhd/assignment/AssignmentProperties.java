@@ -59,11 +59,8 @@ public class AssignmentProperties {
 		this.desc = desc;
 	}
 	
-	public GenJobConfiguration getConfig() {
-		if (config.isEmpty()) {
-			return null;
-		}
-		return new GenJobConfiguration(config);
+	public Map<String, PropValue> getConfig() {
+		return config;
 	}
 
 	public void setConfig(Map<String, PropValue> config) {

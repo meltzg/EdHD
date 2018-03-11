@@ -13,7 +13,7 @@ class AssignmentCard extends Polymer.Element {
                 }
             },
             _formattedDate: {
-                type: Object,
+                type: String,
                 readOnly: true,
                 value: null
             }
@@ -23,7 +23,7 @@ class AssignmentCard extends Polymer.Element {
         return ['updateDueDate(assignmentProps.dueDate)']
     }
     updateDueDate(dueDate) {
-        this._set_formattedDate(new Date(this.assignmentProps.dueDate));
+        this._set_formattedDate((new Date(this.assignmentProps.dueDate)).toLocaleDateString());
     }
     submit() {
         console.log("TODO submission");

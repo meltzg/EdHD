@@ -78,7 +78,7 @@
                 </app-header>
 
                 <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="all-assignments" role="main">
-                    <all-assignments name="all-assignments"></all-assignments>
+                    <all-assignments name="all-assignments" is-admin="[[_isAdmin]]"></all-assignments>
                     <hdfs-browser name="hdfs-browser"></hdfs-browser>
                     <create-assignment name="create-assignment"></create-assignment>
                     <user-settings name="user-settings" is-admin="[[_isAdmin]]"></user-settings>

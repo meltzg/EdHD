@@ -14,10 +14,10 @@
     <template>
         <style include="common-styles"></style>
 
-        <paper-card heading="[[assignmentProps.name]] Due: [[_formattedDate]]">
+        <paper-card heading="[[assignmentProps.name]] Due: [[_formattedDate]]" style="width: 100%">
             <div class="card-content">
                 <paper-textarea label="Description" value="[[assignmentProps.desc]]" disabled></paper-textarea>
-                <paper-button on-click="toggle" raised></paper-button>
+                <paper-button on-click="toggle" raised>Show/Hide Configuration</paper-button>
                 <iron-collapse id="collapse_config">
                     <mapred-config primary-config="[[assignmentProps.primaryConfig]]"></mapred-config>
                 </iron-collapse>

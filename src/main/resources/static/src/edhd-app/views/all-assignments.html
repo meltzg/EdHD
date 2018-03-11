@@ -1,12 +1,23 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../assignment-card/assignment-card.html">
 <link rel="import" href="../../common-styles/common-styles.html">
 
 <dom-module id="all-assignments">
     <template>
         <style include="common-styles"></style>
-
         <h1>Assignments</h1>
+        <paper-button on-click="refresh">
+            <iron-icon icon="refresh"></iron-icon>
+            <span>Refresh Assignments</span>
+        </paper-button>
+        <template is="dom-repeat" items="{{assignments}}">
+            <assignment-card is-admin="[[isAdmin]]" assignment-props="[[item]]"></assignment-card>
+        </template>
+        <iron-ajax id="refreshRequest" url="/get-assignments"></iron-ajax>
     </template>
     <script src="all-assignments.js"></script>
 </dom-module>

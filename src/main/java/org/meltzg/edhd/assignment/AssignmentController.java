@@ -3,6 +3,7 @@ package org.meltzg.edhd.assignment;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -48,6 +49,17 @@ public class AssignmentController {
 		} else {
 			returnBody.put("message", "Only admins can create assignments");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(returnBody);
+		}
+	}
+	
+	@RequestMapping("/get-assignments")
+	public ResponseEntity<List<AssignmentSubmissionProperties>> getAllAssignments() {
+		try {
+			List<AssignmentSubmissionProperties> assignments = assignmentService.getAllAssignments();
+			return ResponseEntity.ok(assignments);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
 }

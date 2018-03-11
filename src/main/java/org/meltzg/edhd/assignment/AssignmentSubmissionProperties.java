@@ -21,11 +21,8 @@ public class AssignmentSubmissionProperties extends AssignmentProperties {
 	public AssignmentSubmissionProperties() {
 	}
 	
-	public GenJobConfiguration getPrimaryConfig() {
-		if (primaryConfig.isEmpty()) {
-			return null;
-		}
-		return new GenJobConfiguration(primaryConfig);
+	public Map<String, PropValue> getPrimaryConfig() {
+		return primaryConfig;
 	}
 
 	public void setPrimaryConfig(Map<String, PropValue> primaryConfig) {
