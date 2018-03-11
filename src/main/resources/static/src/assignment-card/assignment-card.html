@@ -1,0 +1,27 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../common-styles/common-styles.html">
+
+<dom-module id="assignment-card">
+    <template>
+        <style include="common-styles"></style>
+
+        <paper-card heading="[[assignmentProps.name]] Due: [[_formattedDate]]">
+            <div class="card-content">
+                <paper-textarea label="Description" value="[[assignmentProps.desc]]" disabled></paper-textarea>
+            </div>
+            <div class="card-actions">
+
+            </div>
+        </paper-card>
+    </template>
+
+    <script src="assignment-card.js"></script>
+</dom-module>

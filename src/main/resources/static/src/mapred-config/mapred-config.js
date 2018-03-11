@@ -4,7 +4,6 @@
 *
 * @customElement
 * @polymer
-* @demo demo/index.html
 */
 class MapredConfig extends Polymer.Element {
     static get is() { return 'mapred-config'; }

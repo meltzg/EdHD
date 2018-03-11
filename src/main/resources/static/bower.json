@@ -20,7 +20,9 @@
     "vaadin-grid": "vaadin/vaadin-grid#^4.1.7",
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
     "vaadin-date-picker": "vaadin/vaadin-date-picker#^2.0.7",
-    "vaadin-upload": "vaadin/vaadin-upload#^3.0.2"
+    "vaadin-upload": "vaadin/vaadin-upload#^3.0.2",
+    "paper-card": "PolymerElements/paper-card#^2.1.0",
+    "iron-collapse": "PolymerElements/iron-collapse#^2.2.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

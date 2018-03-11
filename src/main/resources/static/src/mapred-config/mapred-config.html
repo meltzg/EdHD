@@ -8,43 +8,17 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-upload/vaadin-upload.html">
+<link rel="import" href="../common-styles/common-styles.html">
 
 <dom-module id="mapred-config">
     <template>
-        <style>
-            :host {
-                display: block;
-            }
-
-            #errorToast {
-                --paper-toast-background-color: red;
-                --paper-toast-color: white;
-            }
-
-            .row,
-            .cell {
-                -mox-box-sizing: border-box;
-                -webkit-box-sizing: border-box;
-                box-sizing: border-box;
-            }
-
-            .row {
-                overflow: hidden;
-                padding: 1% 0 0 1%;
-            }
-
-            .cell {
-                display: inline-block;
-                float: left;
-                margin: 0 1% 1% 0;
-            }
-        </style>
+        <style include="common-styles"></style>
 
         <h2>Assignment Source</h2>
         <!-- <vaadin-upload id="srcZip" max-files="1" accept=".zip">
             <span slot="drop-label">Drop your assignment src here (ZIP files only)</span>
         </vaadin-upload> -->
-        <input id="srcZip" name="srcZip" type="file" accept".zip">
+        <input id="srcZip" name="srcZip" type="file" accept=".zip">
 
         <div class="row">
             <div id="top"></div>

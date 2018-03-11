@@ -1,0 +1,33 @@
+<dom-module id="common-styles">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding: 16px;
+            }
+
+            #errorToast {
+                --paper-toast-background-color: red;
+                --paper-toast-color: white;
+            }
+
+            .row,
+            .cell {
+                -mox-box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+
+            .row {
+                overflow: hidden;
+                padding: 1% 0 0 1%;
+            }
+
+            .cell {
+                display: inline-block;
+                float: left;
+                margin: 0 1% 1% 0;
+            }
+        </style>
+    </template>
+</dom-module>
