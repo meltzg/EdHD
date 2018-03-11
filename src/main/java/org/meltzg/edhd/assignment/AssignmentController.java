@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import org.meltzg.edhd.security.ISecurityService;
+import org.meltzg.edhd.security.AbstractSecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class AssignmentController {
 	@Autowired
-	private ISecurityService securityService;
+	private AbstractSecurityService securityService;
 	
 	@Autowired
-	IAssignmentService assignmentService;
+	AbstractAssignmentService assignmentService;
 
 	@RequestMapping(value = "/create-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
 	public ResponseEntity<Map<String, String>> createAssignment(Principal principal,

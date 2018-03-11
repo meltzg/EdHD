@@ -6,13 +6,9 @@ import java.util.UUID;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
 
-public class AssignmentCreationProperties {
-	private UUID id;
-	private Long dueDate;
-	private String name;
-	private String desc;
-	private Map<String, PropValue> primaryConfig;
-	private Map<String, PropValue> secondaryConfig;
+public class AssignmentCreationProperties extends AssignmentProperties {
+	
+	protected Map<String, PropValue> primaryConfig;
 	
 	public AssignmentCreationProperties(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> primaryConfig,
 			Map<String, PropValue> secondaryConfig) {
@@ -22,45 +18,9 @@ public class AssignmentCreationProperties {
 		this.name = name;
 		this.desc = desc;
 		this.primaryConfig = primaryConfig;
-		this.secondaryConfig = secondaryConfig;
+		this.config = secondaryConfig;
 	}
 	
-	AssignmentCreationProperties() {
-		
-	}
-
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
-	public Long getDueDate() {
-		return dueDate;
-	}
-
-	public void setDueDate(Long dueDate) {
-		this.dueDate = dueDate;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDesc() {
-		return desc;
-	}
-
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-
 	public GenJobConfiguration getPrimaryConfig() {
 		if (primaryConfig.isEmpty()) {
 			return null;
@@ -70,16 +30,5 @@ public class AssignmentCreationProperties {
 
 	public void setPrimaryConfig(Map<String, PropValue> primaryConfig) {
 		this.primaryConfig = primaryConfig;
-	}
-
-	public GenJobConfiguration getSecondaryConfig() {
-		if (secondaryConfig.isEmpty()) {
-			return null;
-		}
-		return new GenJobConfiguration(secondaryConfig);
-	}
-
-	public void setSecondaryConfig(Map<String, PropValue> secondaryConfig) {
-		this.secondaryConfig = secondaryConfig;
 	}
 }

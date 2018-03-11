@@ -13,7 +13,11 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 
-public class DBServiceBase {
+public abstract class DBServiceBase {
+	
+	protected static final String ID = "id";
+	protected static String TABLE;
+
 	@Value("${spring.datasource.url}")
 	private String dbUrl;
 
@@ -26,8 +30,11 @@ public class DBServiceBase {
 	@Value("${edhd.dbName}")
 	private String dbName;
 
+	protected abstract String TABLE_NAME();
+	
 	protected void init() throws Exception {
 		Connection conn;
+		TABLE = TABLE_NAME();
 		try {
 			conn = getConnection();
 			conn.close();

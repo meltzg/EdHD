@@ -11,27 +11,38 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.meltzg.edhd.db.DBServiceBase;
-import org.meltzg.edhd.storage.IStorageService;
+import org.meltzg.edhd.storage.AbstractStorageService;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class AssignmentService extends DBServiceBase implements IAssignmentService {
+public class AssignmentService extends AbstractAssignmentService {
+
+	private static final String DUEDATE = "dueDate";
+	private static final String ASSIGNMENTNAME = "assignmentName";
+	private static final String ASSIGNMENTDESC = "assignmentDesc";
+	private static final String PRIMARYCONFIGLOC = "primaryConfigLoc";
+	private static final String SECONDARYCONFIGLOC = "secondaryConfigLoc";
+	private static final String PRIMARYSRCLOC = "primarySrcLoc";
+	private static final String SECONDARYSRCLOC = "secondarySrcLoc";
 
 	@Autowired
-	private IStorageService storageService;
+	private AbstractStorageService storageService;
 
 	@PostConstruct
 	public void init() throws Exception {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS assignments (" + "id UUID, " + "dueDate BIGINT, "
-				+ "assignmentName TEXT, " + "assignmentDesc TEXT, " + "primaryConfigLoc UUID REFERENCES storage, "
-				+ "secondaryConfigLoc UUID REFERENCES storage, " + "primarySrcLoc UUID REFERENCES storage, "
-				+ "secondarySrcLoc UUID REFERENCES storage, " + "PRIMARY KEY(id))";
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE + " (" + "id UUID, " + DUEDATE + " BIGINT, "
+				+ ASSIGNMENTNAME + " TEXT, " + ASSIGNMENTDESC + " TEXT, "
+				+ PRIMARYCONFIGLOC + " UUID REFERENCES " + AbstractStorageService.TABLE + ", "
+				+ SECONDARYCONFIGLOC + " UUID REFERENCES " + AbstractStorageService.TABLE + ", "
+				+ PRIMARYSRCLOC + " UUID REFERENCES " + AbstractStorageService.TABLE + ", "
+				+ SECONDARYSRCLOC + " UUID REFERENCES " + AbstractStorageService.TABLE + ", "
+				+ "PRIMARY KEY(id))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 	}
@@ -48,7 +59,7 @@ public class AssignmentService extends DBServiceBase implements IAssignmentServi
 		UUID secondaryConfigLoc = null;
 
 		GenJobConfiguration primaryConfig = props.getPrimaryConfig();
-		GenJobConfiguration secondaryConfig = props.getSecondaryConfig();
+		GenJobConfiguration secondaryConfig = props.getConfig();
 
 		if (primaryConfig != null) {
 			primaryConfigLoc = storageService.putFile(primaryConfig);
@@ -63,9 +74,9 @@ public class AssignmentService extends DBServiceBase implements IAssignmentServi
 			secondarySrcLoc = storageService.putFile(secondarySrc);
 		}
 
-		String insertQuery = "INSERT INTO assignments (" + "id, " + "dueDate, " + "assignmentName, "
-				+ "assignmentDesc, " + "primaryConfigLoc, " + "secondaryConfigLoc, " + "primarySrcLoc, "
-				+ "secondarySrcLoc) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+		String insertQuery = "INSERT INTO " + TABLE + " (" + "id, " + DUEDATE + ", " + ASSIGNMENTNAME + ", "
+				+ ASSIGNMENTDESC + ", " + PRIMARYCONFIGLOC + ", " + SECONDARYCONFIGLOC + ", " + PRIMARYSRCLOC + ", "
+				+ SECONDARYSRCLOC + ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(id, DBType.UUID));
@@ -76,7 +87,7 @@ public class AssignmentService extends DBServiceBase implements IAssignmentServi
 		params.add(new StatementParameter(secondaryConfigLoc, DBType.UUID));
 		params.add(new StatementParameter(primarySrcLoc, DBType.UUID));
 		params.add(new StatementParameter(secondarySrcLoc, DBType.UUID));
-		
+
 		try {
 			int inserted = executeUpdate(insertQuery, params);
 			if (inserted > 0) {
@@ -87,6 +98,11 @@ public class AssignmentService extends DBServiceBase implements IAssignmentServi
 			e.printStackTrace();
 		}
 
+		return null;
+	}
+
+	@Override
+	public List<AssignmentProperties> getAllAssignments() {
 		return null;
 	}
 

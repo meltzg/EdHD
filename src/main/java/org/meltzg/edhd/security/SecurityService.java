@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SecurityService extends DBServiceBase implements ISecurityService {
+public class SecurityService extends AbstractSecurityService {
+	
+	private static final String NAME = "name";
 
 	@Value("${edhd.adminPassword}")
 	private String adminPassword;
@@ -25,8 +27,8 @@ public class SecurityService extends DBServiceBase implements ISecurityService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS users (" + "name TEXT, " + "isAdmin BOOLEAN DEFAULT FALSE, "
-				+ "PRIMARY KEY(name))";
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE + " (" + "" + NAME + " TEXT, " + "isAdmin BOOLEAN DEFAULT FALSE, "
+				+ "PRIMARY KEY(" + NAME + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 	}
@@ -36,9 +38,9 @@ public class SecurityService extends DBServiceBase implements ISecurityService {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(user, DBType.TEXT));
 		try {
-			ResultSet rs = executeQuery("SELECT * FROM users WHERE name = ?;", params);
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE + " WHERE " + NAME + " = ?;", params);
 			if (!rs.next()) {
-				int inserted = executeUpdate("INSERT INTO users (name) VALUES (?);", params);
+				int inserted = executeUpdate("INSERT INTO " + TABLE + " (" + NAME + ") VALUES (?);", params);
 				if (inserted == 0) {
 					System.err.println("Could not add user " + user);
 				}
@@ -53,7 +55,7 @@ public class SecurityService extends DBServiceBase implements ISecurityService {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(user, DBType.TEXT));
 		try {
-			ResultSet rs = executeQuery("SELECT isAdmin FROM users WHERE name = ?;", params);
+			ResultSet rs = executeQuery("SELECT isAdmin FROM " + TABLE + " WHERE " + NAME + " = ?;", params);
 			if (rs.next()) {
 				return rs.getBoolean("isAdmin");
 			}
@@ -76,7 +78,7 @@ public class SecurityService extends DBServiceBase implements ISecurityService {
 			params.add(new StatementParameter(user, DBType.TEXT));
 
 			try {
-				executeUpdate("UPDATE users SET isAdmin = ? WHERE name = ?;", params);
+				executeUpdate("UPDATE " + TABLE + " SET isAdmin = ? WHERE " + NAME + " = ?;", params);
 			} catch (ClassNotFoundException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SecurityController {
 
 	@Autowired
-	ISecurityService securityService;
+	AbstractSecurityService securityService;
 
 	@RequestMapping("/user")
 	public Principal user(Principal principal) {
