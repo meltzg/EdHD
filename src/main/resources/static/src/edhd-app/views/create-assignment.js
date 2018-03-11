@@ -90,5 +90,15 @@ class CreateAssignment extends Polymer.Element {
         }
         let request = this.$.createAssignment.generateRequest();
     }
+    reset() {
+        this.id = null;
+        this.assignmentName = "";
+        this.assignmentDesc = "";
+        this.dueDate = null;
+        this.primaryConfig = {};
+        this.config = {};
+        this.shadowRoot.querySelector('#primary').reset();
+        this.shadowRoot.querySelector('#secondary').reset();
+    }
 }
 customElements.define(CreateAssignment.is, CreateAssignment);

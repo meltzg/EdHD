@@ -166,6 +166,12 @@ class MapredConfig extends Polymer.Element {
         }
         return null;
     }
+    reset() {
+        this.set('standardConfigs', {});
+        this.set('customConfigs', []);
+        this.$.srcZip.value = "";
+        this.reconcilePrimary(this.primaryConfig);
+    }
     _toArray(obj) {
         return Object.keys(obj).map(function (key) {
             return {

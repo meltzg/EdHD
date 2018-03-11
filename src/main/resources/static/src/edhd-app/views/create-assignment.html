@@ -31,7 +31,10 @@
             <mapred-config id="secondary" primary-config="{{primaryConfig}}" full-config="{{config}}"></mapred-config>
         </template>
 
-        <paper-button on-click="submitCreateAssignment" raised>Create Assignment</paper-button>
+        <div class="row">
+            <paper-button class="cell" on-click="submitCreateAssignment" raised>Create Assignment</paper-button>
+            <paper-button class="cell" on-click="reset" raised>Reset</paper-button>
+        </div>
         <iron-ajax id="createAssignment" url="/create-assignment" method="POST"></iron-ajax>
     </template>
     <script src="create-assignment.js"></script>
