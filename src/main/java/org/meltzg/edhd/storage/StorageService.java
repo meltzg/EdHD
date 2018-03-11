@@ -22,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class StorageService extends AbstractStorageService {
 
+	private static final String PATH = "path";
+
 	@Value("${edhd.storageDir}")
 	private String storageDir;
 
@@ -30,7 +32,7 @@ public class StorageService extends AbstractStorageService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE + " (" + "id UUID, " + "path TEXT, " + "PRIMARY KEY(id))";
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() +" (" + ID + " UUID, " + PATH + " TEXT, " + "PRIMARY KEY(id))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 
@@ -65,7 +67,7 @@ public class StorageService extends AbstractStorageService {
 		params.add(new StatementParameter(uuid, DBType.UUID));
 		params.add(new StatementParameter(path, DBType.TEXT));
 		try {
-			int inserted = executeUpdate("INSERT INTO " + TABLE + " (id, path) VALUES (?, ?);", params);
+			int inserted = executeUpdate("INSERT INTO " + TABLE_NAME() +" (" + ID + ", " + PATH + ") VALUES (?, ?);", params);
 			if (inserted > 0) {
 				return uuid;
 			}
@@ -82,7 +84,7 @@ public class StorageService extends AbstractStorageService {
 		params.add(new StatementParameter(id, DBType.UUID));
 		File file = null;
 		try {
-			ResultSet rs = executeQuery("SELECT path FROM " + TABLE + " WHERE id = ?;", params);
+			ResultSet rs = executeQuery("SELECT path FROM " + TABLE_NAME() +" WHERE " + ID + " = ?;", params);
 			if (rs.next()) {
 				file = new File(rs.getString(1));
 			}

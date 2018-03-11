@@ -32,7 +32,7 @@
             <mapred-config id="primary" full-config="{{primaryConfig}}"></mapred-config>
         </template>
         <template is="dom-if" if="{{_selectedConf}}">
-            <mapred-config id="secondary" primary-config="{{primaryConfig}}" full-config="{{secondaryConfig}}"></mapred-config>
+            <mapred-config id="secondary" primary-config="{{primaryConfig}}" full-config="{{config}}"></mapred-config>
         </template>
 
         <paper-button on-click="submitCreateAssignment" raised>Create Assignment</paper-button>

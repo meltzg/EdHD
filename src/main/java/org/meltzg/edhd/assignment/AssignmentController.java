@@ -28,7 +28,7 @@ public class AssignmentController {
 
 	@RequestMapping(value = "/create-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
 	public ResponseEntity<Map<String, String>> createAssignment(Principal principal,
-			@RequestPart("properties") @Valid AssignmentCreationProperties props,
+			@RequestPart("properties") @Valid AssignmentSubmissionProperties props,
 			@RequestPart(name = "primarySrc", required = false) MultipartFile primarySrc,
 			@RequestPart(name = "secondarySrc", required = false) MultipartFile secondarySrc) {
 		Map<String, String> returnBody = new HashMap<String, String>();

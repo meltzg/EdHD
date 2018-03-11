@@ -12,6 +12,17 @@ public class AssignmentProperties {
 	protected String name;
 	protected String desc;
 	protected Map<String, PropValue> config;
+	protected String srcName;
+	
+	public AssignmentProperties(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> config, String srcName) {
+		super();
+		this.id = id;
+		this.dueDate = dueDate;
+		this.name = name;
+		this.desc = desc;
+		this.config = config;
+		this.srcName = srcName;
+	}
 
 	AssignmentProperties() {
 	}
@@ -55,8 +66,15 @@ public class AssignmentProperties {
 		return new GenJobConfiguration(config);
 	}
 
-	public void setSecondaryConfig(Map<String, PropValue> config) {
+	public void setConfig(Map<String, PropValue> config) {
 		this.config = config;
 	}
 
+	public String getSrcName() {
+		return srcName;
+	}
+
+	public void setSrcName(String configSrcName) {
+		this.srcName = configSrcName;
+	}
 }

@@ -18,7 +18,7 @@ class CreateAssignment extends Polymer.Element {
             primaryConfig: {
                 type: Object
             },
-            secondaryConfig: {
+            config: {
                 type: Object
             },
             _dueUnixDate: {
@@ -34,7 +34,7 @@ class CreateAssignment extends Polymer.Element {
                         name: null,
                         desc: null,
                         primaryConfig: null,
-                        secondaryConfig: null
+                        config: null
                     }
                 }
             },
@@ -45,7 +45,7 @@ class CreateAssignment extends Polymer.Element {
         };
     }
     static get observers() {
-        return ['computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig.*, secondaryConfig.*)'];
+        return ['computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig.*, config.*)'];
     }
     dateToUnix(date) {
         if (date) {
@@ -53,14 +53,14 @@ class CreateAssignment extends Polymer.Element {
         }
         return 0;
     }
-    computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig, secondaryConfig) {
+    computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig, config) {
         this.set('_assignmentProps', {
             id: this.id,
             dueDate: this._dueUnixDate,
             name: this.assignmentName,
             desc: this.assignmentDesc,
             primaryConfig: this.primaryConfig || {},
-            secondaryConfig: this.secondaryConfig || {}
+            config: this.config || {}
         });
     }
     submitCreateAssignment() {

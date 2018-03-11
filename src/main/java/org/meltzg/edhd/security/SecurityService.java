@@ -27,7 +27,7 @@ public class SecurityService extends AbstractSecurityService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE + " (" + "" + NAME + " TEXT, " + "isAdmin BOOLEAN DEFAULT FALSE, "
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + "" + NAME + " TEXT, " + "isAdmin BOOLEAN DEFAULT FALSE, "
 				+ "PRIMARY KEY(" + NAME + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
@@ -38,9 +38,9 @@ public class SecurityService extends AbstractSecurityService {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(user, DBType.TEXT));
 		try {
-			ResultSet rs = executeQuery("SELECT * FROM " + TABLE + " WHERE " + NAME + " = ?;", params);
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + NAME + " = ?;", params);
 			if (!rs.next()) {
-				int inserted = executeUpdate("INSERT INTO " + TABLE + " (" + NAME + ") VALUES (?);", params);
+				int inserted = executeUpdate("INSERT INTO " + TABLE_NAME() + " (" + NAME + ") VALUES (?);", params);
 				if (inserted == 0) {
 					System.err.println("Could not add user " + user);
 				}
@@ -55,7 +55,7 @@ public class SecurityService extends AbstractSecurityService {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(user, DBType.TEXT));
 		try {
-			ResultSet rs = executeQuery("SELECT isAdmin FROM " + TABLE + " WHERE " + NAME + " = ?;", params);
+			ResultSet rs = executeQuery("SELECT isAdmin FROM " + TABLE_NAME() + " WHERE " + NAME + " = ?;", params);
 			if (rs.next()) {
 				return rs.getBoolean("isAdmin");
 			}
@@ -78,7 +78,7 @@ public class SecurityService extends AbstractSecurityService {
 			params.add(new StatementParameter(user, DBType.TEXT));
 
 			try {
-				executeUpdate("UPDATE " + TABLE + " SET isAdmin = ? WHERE " + NAME + " = ?;", params);
+				executeUpdate("UPDATE " + TABLE_NAME() + " SET isAdmin = ? WHERE " + NAME + " = ?;", params);
 			} catch (ClassNotFoundException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 public abstract class DBServiceBase {
 	
 	protected static final String ID = "id";
-	protected static String TABLE;
 
 	@Value("${spring.datasource.url}")
 	private String dbUrl;
@@ -34,7 +33,6 @@ public abstract class DBServiceBase {
 	
 	protected void init() throws Exception {
 		Connection conn;
-		TABLE = TABLE_NAME();
 		try {
 			conn = getConnection();
 			conn.close();

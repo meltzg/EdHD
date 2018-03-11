@@ -15,7 +15,7 @@ public abstract class AbstractStorageService extends DBServiceBase {
 	public abstract File getFile(UUID id);
 	
 	@Override
-	protected String TABLE_NAME() {
+	public String TABLE_NAME() {
 		return "storage";
 	}
 }

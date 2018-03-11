@@ -8,10 +8,10 @@ import org.meltzg.edhd.db.DBServiceBase;
 import org.springframework.web.multipart.MultipartFile;
 
 public abstract class AbstractAssignmentService extends DBServiceBase {
-	public abstract UUID createAssignment(AssignmentCreationProperties props, MultipartFile primarySrc,
+	public abstract UUID createAssignment(AssignmentSubmissionProperties props, MultipartFile primarySrc,
 			MultipartFile secondarySrc) throws IOException;
 	
-	public abstract List<AssignmentProperties> getAllAssignments();
+	public abstract List<AssignmentSubmissionProperties> getAllAssignments() throws IOException;
 	
 	@Override
 	protected String TABLE_NAME() {
