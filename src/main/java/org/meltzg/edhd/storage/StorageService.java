@@ -45,37 +45,25 @@ public class StorageService extends AbstractStorageService {
 	@Override
 	public UUID putFile(MultipartFile file) throws IllegalStateException, IOException {
 		// The UUID is added to prevent name collision
-		File convFile = new File(storageDir + "/" + UUID.randomUUID().toString() + "-" + file.getOriginalFilename());
+		UUID id = UUID.randomUUID();
+		File convFile = new File(storageDir + "/" + id.toString() + "-" + file.getOriginalFilename());
 		file.transferTo(convFile);
-		return putFile(convFile);
+		return putFile(convFile, id);
 	}
 
 	@Override
 	public UUID putFile(GenJobConfiguration file) throws IOException {
 		// The UUID is added to prevent name collision
-		String fileName = storageDir + "/" + UUID.randomUUID().toString() + "-config.json";
+		UUID id = UUID.randomUUID();
+		String fileName = storageDir + "/" + id.toString() + "-config.json";
 		file.marshal(fileName);
-		return putFile(new File(fileName));
+		return putFile(new File(fileName), id);
 	}
 
 	@Override
 	public UUID putFile(File file) {
-		List<StatementParameter> params = new ArrayList<StatementParameter>();
-		UUID uuid = UUID.randomUUID();
-		String path = file.getAbsolutePath();
-
-		params.add(new StatementParameter(uuid, DBType.UUID));
-		params.add(new StatementParameter(path, DBType.TEXT));
-		try {
-			int inserted = executeUpdate("INSERT INTO " + TABLE_NAME() +" (" + ID + ", " + PATH + ") VALUES (?, ?);", params);
-			if (inserted > 0) {
-				return uuid;
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		UUID id = UUID.randomUUID();
+		return putFile(file, id);
 	}
 
 	@Override
@@ -93,5 +81,39 @@ public class StorageService extends AbstractStorageService {
 			e.printStackTrace();
 		}
 		return file;
+	}
+
+	@Override
+	public boolean deleteFile(UUID id) throws ClassNotFoundException, SQLException {
+		if (id == null) {
+			return true;
+		}
+		File file = getFile(id);
+		boolean success = false;
+		if (file != null) {
+			success = file.delete();
+			if (success) {
+				deleteById(id);
+			}
+		}
+		return success;
+	}
+	
+	private UUID putFile(File file, UUID id) {
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		String path = file.getAbsolutePath();
+
+		params.add(new StatementParameter(id, DBType.UUID));
+		params.add(new StatementParameter(path, DBType.TEXT));
+		try {
+			int inserted = executeUpdate("INSERT INTO " + TABLE_NAME() +" (" + ID + ", " + PATH + ") VALUES (?, ?);", params);
+			if (inserted > 0) {
+				return id;
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

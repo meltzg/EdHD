@@ -71,7 +71,7 @@ class CreateAssignment extends Polymer.Element {
 
         let primaryElem = this.shadowRoot.querySelector('#primary');
         let secondaryElem = this.shadowRoot.querySelector('#secondary')
-        
+
         let primaryFile = primaryElem ? primaryElem.getFile() : null;
         let secondaryFile = secondaryElem ? secondaryElem.getFile() : null;
 
@@ -89,10 +89,11 @@ class CreateAssignment extends Polymer.Element {
             'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
         }
         let request = this.$.createAssignment.generateRequest();
-        request.completes.then(function(event){
+        request.completes.then(function (event) {
             console.log("Assignment created");
+            this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
             this.reset();
-        }.bind(this), function(rejected) {
+        }.bind(this), function (rejected) {
             this.showError('Error creating assignment');
         }.bind(this));
     }
@@ -103,8 +104,16 @@ class CreateAssignment extends Polymer.Element {
         this.dueDate = null;
         this.primaryConfig = {};
         this.config = {};
-        this.shadowRoot.querySelector('#primary').reset();
-        this.shadowRoot.querySelector('#secondary').reset();
+
+        let primary = this.shadowRoot.querySelector('#primary');
+        let secondary = this.shadowRoot.querySelector('#secondary');
+        if (primary) {
+            primary.reset();
+        }
+        if (secondary) {
+            secondary.reset();
+        }
+
     }
     showError(msg) {
         this.$.errorToast.fitInto = this;

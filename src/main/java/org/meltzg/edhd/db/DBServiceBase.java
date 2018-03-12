@@ -8,9 +8,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.meltzg.edhd.db.DBServiceBase.DBType;
+import org.meltzg.edhd.db.DBServiceBase.StatementParameter;
 import org.springframework.beans.factory.annotation.Value;
 
 public abstract class DBServiceBase {
@@ -69,6 +72,12 @@ public abstract class DBServiceBase {
 	
 	protected int executeUpdate(String query, List<StatementParameter> params) throws SQLException, ClassNotFoundException {		
 		return (Integer) executeQuery(query, params, true);
+	}
+	
+	protected int deleteById(UUID id) throws ClassNotFoundException, SQLException {
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(id, DBType.UUID));
+		return executeUpdate("DELETE FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
 	}
 	
 	private Object executeQuery(String query, List<StatementParameter> params, boolean isUpdate) throws SQLException, ClassNotFoundException {

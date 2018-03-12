@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../mapred-config/mapred-config.html">
 <link rel="import" href="../common-styles/common-styles.html">
 
@@ -30,6 +31,7 @@
                 </template>
             </div>
         </paper-card>
+        <iron-ajax id="delete" url="/delete-assignment/{{assignmentProps.id}}" method="DELETE"></iron-ajax>
     </template>
 
     <script src="assignment-card.js"></script>

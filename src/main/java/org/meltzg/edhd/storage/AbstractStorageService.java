@@ -2,6 +2,7 @@ package org.meltzg.edhd.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import org.meltzg.edhd.db.DBServiceBase;
@@ -13,6 +14,7 @@ public abstract class AbstractStorageService extends DBServiceBase {
 	public abstract UUID putFile(GenJobConfiguration file) throws IOException;
 	public abstract UUID putFile(File file);
 	public abstract File getFile(UUID id);
+	public abstract boolean deleteFile(UUID id) throws ClassNotFoundException, SQLException;
 	
 	@Override
 	public String TABLE_NAME() {

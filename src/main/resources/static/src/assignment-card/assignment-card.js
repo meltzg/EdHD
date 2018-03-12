@@ -32,7 +32,16 @@ class AssignmentCard extends Polymer.Element {
         console.log("TODO edit");
     }
     deleteAssignment() {
-        console.log("TODO delete");
+        // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to not GET
+        this.$.delete.headers = {
+            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
+        }
+        let request = this.$.delete.generateRequest();
+        request.completes.then(function(event) {
+            this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
+        }.bind(this), function(rejected) {
+            this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
+        }.bind(this));
     }
     toggle() {
         this.$.collapse_config.toggle();

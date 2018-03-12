@@ -13,6 +13,7 @@ import org.meltzg.edhd.security.AbstractSecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -23,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AssignmentController {
 	@Autowired
 	private AbstractSecurityService securityService;
-	
+
 	@Autowired
 	AbstractAssignmentService assignmentService;
 
@@ -51,7 +52,7 @@ public class AssignmentController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(returnBody);
 		}
 	}
-	
+
 	@RequestMapping("/get-assignments")
 	public ResponseEntity<List<AssignmentSubmissionProperties>> getAllAssignments() {
 		try {
@@ -60,6 +61,23 @@ public class AssignmentController {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+
+	@RequestMapping(value = "/delete-assignment/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<Map<String, String>> deleteAssignment(Principal principal, @PathVariable UUID id) {
+		Map<String, String> returnBody = new HashMap<String, String>();
+		if (securityService.isAdmin(principal.getName())) {
+			boolean success = assignmentService.deleteAssignment(id);
+			if (success) {
+				return ResponseEntity.ok(returnBody);
+			} else {
+				returnBody.put("message", "An error occured while deleting the assignment");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(returnBody);
+			}
+		} else {
+			returnBody.put("message", "Only admins can create assignments");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(returnBody);
 		}
 	}
 }

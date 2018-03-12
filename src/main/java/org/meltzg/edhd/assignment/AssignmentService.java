@@ -41,10 +41,9 @@ public class AssignmentService extends AbstractAssignmentService {
 		Statement statement = conn.createStatement();
 		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + "id UUID, " + DUEDATE + " BIGINT, "
 				+ ASSIGNMENTNAME + " TEXT, " + ASSIGNMENTDESC + " TEXT, " + PRIMARYCONFIGLOC + " UUID REFERENCES "
-				+ storageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
-				+ storageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES "
-				+ storageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
-				+ storageService.TABLE_NAME() + ", " + "PRIMARY KEY(id))";
+				+ storageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES " + storageService.TABLE_NAME()
+				+ ", " + PRIMARYSRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + SRCLOC
+				+ " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + "PRIMARY KEY(id))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 	}
@@ -77,8 +76,8 @@ public class AssignmentService extends AbstractAssignmentService {
 		}
 
 		String insertQuery = "INSERT INTO " + TABLE_NAME() + " (" + "id, " + DUEDATE + ", " + ASSIGNMENTNAME + ", "
-				+ ASSIGNMENTDESC + ", " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", "
-				+ SRCLOC + ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+				+ ASSIGNMENTDESC + ", " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", " + SRCLOC
+				+ ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(id, DBType.UUID));
@@ -104,6 +103,31 @@ public class AssignmentService extends AbstractAssignmentService {
 	}
 
 	@Override
+	public boolean deleteAssignment(UUID id) {
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(id, DBType.UUID));
+		try {
+			ResultSet rs = executeQuery("SELECT " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", "
+					+ SRCLOC + " FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
+			if (rs.next()) {
+				deleteById(id);
+				// delete associated files
+				storageService.deleteFile((UUID) rs.getObject(PRIMARYCONFIGLOC));
+				storageService.deleteFile((UUID) rs.getObject(PRIMARYSRCLOC));
+				storageService.deleteFile((UUID) rs.getObject(CONFIGLOC));
+				storageService.deleteFile((UUID) rs.getObject(SRCLOC));
+				// TODO delete submissions
+				// TODO delete HDFS content
+				return true;
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
 	public List<AssignmentSubmissionProperties> getAllAssignments() throws IOException {
 		List<AssignmentSubmissionProperties> assignments = null;
 		try {
@@ -111,25 +135,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			assignments = new ArrayList<AssignmentSubmissionProperties>();
 
 			while (rs.next()) {
-				UUID id = (UUID) rs.getObject(ID);
-				Long dueDate = rs.getLong(DUEDATE);
-				String name = rs.getString(ASSIGNMENTNAME);
-				String desc = rs.getString(ASSIGNMENTDESC);
-				Map<String, PropValue> primaryConfig = new HashMap<String, PropValue>();
-				String primarySrcName = null;
-
-				UUID primaryConfigLoc = (UUID) rs.getObject(PRIMARYCONFIGLOC);
-				UUID primarySrcLoc = (UUID) rs.getObject(PRIMARYSRCLOC);
-				if (primaryConfigLoc != null) {
-					GenJobConfiguration gConfig = new GenJobConfiguration(
-							storageService.getFile(primaryConfigLoc).getAbsolutePath());
-					primaryConfig = gConfig.getconfigProps();
-				}
-				if (primarySrcLoc != null) {
-					primarySrcName = storageService.getFile(primarySrcLoc).getName();
-				}
-				assignments.add(new AssignmentSubmissionProperties(id, dueDate, name, desc, primaryConfig, null,
-						primarySrcName, null));
+				assignments.add(extractAssignmentProps(rs, false));
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -138,4 +144,60 @@ public class AssignmentService extends AbstractAssignmentService {
 		return assignments;
 	}
 
+	@Override
+	public AssignmentSubmissionProperties getAssignment(UUID id) throws IOException {
+		AssignmentSubmissionProperties assignment = null;
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(id, DBType.UUID));
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
+			if (rs.next()) {
+				assignment = extractAssignmentProps(rs, true);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return assignment;
+	}
+
+	private AssignmentSubmissionProperties extractAssignmentProps(ResultSet rs, boolean includeSecondary)
+			throws SQLException, IOException {
+		UUID id = (UUID) rs.getObject(ID);
+		Long dueDate = rs.getLong(DUEDATE);
+		String name = rs.getString(ASSIGNMENTNAME);
+		String desc = rs.getString(ASSIGNMENTDESC);
+		Map<String, PropValue> primaryConfig = new HashMap<String, PropValue>();
+		Map<String, PropValue> config = new HashMap<String, PropValue>();
+		String primarySrcName = null;
+		String srcName = null;
+
+		UUID primaryConfigLoc = (UUID) rs.getObject(PRIMARYCONFIGLOC);
+		UUID primarySrcLoc = (UUID) rs.getObject(PRIMARYSRCLOC);
+		if (primaryConfigLoc != null) {
+			GenJobConfiguration gConfig = new GenJobConfiguration(
+					storageService.getFile(primaryConfigLoc).getAbsolutePath());
+			primaryConfig = gConfig.getconfigProps();
+		}
+		if (primarySrcLoc != null) {
+			primarySrcName = storageService.getFile(primarySrcLoc).getName();
+		}
+		if (includeSecondary) {
+			UUID configLoc = (UUID) rs.getObject(CONFIGLOC);
+			UUID srcLoc = (UUID) rs.getObject(SRCLOC);
+			if (configLoc != null) {
+				GenJobConfiguration gConfig = new GenJobConfiguration(
+						storageService.getFile(configLoc).getAbsolutePath());
+				config = gConfig.getconfigProps();
+			}
+			if (srcLoc != null) {
+				srcName = storageService.getFile(srcLoc).getName();
+			}
+		}
+
+		AssignmentSubmissionProperties assignment = new AssignmentSubmissionProperties(id, dueDate, name, desc,
+				primaryConfig, config, primarySrcName, srcName);
+
+		return assignment;
+	}
 }
