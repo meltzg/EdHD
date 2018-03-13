@@ -23,7 +23,7 @@ class AssignmentCard extends Polymer.Element {
         return ['updateDueDate(assignmentProps.dueDate)'];
     }
     updateDueDate() {
-        this._set_formattedDate(moment(this.assignmentProps.dueDate).format('lll'));
+        this._set_formattedDate(moment(this.assignmentProps.dueDate * 1000).format('lll'));
     }
     submit() {
         // TODO submission

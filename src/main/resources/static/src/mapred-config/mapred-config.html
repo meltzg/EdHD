@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../common-styles/common-styles.html">
 
@@ -65,7 +66,14 @@
                         </vaadin-grid-column>
                         <vaadin-grid-column>
                             <template class="header">Appendable</template>
-                            <template>[[item.value.isAppendable]]</template>
+                            <template>
+                                <template is="dom-if" if="[[item.value.isAppendable]]">
+                                    <iron-icon icon="check" style="--iron-icon-fill-color: green;"></iron-icon>
+                                </template>
+                                <template is="dom-if" if="[[!item.value.isAppendable]]">
+                                    <iron-icon icon="clear" style="--iron-icon-fill-color: red;"></iron-icon>
+                                </template>
+                            </template>
                         </vaadin-grid-column>
                     </vaadin-grid>
                 </template>

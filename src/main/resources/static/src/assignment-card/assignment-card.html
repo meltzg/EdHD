@@ -14,10 +14,16 @@
 <dom-module id="assignment-card">
     <template>
         <style include="common-styles"></style>
+        <style>
+            .multiline {
+                white-space: pre-wrap;
+            }
+        </style>
 
         <paper-card heading="[[assignmentProps.name]] Due: [[_formattedDate]]" style="width: 100%">
             <div class="card-content">
-                <paper-textarea label="Description" value="[[assignmentProps.desc]]" disabled></paper-textarea>
+                <h3>Description</h3>
+                <div class="multiline" style="padding-bottom: 20px;">[[assignmentProps.desc]]</div>
                 <paper-button on-click="toggle" raised>Show/Hide Configuration</paper-button>
                 <iron-collapse id="collapse_config">
                     <mapred-config primary-config="[[assignmentProps.primaryConfig]]"></mapred-config>
