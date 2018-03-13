@@ -45,16 +45,16 @@ class MapredConfig extends Polymer.Element {
                 type: Array,
                 readOnly: true,
                 value: [
-                    "mapperClass",
-                    "partitionerClass",
-                    "sortComparatorClass",
-                    "groupingComparatorClass",
-                    "combinerComparatorClass",
-                    "combinerClass",
-                    "reducerClass",
-                    "outputKeyClass",
-                    "outputValueClass",
-                    "inputPath"
+                    'mapperClass',
+                    'partitionerClass',
+                    'sortComparatorClass',
+                    'groupingComparatorClass',
+                    'combinerComparatorClass',
+                    'combinerClass',
+                    'reducerClass',
+                    'outputKeyClass',
+                    'outputValueClass',
+                    'inputPath'
                 ]
             }
         };
@@ -103,8 +103,8 @@ class MapredConfig extends Polymer.Element {
             }
         }
     }
-    buildConfig(standardConfigs, customConfigs) {
-        let fullConfig = {}
+    buildConfig() {
+        let fullConfig = {};
 
         this._standardConfigs.forEach(function (config) {
             if (!(this.primaryConfig && this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) && this.isValidVal(this.standardConfigs[config])) {
@@ -119,14 +119,14 @@ class MapredConfig extends Polymer.Element {
                 fullConfig[config.name] = {
                     val: config.value,
                     isAppendable: config.isAppendable
-                }
+                };
             }
         }.bind(this));
 
         // console.log(JSON.stringify(fullConfig, null, 2));
         this.set('fullConfig', fullConfig);
     }
-    reconcilePrimary(primaryConfig) {
+    reconcilePrimary() {
         this._standardConfigs.forEach(function (config) {
             if (this.primaryConfig && this.primaryConfig[config] && this.isValidVal(this.primaryConfig[config].val)) {
                 this.set('standardConfigs.' + config, this.primaryConfig[config].val);
@@ -177,7 +177,7 @@ class MapredConfig extends Polymer.Element {
     reset() {
         this.set('standardConfigs', {});
         this.set('customConfigs', []);
-        this.$.srcZip.value = "";
+        this.$.srcZip.value = '';
         this.reconcilePrimary(this.primaryConfig);
     }
     setConfig(configProps, srcName) {
@@ -195,7 +195,7 @@ class MapredConfig extends Polymer.Element {
         }
         this.origSrcName = srcName;
     }
-    origSrcNameChanged(origSrcName) {
+    origSrcNameChanged() {
         if (this.origSrcName !== null) {
             this.$.srcZip.disabled = true;
         } else {

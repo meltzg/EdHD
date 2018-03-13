@@ -6,7 +6,7 @@ class UserSettings extends Polymer.Element {
                 type: Boolean,
                 value: false
             }
-        }
+        };
     }
     updateAdmin() {
         let adminSettings = {
@@ -17,11 +17,11 @@ class UserSettings extends Polymer.Element {
         // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to post
         this.$.updateAdmin.headers = {
             'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-        }
+        };
         let request = this.$.updateAdmin.generateRequest();
-        request.completes.then(function (event) {
+        request.completes.then(function () {
             location.reload();
-        }, function (rejected) {
+        }, function () {
             this.$.errorToast.fitInto = this;
             this.$.errorToast.show({ text: 'Could not update admin settings.' });
         }.bind(this));

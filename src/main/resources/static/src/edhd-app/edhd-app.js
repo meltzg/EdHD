@@ -36,13 +36,12 @@ class EdhdApp extends Polymer.Element {
     handleUser(event) {
         let userInfo = event.__data.response;
         this._set_userInfo(userInfo);
-        let request = this.$.isAdmin.generateRequest();
+        this.$.isAdmin.generateRequest();
     }
-    handleUserError(rejected) {
+    handleUserError() {
         this._set_userInfo(null);
-        console.log(rejected);
     }
-    handleLogout(event) {
+    handleLogout() {
         location.reload();
     }
     handleIsAdmin(event) {
@@ -51,7 +50,7 @@ class EdhdApp extends Polymer.Element {
     openSettings() {
         this.page = 'user-settings';
     }
-    handleReloadAssignments(event) {
+    handleReloadAssignments() {
         this.page = 'all-assignments';
         this.$.assignments.refresh();
     }

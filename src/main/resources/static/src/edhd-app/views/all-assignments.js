@@ -22,9 +22,8 @@ class AllAssignments extends Polymer.Element {
         let request = this.$.refreshRequest.generateRequest();
         request.completes.then(function(event) {
             this.set('assignments', event.__data.response);
-        }.bind(this), function(rejected) {
+        }.bind(this), function() {
             this.set('assignments', []);
-            console.log(rejected);
         }.bind(this));
     }
 }

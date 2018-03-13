@@ -49,7 +49,7 @@ class CreateAssignment extends Polymer.Element {
                         desc: null,
                         primaryConfig: null,
                         config: null
-                    }
+                    };
                 }
             },
             _selectedConf: {
@@ -69,7 +69,7 @@ class CreateAssignment extends Polymer.Element {
         }
         return 0;
     }
-    computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig, config, primarySrcName, srcName) {
+    computeProps() {
         this.set('_assignmentProps', {
             id: this.assignmentId,
             dueDate: this._dueUnixDate,
@@ -105,20 +105,19 @@ class CreateAssignment extends Polymer.Element {
         // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to post
         this.$.createAssignment.headers = {
             'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-        }
+        };
         let request = this.$.createAssignment.generateRequest();
-        request.completes.then(function (event) {
-            console.log("Assignment created");
+        request.completes.then(function () {
             this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
             this.reset();
         }.bind(this), function (rejected) {
-            this.showError('Error creating assignment');
+            this.showError('Error creating assignment ' + rejected);
         }.bind(this));
     }
     reset() {
         this.assignmentId = null;
-        this.assignmentName = "";
-        this.assignmentDesc = "";
+        this.assignmentName = '';
+        this.assignmentDesc = '';
         this.dueDate = null;
         this.primaryConfig = {};
         this.config = {};
@@ -148,7 +147,7 @@ class CreateAssignment extends Polymer.Element {
                 this.$.primary.setConfig(assignment.primaryConfig, assignment.primarySrcName);
                 this.$.secondary.setConfig(assignment.config, assignment.srcName);
                 this._set_isBusy(false);
-            }.bind(this), function (rejected) {
+            }.bind(this), function () {
                 this._set_isBusy(false);
                 this.showError('An error occured while retrieveing assignment ' + id);
             }.bind(this));
