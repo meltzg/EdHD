@@ -19,3 +19,4 @@ edhd:
   adminPassword: ADMIN123User
   dbName: edhd
   storageDir: C:/tmp
+  threads: 20

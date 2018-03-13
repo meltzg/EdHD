@@ -14,6 +14,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.meltzg.edhd.storage.AbstractStorageService;
+import org.meltzg.edhd.submission.AbstractSubmissionService;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,23 +35,26 @@ public class AssignmentService extends AbstractAssignmentService {
 	@Autowired
 	private AbstractStorageService storageService;
 
+	@Autowired
+	AbstractSubmissionService submissionService;
+
 	@PostConstruct
 	public void init() throws Exception {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + "id UUID, " + DUEDATE + " BIGINT, "
-				+ ASSIGNMENTNAME + " TEXT, " + ASSIGNMENTDESC + " TEXT, " + PRIMARYCONFIGLOC + " UUID REFERENCES "
-				+ storageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES " + storageService.TABLE_NAME()
-				+ ", " + PRIMARYSRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + SRCLOC
-				+ " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + "PRIMARY KEY(id))";
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, " + DUEDATE
+				+ " BIGINT, " + ASSIGNMENTNAME + " TEXT, " + ASSIGNMENTDESC + " TEXT, " + PRIMARYCONFIGLOC
+				+ " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
+				+ storageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME()
+				+ ", " + SRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + "PRIMARY KEY(" + ID + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 	}
 
 	@Override
-	public UUID createAssignment(AssignmentDefinition props, MultipartFile primarySrc,
-			MultipartFile secondarySrc) throws IOException {
+	public UUID createAssignment(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc)
+			throws IOException {
 
 		UUID id = UUID.randomUUID();
 		if (props.getId() != null) {
@@ -61,8 +65,8 @@ public class AssignmentService extends AbstractAssignmentService {
 	}
 
 	@Override
-	public UUID updateAssignment(AssignmentDefinition props, MultipartFile primarySrc,
-			MultipartFile secondarySrc) throws IOException {
+	public UUID updateAssignment(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc)
+			throws IOException {
 		AssignmentDefinition current = getAssignment(props.getId(), true);
 		List<StatementParameter> params;
 
@@ -113,7 +117,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return commitToDB(props, primarySrc, secondarySrc, props.getId(), true);
 	}
 
@@ -176,16 +180,16 @@ public class AssignmentService extends AbstractAssignmentService {
 		return assignment;
 	}
 
-	private UUID commitToDB(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc,
-			UUID id, boolean isUpdate) throws IOException {
+	private UUID commitToDB(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc, UUID id,
+			boolean isUpdate) throws IOException {
 		UUID primarySrcLoc = null;
 		UUID secondarySrcLoc = null;
 		UUID primaryConfigLoc = null;
 		UUID secondaryConfigLoc = null;
-	
+
 		Map<String, PropValue> primaryConfig = props.getPrimaryConfig();
 		Map<String, PropValue> secondaryConfig = props.getConfig();
-	
+
 		if (primaryConfig != null) {
 			primaryConfigLoc = storageService.putFile(new GenJobConfiguration(primaryConfig));
 		}
@@ -202,17 +206,17 @@ public class AssignmentService extends AbstractAssignmentService {
 		} else {
 			secondarySrcLoc = props.getSrcLoc();
 		}
-	
+
 		String insertQuery = "INSERT INTO " + TABLE_NAME() + " (" + ID + ", " + DUEDATE + ", " + ASSIGNMENTNAME + ", "
 				+ ASSIGNMENTDESC + ", " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", " + SRCLOC
 				+ ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-		
+
 		String updateQuery = "UPDATE " + TABLE_NAME() + " SET " + DUEDATE + "=?, " + ASSIGNMENTNAME + "=?, "
-				+ ASSIGNMENTDESC + "=?, " + PRIMARYCONFIGLOC + "=?, " + CONFIGLOC + "=?, " + PRIMARYSRCLOC + "=?, " + SRCLOC
-				+ "=? " + "WHERE " + ID + "=?;";
-	
+				+ ASSIGNMENTDESC + "=?, " + PRIMARYCONFIGLOC + "=?, " + CONFIGLOC + "=?, " + PRIMARYSRCLOC + "=?, "
+				+ SRCLOC + "=? " + "WHERE " + ID + "=?;";
+
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
-//		params.add(new StatementParameter(id, DBType.UUID));
+		// params.add(new StatementParameter(id, DBType.UUID));
 		params.add(new StatementParameter(props.getDueDate(), DBType.BIGINT));
 		params.add(new StatementParameter(props.getName(), DBType.TEXT));
 		params.add(new StatementParameter(props.getDesc(), DBType.TEXT));
@@ -220,7 +224,7 @@ public class AssignmentService extends AbstractAssignmentService {
 		params.add(new StatementParameter(secondaryConfigLoc, DBType.UUID));
 		params.add(new StatementParameter(primarySrcLoc, DBType.UUID));
 		params.add(new StatementParameter(secondarySrcLoc, DBType.UUID));
-		
+
 		String queryString;
 		if (isUpdate) {
 			queryString = updateQuery;
@@ -229,7 +233,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			queryString = insertQuery;
 			params.add(0, new StatementParameter(id, DBType.UUID));
 		}
-	
+
 		try {
 			int inserted = executeUpdate(queryString, params);
 			if (inserted > 0) {
@@ -239,7 +243,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 
@@ -281,8 +285,8 @@ public class AssignmentService extends AbstractAssignmentService {
 			}
 		}
 
-		AssignmentDefinition assignment = new AssignmentDefinition(id, dueDate, name, desc,
-				primaryConfig, primaryConfigLoc, config, configLoc, primarySrcName, primarySrcLoc, srcName, srcLoc);
+		AssignmentDefinition assignment = new AssignmentDefinition(id, dueDate, name, desc, primaryConfig,
+				primaryConfigLoc, config, configLoc, primarySrcName, primarySrcLoc, srcName, srcLoc);
 
 		return assignment;
 	}

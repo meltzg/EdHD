@@ -13,5 +13,10 @@
     "name": "edhd.storage-dir",
     "type": "java.lang.String",
     "description": "Location to store assignment files and configurations"
+  },
+  {
+    "name": "edhd.threads",
+    "type": "java.lang.String",
+    "description": "Number of threads for submission processing"
   }
 ]}

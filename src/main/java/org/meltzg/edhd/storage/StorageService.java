@@ -34,7 +34,8 @@ public class StorageService extends AbstractStorageService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() +" (" + ID + " UUID, " + PATH + " TEXT, " + "PRIMARY KEY(id))";
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, " + PATH + " TEXT, "
+				+ "PRIMARY KEY(" + ID + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 
@@ -74,7 +75,7 @@ public class StorageService extends AbstractStorageService {
 		params.add(new StatementParameter(id, DBType.UUID));
 		File file = null;
 		try {
-			ResultSet rs = executeQuery("SELECT path FROM " + TABLE_NAME() +" WHERE " + ID + " = ?;", params);
+			ResultSet rs = executeQuery("SELECT path FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
 			if (rs.next()) {
 				file = new File(rs.getString(1));
 			}
@@ -104,7 +105,7 @@ public class StorageService extends AbstractStorageService {
 		}
 		return success;
 	}
-	
+
 	private UUID putFile(File file, UUID id) {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		String path = file.getAbsolutePath();
@@ -112,7 +113,8 @@ public class StorageService extends AbstractStorageService {
 		params.add(new StatementParameter(id, DBType.UUID));
 		params.add(new StatementParameter(path, DBType.TEXT));
 		try {
-			int inserted = executeUpdate("INSERT INTO " + TABLE_NAME() +" (" + ID + ", " + PATH + ") VALUES (?, ?);", params);
+			int inserted = executeUpdate("INSERT INTO " + TABLE_NAME() + " (" + ID + ", " + PATH + ") VALUES (?, ?);",
+					params);
 			if (inserted > 0) {
 				return id;
 			}
