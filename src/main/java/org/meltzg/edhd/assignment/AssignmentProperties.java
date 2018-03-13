@@ -12,16 +12,21 @@ public class AssignmentProperties {
 	protected String name;
 	protected String desc;
 	protected Map<String, PropValue> config;
+	protected UUID configLoc;
 	protected String srcName;
-	
-	public AssignmentProperties(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> config, String srcName) {
+	protected UUID srcLoc;
+
+	public AssignmentProperties(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> config,
+			UUID configLoc, String srcName, UUID srcLoc) {
 		super();
 		this.id = id;
 		this.dueDate = dueDate;
 		this.name = name;
 		this.desc = desc;
 		this.config = config;
+		this.configLoc = configLoc;
 		this.srcName = srcName;
+		this.srcLoc = srcLoc;
 	}
 
 	AssignmentProperties() {
@@ -58,7 +63,7 @@ public class AssignmentProperties {
 	public void setDesc(String desc) {
 		this.desc = desc;
 	}
-	
+
 	public Map<String, PropValue> getConfig() {
 		return config;
 	}
@@ -67,11 +72,27 @@ public class AssignmentProperties {
 		this.config = config;
 	}
 
+	public UUID getConfigLoc() {
+		return configLoc;
+	}
+
+	public void setConfigLoc(UUID configLoc) {
+		this.configLoc = configLoc;
+	}
+
 	public String getSrcName() {
 		return srcName;
 	}
 
 	public void setSrcName(String configSrcName) {
 		this.srcName = configSrcName;
+	}
+
+	public UUID getSrcLoc() {
+		return srcLoc;
+	}
+
+	public void setSrcLoc(UUID srcLoc) {
+		this.srcLoc = srcLoc;
 	}
 }

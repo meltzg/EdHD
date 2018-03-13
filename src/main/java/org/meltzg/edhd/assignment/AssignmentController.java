@@ -38,7 +38,11 @@ public class AssignmentController {
 		if (securityService.isAdmin(principal.getName())) {
 			UUID assignmentId;
 			try {
-				assignmentId = assignmentService.createAssignment(props, primarySrc, secondarySrc);
+				if (props.getId() == null) {
+					assignmentId = assignmentService.createAssignment(props, primarySrc, secondarySrc);
+				} else {
+					assignmentId = assignmentService.updateAssignment(props, primarySrc, secondarySrc);
+				}
 				returnBody.put("assignment_id", assignmentId.toString());
 			} catch (IOException e) {
 				returnBody.put("message", "An error occured while creating the assignment");
