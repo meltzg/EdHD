@@ -26,6 +26,11 @@ class MapredConfig extends Polymer.Element {
                 type: Object,
                 value: function () { return {}; }
             },
+            origSrcName: {
+                type: String,
+                notify: true,
+                value: null
+            },
             _oldPrimaryConfig: {
                 type: Object,
                 readOnly: true,
@@ -57,7 +62,8 @@ class MapredConfig extends Polymer.Element {
     static get observers() {
         return [
             'buildConfig(standardConfigs.*, customConfigs.*)',
-            'reconcilePrimary(primaryConfig.*)'
+            'reconcilePrimary(primaryConfig.*)',
+            'origSrcNameChanged(origSrcName)'
         ];
     }
     addCustomConf(e) {
@@ -187,6 +193,17 @@ class MapredConfig extends Polymer.Element {
                 });
             }
         }
+        this.origSrcName = srcName;
+    }
+    origSrcNameChanged(origSrcName) {
+        if (this.origSrcName !== null) {
+            this.$.srcZip.disabled = true;
+        } else {
+            this.$.srcZip.disabled = false;
+        }
+    }
+    removeOrigSrc() {
+        this.origSrcName = null;
     }
     _toArray(obj) {
         return Object.keys(obj).map(function (key) {

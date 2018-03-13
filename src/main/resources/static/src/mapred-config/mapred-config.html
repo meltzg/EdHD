@@ -7,7 +7,6 @@
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="../common-styles/common-styles.html">
 
 <dom-module id="mapred-config">
@@ -15,9 +14,14 @@
         <style include="common-styles"></style>
 
         <h2>Assignment Source</h2>
-        <!-- <vaadin-upload id="srcZip" max-files="1" accept=".zip">
-            <span slot="drop-label">Drop your assignment src here (ZIP files only)</span>
-        </vaadin-upload> -->
+        
+        <template is="dom-if" if="{{origSrcName}}">
+            <div class="row">
+                <span class="call">{{origSrcName}}</span>
+                <paper-icon-button icon="delete-forever" on-click="removeOrigSrc"></paper-icon-button>
+            </div>
+        </template>
+
         <input id="srcZip" name="srcZip" type="file" accept=".zip">
 
         <div class="row">

@@ -21,6 +21,12 @@ class CreateAssignment extends Polymer.Element {
             config: {
                 type: Object
             },
+            primarySrcName: {
+                type: String
+            },
+            srcName: {
+                type: String
+            },
             editId: {
                 type: String
             },
@@ -53,7 +59,7 @@ class CreateAssignment extends Polymer.Element {
     }
     static get observers() {
         return [
-            'computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig.*, config.*)',
+            'computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig.*, config.*, primarySrcName, srcName)',
             'editAssignment(editId)'
         ];
     }
@@ -63,14 +69,16 @@ class CreateAssignment extends Polymer.Element {
         }
         return 0;
     }
-    computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig, config) {
+    computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig, config, primarySrcName, srcName) {
         this.set('_assignmentProps', {
             id: this.assignmentId,
             dueDate: this._dueUnixDate,
             name: this.assignmentName,
             desc: this.assignmentDesc,
             primaryConfig: this.primaryConfig || {},
-            config: this.config || {}
+            config: this.config || {},
+            primarySrcName: this.primarySrcName,
+            srcName: this.srcName
         });
     }
     submitCreateAssignment() {
