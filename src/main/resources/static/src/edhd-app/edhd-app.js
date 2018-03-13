@@ -28,6 +28,7 @@ class EdhdApp extends Polymer.Element {
         let request = this.$.requestUser.generateRequest();
         request.completes.then(this.handleUser.bind(this), this.handleUserError.bind(this));
         this.addEventListener('reload-assignments', this.handleReloadAssignments.bind(this));
+        this.addEventListener('edit-assignment', this.handleEditAssignment.bind(this));
     }
     sendLogout() {
         this.$.logout.generateRequest();
@@ -53,6 +54,12 @@ class EdhdApp extends Polymer.Element {
     handleReloadAssignments(event) {
         this.page = 'all-assignments';
         this.$.assignments.refresh();
+    }
+    handleEditAssignment(event) {
+        if (this._isAdmin) {
+            this.page = 'create-assignment';
+            this.$.create_assignment.editId = event.detail.id;
+        }
     }
     _pageChanged(page) {
         // Load page import on demand. Show 404 page if fails

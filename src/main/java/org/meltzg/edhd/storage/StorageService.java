@@ -3,6 +3,8 @@ package org.meltzg.edhd.storage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +15,7 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
-import org.meltzg.edhd.db.DBServiceBase;
+import org.apache.commons.io.FileUtils;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -44,18 +46,18 @@ public class StorageService extends AbstractStorageService {
 
 	@Override
 	public UUID putFile(MultipartFile file) throws IllegalStateException, IOException {
-		// The UUID is added to prevent name collision
 		UUID id = UUID.randomUUID();
-		File convFile = new File(storageDir + "/" + id.toString() + "-" + file.getOriginalFilename());
+		Files.createDirectories(Paths.get(storageDir + "/" + id.toString()));
+		File convFile = new File(storageDir + "/" + id.toString() + "/" + file.getOriginalFilename());
 		file.transferTo(convFile);
 		return putFile(convFile, id);
 	}
 
 	@Override
 	public UUID putFile(GenJobConfiguration file) throws IOException {
-		// The UUID is added to prevent name collision
 		UUID id = UUID.randomUUID();
-		String fileName = storageDir + "/" + id.toString() + "-config.json";
+		Files.createDirectories(Paths.get(storageDir + "/" + id.toString()));
+		String fileName = storageDir + "/" + id.toString() + "/config.json";
 		file.marshal(fileName);
 		return putFile(new File(fileName), id);
 	}
@@ -91,9 +93,13 @@ public class StorageService extends AbstractStorageService {
 		File file = getFile(id);
 		boolean success = false;
 		if (file != null) {
-			success = file.delete();
-			if (success) {
+			try {
+				FileUtils.deleteDirectory(file.getParentFile());
 				deleteById(id);
+				success = true;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		return success;

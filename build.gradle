@@ -33,6 +33,7 @@ dependencies {
 	compile('org.springframework.security.oauth:spring-security-oauth2')
 	compile('org.postgresql:postgresql')
 	compile('com.github.meltzg:GenMapred:master-SNAPSHOT')
+	compile('commons-io:commons-io:2.6')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
 }

@@ -145,14 +145,14 @@ public class AssignmentService extends AbstractAssignmentService {
 	}
 
 	@Override
-	public AssignmentSubmissionProperties getAssignment(UUID id) throws IOException {
+	public AssignmentSubmissionProperties getAssignment(UUID id, boolean includeSecondary) throws IOException {
 		AssignmentSubmissionProperties assignment = null;
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(id, DBType.UUID));
 		try {
 			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
 			if (rs.next()) {
-				assignment = extractAssignmentProps(rs, true);
+				assignment = extractAssignmentProps(rs, includeSecondary);
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block

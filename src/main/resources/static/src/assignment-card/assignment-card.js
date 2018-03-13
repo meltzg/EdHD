@@ -23,13 +23,13 @@ class AssignmentCard extends Polymer.Element {
         return ['updateDueDate(assignmentProps.dueDate)']
     }
     updateDueDate(dueDate) {
-        this._set_formattedDate((new Date(this.assignmentProps.dueDate)).toLocaleDateString());
+        this._set_formattedDate(moment(this.assignmentProps.dueDate).format('lll'));
     }
     submit() {
         console.log("TODO submission");
     }
     editAssignment() {
-        console.log("TODO edit");
+        this.dispatchEvent(new CustomEvent('edit-assignment', { bubbles: true, composed: true, detail: { id: this.assignmentProps.id } }));
     }
     deleteAssignment() {
         // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to not GET
@@ -37,9 +37,9 @@ class AssignmentCard extends Polymer.Element {
             'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
         }
         let request = this.$.delete.generateRequest();
-        request.completes.then(function(event) {
+        request.completes.then(function (event) {
             this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
-        }.bind(this), function(rejected) {
+        }.bind(this), function (rejected) {
             this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
         }.bind(this));
     }

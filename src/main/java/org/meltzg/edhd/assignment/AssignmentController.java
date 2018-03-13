@@ -64,6 +64,17 @@ public class AssignmentController {
 		}
 	}
 
+	@RequestMapping("/get-assignment/{id}")
+	public ResponseEntity<AssignmentSubmissionProperties> getAssignment(Principal principal, @PathVariable UUID id) {
+		try {
+			AssignmentSubmissionProperties assignment = assignmentService.getAssignment(id, securityService.isAdmin(principal.getName()));
+			return ResponseEntity.ok(assignment);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+
 	@RequestMapping(value = "/delete-assignment/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Map<String, String>> deleteAssignment(Principal principal, @PathVariable UUID id) {
 		Map<String, String> returnBody = new HashMap<String, String>();

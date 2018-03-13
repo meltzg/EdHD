@@ -2,7 +2,7 @@ class CreateAssignment extends Polymer.Element {
     static get is() { return 'create-assignment'; }
     static get properties() {
         return {
-            id: {
+            assignmentId: {
                 type: String,
                 value: null
             },
@@ -20,6 +20,14 @@ class CreateAssignment extends Polymer.Element {
             },
             config: {
                 type: Object
+            },
+            editId: {
+                type: String
+            },
+            _isBusy: {
+                type: Boolean,
+                readOnly: true,
+                value: false
             },
             _dueUnixDate: {
                 type: Number,
@@ -39,23 +47,25 @@ class CreateAssignment extends Polymer.Element {
                 }
             },
             _selectedConf: {
-                type: Number,
-                value: 0
+                type: String
             }
         };
     }
     static get observers() {
-        return ['computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig.*, config.*)'];
+        return [
+            'computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig.*, config.*)',
+            'editAssignment(editId)'
+        ];
     }
     dateToUnix(date) {
         if (date) {
-            return Date.parse(date);
+            return moment(date).unix();
         }
         return 0;
     }
     computeProps(id, assignmentName, assignmentDesc, _dueUnixDate, primaryConfig, config) {
         this.set('_assignmentProps', {
-            id: this.id,
+            id: this.assignmentId,
             dueDate: this._dueUnixDate,
             name: this.assignmentName,
             desc: this.assignmentDesc,
@@ -69,8 +79,8 @@ class CreateAssignment extends Polymer.Element {
             type: 'application/json'
         }));
 
-        let primaryElem = this.shadowRoot.querySelector('#primary');
-        let secondaryElem = this.shadowRoot.querySelector('#secondary')
+        let primaryElem = this.$.primary;
+        let secondaryElem = this.$.secondary;
 
         let primaryFile = primaryElem ? primaryElem.getFile() : null;
         let secondaryFile = secondaryElem ? secondaryElem.getFile() : null;
@@ -98,15 +108,15 @@ class CreateAssignment extends Polymer.Element {
         }.bind(this));
     }
     reset() {
-        this.id = null;
+        this.assignmentId = null;
         this.assignmentName = "";
         this.assignmentDesc = "";
         this.dueDate = null;
         this.primaryConfig = {};
         this.config = {};
 
-        let primary = this.shadowRoot.querySelector('#primary');
-        let secondary = this.shadowRoot.querySelector('#secondary');
+        let primary = this.$.primary;
+        let secondary = this.$.secondary;
         if (primary) {
             primary.reset();
         }
@@ -114,6 +124,28 @@ class CreateAssignment extends Polymer.Element {
             secondary.reset();
         }
 
+    }
+    editAssignment(id) {
+        if (this.editId && this.editId.length > 0) {
+            this._set_isBusy(true);
+            this.reset();
+            this.$.getAssignment.url = '/get-assignment/' + this.editId;
+            let request = this.$.getAssignment.generateRequest();
+            request.completes.then(function (event) {
+                let assignment = event.response;
+                this.assignmentId = assignment.id;
+                this.assignmentName = assignment.name;
+                this.assignmentDesc = assignment.desc;
+                this.$.date.value = moment(assignment.dueDate * 1000).format('YYYY-MM-DD');
+                this.$.primary.setConfig(assignment.primaryConfig, assignment.primarySrcName);
+                this.$.secondary.setConfig(assignment.config, assignment.srcName);
+                this._set_isBusy(false);
+            }.bind(this), function (rejected) {
+                this._set_isBusy(false);
+                this.showError('An error occured while retrieveing assignment ' + id);
+            }.bind(this));
+        }
+        this.editId = null;
     }
     showError(msg) {
         this.$.errorToast.fitInto = this;
