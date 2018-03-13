@@ -49,7 +49,7 @@ public class AssignmentService extends AbstractAssignmentService {
 	}
 
 	@Override
-	public UUID createAssignment(AssignmentSubmissionProperties props, MultipartFile primarySrc,
+	public UUID createAssignment(AssignmentDefinition props, MultipartFile primarySrc,
 			MultipartFile secondarySrc) throws IOException {
 
 		UUID id = UUID.randomUUID();
@@ -61,9 +61,9 @@ public class AssignmentService extends AbstractAssignmentService {
 	}
 
 	@Override
-	public UUID updateAssignment(AssignmentSubmissionProperties props, MultipartFile primarySrc,
+	public UUID updateAssignment(AssignmentDefinition props, MultipartFile primarySrc,
 			MultipartFile secondarySrc) throws IOException {
-		AssignmentSubmissionProperties current = getAssignment(props.getId(), true);
+		AssignmentDefinition current = getAssignment(props.getId(), true);
 		List<StatementParameter> params;
 
 		// delete old src files if necessary
@@ -143,11 +143,11 @@ public class AssignmentService extends AbstractAssignmentService {
 	}
 
 	@Override
-	public List<AssignmentSubmissionProperties> getAllAssignments() throws IOException {
-		List<AssignmentSubmissionProperties> assignments = null;
+	public List<AssignmentDefinition> getAllAssignments() throws IOException {
+		List<AssignmentDefinition> assignments = null;
 		try {
 			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + ";", null);
-			assignments = new ArrayList<AssignmentSubmissionProperties>();
+			assignments = new ArrayList<AssignmentDefinition>();
 
 			while (rs.next()) {
 				assignments.add(extractAssignmentProps(rs, false));
@@ -160,8 +160,8 @@ public class AssignmentService extends AbstractAssignmentService {
 	}
 
 	@Override
-	public AssignmentSubmissionProperties getAssignment(UUID id, boolean includeSecondary) throws IOException {
-		AssignmentSubmissionProperties assignment = null;
+	public AssignmentDefinition getAssignment(UUID id, boolean includeSecondary) throws IOException {
+		AssignmentDefinition assignment = null;
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(id, DBType.UUID));
 		try {
@@ -176,7 +176,7 @@ public class AssignmentService extends AbstractAssignmentService {
 		return assignment;
 	}
 
-	private UUID commitToDB(AssignmentSubmissionProperties props, MultipartFile primarySrc, MultipartFile secondarySrc,
+	private UUID commitToDB(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc,
 			UUID id, boolean isUpdate) throws IOException {
 		UUID primarySrcLoc = null;
 		UUID secondarySrcLoc = null;
@@ -243,7 +243,7 @@ public class AssignmentService extends AbstractAssignmentService {
 		return null;
 	}
 
-	private AssignmentSubmissionProperties extractAssignmentProps(ResultSet rs, boolean includeSecondary)
+	private AssignmentDefinition extractAssignmentProps(ResultSet rs, boolean includeSecondary)
 			throws SQLException, IOException {
 		UUID id = (UUID) rs.getObject(ID);
 		Long dueDate = rs.getLong(DUEDATE);
@@ -281,7 +281,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			}
 		}
 
-		AssignmentSubmissionProperties assignment = new AssignmentSubmissionProperties(id, dueDate, name, desc,
+		AssignmentDefinition assignment = new AssignmentDefinition(id, dueDate, name, desc,
 				primaryConfig, primaryConfigLoc, config, configLoc, primarySrcName, primarySrcLoc, srcName, srcLoc);
 
 		return assignment;

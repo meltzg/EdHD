@@ -6,30 +6,26 @@ import java.util.UUID;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
 
-public class AssignmentProperties {
+public class AssignmentSubmission {
 	protected UUID id;
-	protected Long dueDate;
-	protected String name;
-	protected String desc;
+	
 	protected Map<String, PropValue> config;
 	protected UUID configLoc;
 	protected String srcName;
 	protected UUID srcLoc;
 
-	public AssignmentProperties(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> config,
+	public AssignmentSubmission(UUID id, Map<String, PropValue> config,
 			UUID configLoc, String srcName, UUID srcLoc) {
 		super();
 		this.id = id;
-		this.dueDate = dueDate;
-		this.name = name;
-		this.desc = desc;
+		
 		this.config = config;
 		this.configLoc = configLoc;
 		this.srcName = srcName;
 		this.srcLoc = srcLoc;
 	}
 
-	AssignmentProperties() {
+	AssignmentSubmission() {
 	}
 
 	public UUID getId() {

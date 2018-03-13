@@ -6,23 +6,53 @@ import java.util.UUID;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
 
-public class AssignmentSubmissionProperties extends AssignmentProperties {
+public class AssignmentDefinition extends AssignmentSubmission {
 	
+	protected Long dueDate;
+	protected String name;
+	protected String desc;
 	protected Map<String, PropValue> primaryConfig;
 	private UUID primaryConfigLoc;
 	private String primarySrcName;
 	private UUID primarySrcLoc;
 	
-	public AssignmentSubmissionProperties(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> primaryConfig, UUID primaryConfigLoc,
+	public AssignmentDefinition(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> primaryConfig, UUID primaryConfigLoc,
 			Map<String, PropValue> config, UUID configLoc, String primarySrcName, UUID primarySrcLoc, String srcName, UUID srcLoc) {
-		super(id, dueDate, name, desc, config, configLoc, srcName, srcLoc);
+		super(id, config, configLoc, srcName, srcLoc);
+		this.dueDate = dueDate;
+		this.name = name;
+		this.desc = desc;
 		this.primaryConfig = primaryConfig;
 		this.primaryConfigLoc = primaryConfigLoc;
 		this.primarySrcName = primarySrcName;
 		this.primarySrcLoc = primarySrcLoc;
 	}
 	
-	public AssignmentSubmissionProperties() {
+	public AssignmentDefinition() {
+	}
+	
+	public Long getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(Long dueDate) {
+		this.dueDate = dueDate;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
 	}
 	
 	public Map<String, PropValue> getPrimaryConfig() {

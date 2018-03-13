@@ -30,7 +30,7 @@ public class AssignmentController {
 
 	@RequestMapping(value = "/create-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
 	public ResponseEntity<Map<String, String>> createAssignment(Principal principal,
-			@RequestPart("properties") @Valid AssignmentSubmissionProperties props,
+			@RequestPart("properties") @Valid AssignmentDefinition props,
 			@RequestPart(name = "primarySrc", required = false) MultipartFile primarySrc,
 			@RequestPart(name = "secondarySrc", required = false) MultipartFile secondarySrc) {
 		Map<String, String> returnBody = new HashMap<String, String>();
@@ -58,9 +58,9 @@ public class AssignmentController {
 	}
 
 	@RequestMapping("/get-assignments")
-	public ResponseEntity<List<AssignmentSubmissionProperties>> getAllAssignments() {
+	public ResponseEntity<List<AssignmentDefinition>> getAllAssignments() {
 		try {
-			List<AssignmentSubmissionProperties> assignments = assignmentService.getAllAssignments();
+			List<AssignmentDefinition> assignments = assignmentService.getAllAssignments();
 			return ResponseEntity.ok(assignments);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -69,9 +69,9 @@ public class AssignmentController {
 	}
 
 	@RequestMapping("/get-assignment/{id}")
-	public ResponseEntity<AssignmentSubmissionProperties> getAssignment(Principal principal, @PathVariable UUID id) {
+	public ResponseEntity<AssignmentDefinition> getAssignment(Principal principal, @PathVariable UUID id) {
 		try {
-			AssignmentSubmissionProperties assignment = assignmentService.getAssignment(id, securityService.isAdmin(principal.getName()));
+			AssignmentDefinition assignment = assignmentService.getAssignment(id, securityService.isAdmin(principal.getName()));
 			return ResponseEntity.ok(assignment);
 		} catch (IOException e) {
 			e.printStackTrace();
