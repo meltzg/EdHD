@@ -45,9 +45,10 @@ public class AssignmentService extends AbstractAssignmentService {
 		Statement statement = conn.createStatement();
 		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, " + DUEDATE
 				+ " BIGINT, " + ASSIGNMENTNAME + " TEXT, " + ASSIGNMENTDESC + " TEXT, " + PRIMARYCONFIGLOC
-				+ " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
-				+ storageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME()
-				+ ", " + SRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + "PRIMARY KEY(" + ID + "))";
+				+ " UUID REFERENCES " + AbstractStorageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
+				+ AbstractStorageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES "
+				+ AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
+				+ AbstractStorageService.TABLE_NAME() + ", " + "PRIMARY KEY(" + ID + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 	}
@@ -129,7 +130,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			ResultSet rs = executeQuery("SELECT " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", "
 					+ SRCLOC + " FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
 			if (rs.next()) {
-				deleteById(id);
+				deleteById(TABLE_NAME(), id);
 				// delete associated files
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYCONFIGLOC));
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYSRCLOC));

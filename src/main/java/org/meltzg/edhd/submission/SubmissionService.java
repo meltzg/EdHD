@@ -8,9 +8,11 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 
+import org.meltzg.edhd.assignment.AbstractAssignmentService;
 import org.meltzg.edhd.assignment.AssignmentDefinition;
 import org.meltzg.edhd.assignment.AssignmentSubmission;
 import org.meltzg.edhd.security.AbstractSecurityService;
+import org.meltzg.edhd.status.AbstractStatusService;
 import org.meltzg.edhd.storage.AbstractStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +26,8 @@ public class SubmissionService extends AbstractSubmissionService {
 	private static final String CONFIGLOC = "configLoc";
 	private static final String SRCLOC = "srcLoc";
 	private static final String ISVALIDATION = "isValidation";
-	
+	private static final String STATUSID = "statusId";
+
 	@Value("${edhd.threads}")
 	private Integer nThreads;
 
@@ -33,7 +36,7 @@ public class SubmissionService extends AbstractSubmissionService {
 
 	@Autowired
 	AbstractSecurityService securityService;
-	
+
 	private ExecutorService threadpool;
 
 	@PostConstruct
@@ -41,13 +44,16 @@ public class SubmissionService extends AbstractSubmissionService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ASSIGNMENTID + " UUID, " + USER
-				+ " TEXT REFERENCES " + securityService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
-				+ storageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME() + ", "
-				+ ISVALIDATION + " BOOLEAN, PRIMARY KEY(" + ASSIGNMENTID + ", " + USER + "))";
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ASSIGNMENTID + " UUID REFERENCES "
+				+ AbstractAssignmentService.TABLE_NAME() + ", " + USER + " TEXT REFERENCES "
+				+ AbstractSecurityService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
+				+ AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
+				+ AbstractStorageService.TABLE_NAME() + ", " + ISVALIDATION + " BOOLEAN, " + STATUSID
+				+ " UUID REFERENCES " + AbstractStatusService.TABLE_NAME() + ", PRIMARY KEY(" + ASSIGNMENTID + ", "
+				+ USER + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
-		
+
 		threadpool = Executors.newFixedThreadPool(nThreads);
 	}
 

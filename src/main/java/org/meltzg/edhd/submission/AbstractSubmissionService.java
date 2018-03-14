@@ -11,8 +11,7 @@ public abstract class AbstractSubmissionService extends DBServiceBase {
 	public abstract UUID executeDefinition(AssignmentDefinition definition);
 	public abstract UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission);
 	
-	@Override
-	protected String TABLE_NAME() {
+	protected static String TABLE_NAME() {
 		return "submissions";
 	}
 }

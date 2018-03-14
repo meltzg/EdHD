@@ -20,8 +20,7 @@ public abstract class AbstractAssignmentService extends DBServiceBase {
 
 	public abstract AssignmentDefinition getAssignment(UUID id, boolean includeSecondary) throws IOException;
 
-	@Override
-	protected String TABLE_NAME() {
+	public static String TABLE_NAME() {
 		return "assignments";
 	}
 }

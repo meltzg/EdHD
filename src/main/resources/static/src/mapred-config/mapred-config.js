@@ -178,6 +178,7 @@ class MapredConfig extends Polymer.Element {
         this.set('standardConfigs', {});
         this.set('customConfigs', []);
         this.$.srcZip.value = '';
+        this.origSrcName = null;
         this.reconcilePrimary(this.primaryConfig);
     }
     setConfig(configProps, srcName) {

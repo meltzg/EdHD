@@ -31,8 +31,6 @@ public abstract class DBServiceBase {
 
 	@Value("${edhd.dbName}")
 	private String dbName;
-
-	protected abstract String TABLE_NAME();
 	
 	protected void init() throws Exception {
 		Connection conn;
@@ -74,10 +72,10 @@ public abstract class DBServiceBase {
 		return (Integer) executeQuery(query, params, true);
 	}
 	
-	protected int deleteById(UUID id) throws ClassNotFoundException, SQLException {
+	protected int deleteById(String tableName, UUID id) throws ClassNotFoundException, SQLException {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(id, DBType.UUID));
-		return executeUpdate("DELETE FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
+		return executeUpdate("DELETE FROM " + tableName + " WHERE " + ID + " = ?;", params);
 	}
 	
 	private Object executeQuery(String query, List<StatementParameter> params, boolean isUpdate) throws SQLException, ClassNotFoundException {

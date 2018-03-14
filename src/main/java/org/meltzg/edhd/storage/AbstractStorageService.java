@@ -16,8 +16,7 @@ public abstract class AbstractStorageService extends DBServiceBase {
 	public abstract File getFile(UUID id);
 	public abstract boolean deleteFile(UUID id) throws ClassNotFoundException, SQLException;
 	
-	@Override
-	public String TABLE_NAME() {
+	public static String TABLE_NAME() {
 		return "storage";
 	}
 }

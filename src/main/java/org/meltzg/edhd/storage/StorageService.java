@@ -96,7 +96,7 @@ public class StorageService extends AbstractStorageService {
 		if (file != null) {
 			try {
 				FileUtils.deleteDirectory(file.getParentFile());
-				deleteById(id);
+				deleteById(TABLE_NAME(), id);
 				success = true;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

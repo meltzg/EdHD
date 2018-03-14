@@ -9,8 +9,7 @@ public abstract class AbstractSecurityService extends DBServiceBase {
 	public abstract boolean isAdmin(String user);
 	public abstract boolean updateAdmin(String user, Map<String, String> options);
 	
-	@Override
-	public String TABLE_NAME() {
+	public static String TABLE_NAME() {
 		return "users";
 	}
 }
