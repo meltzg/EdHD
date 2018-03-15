@@ -106,6 +106,11 @@ public class StorageService extends AbstractStorageService {
 		return success;
 	}
 
+	@Override
+	public String getStorageDir() {
+		return storageDir;
+	}
+
 	private UUID putFile(File file, UUID id) {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		String path = file.getAbsolutePath();

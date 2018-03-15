@@ -62,7 +62,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			id = props.getId();
 		}
 
-		return commitToDB(props, primarySrc, secondarySrc, id, false);
+		return commitDefinition(props, primarySrc, secondarySrc, id, false);
 	}
 
 	@Override
@@ -119,7 +119,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			e.printStackTrace();
 		}
 
-		return commitToDB(props, primarySrc, secondarySrc, props.getId(), true);
+		return commitDefinition(props, primarySrc, secondarySrc, props.getId(), true);
 	}
 
 	@Override
@@ -181,7 +181,7 @@ public class AssignmentService extends AbstractAssignmentService {
 		return assignment;
 	}
 
-	private UUID commitToDB(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc, UUID id,
+	private UUID commitDefinition(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc, UUID id,
 			boolean isUpdate) throws IOException {
 		UUID primarySrcLoc = null;
 		UUID secondarySrcLoc = null;
@@ -237,6 +237,7 @@ public class AssignmentService extends AbstractAssignmentService {
 
 		try {
 			int inserted = executeUpdate(queryString, params);
+			submissionService.executeDefinition(getAssignment(id, true));
 			if (inserted > 0) {
 				return id;
 			}

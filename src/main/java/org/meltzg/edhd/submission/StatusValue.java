@@ -1,4 +1,4 @@
-package org.meltzg.edhd.status;
+package org.meltzg.edhd.submission;
 
 public enum StatusValue {
 	SUCCESS(1),

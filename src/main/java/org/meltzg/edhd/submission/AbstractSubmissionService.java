@@ -1,5 +1,6 @@
 package org.meltzg.edhd.submission;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.meltzg.edhd.assignment.AssignmentDefinition;
@@ -8,10 +9,12 @@ import org.meltzg.edhd.db.DBServiceBase;
 
 public abstract class AbstractSubmissionService extends DBServiceBase {
 
-	public abstract UUID executeDefinition(AssignmentDefinition definition);
+	public abstract UUID executeDefinition(AssignmentDefinition definition) throws IOException;
 	public abstract UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission);
+	public abstract StatusProperties getStatus(UUID id);
+	public abstract void updateStatus(StatusProperties status);
 	
-	protected static String TABLE_NAME() {
+	public static String TABLE_NAME() {
 		return "submissions";
 	}
 }

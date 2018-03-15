@@ -1,4 +1,4 @@
-package org.meltzg.edhd.status;
+package org.meltzg.edhd.submission;
 
 import java.util.UUID;
 

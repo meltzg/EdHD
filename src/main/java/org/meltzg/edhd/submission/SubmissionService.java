@@ -1,5 +1,6 @@
 package org.meltzg.edhd.submission;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.UUID;
@@ -12,7 +13,6 @@ import org.meltzg.edhd.assignment.AbstractAssignmentService;
 import org.meltzg.edhd.assignment.AssignmentDefinition;
 import org.meltzg.edhd.assignment.AssignmentSubmission;
 import org.meltzg.edhd.security.AbstractSecurityService;
-import org.meltzg.edhd.status.AbstractStatusService;
 import org.meltzg.edhd.storage.AbstractStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,16 +26,22 @@ public class SubmissionService extends AbstractSubmissionService {
 	private static final String CONFIGLOC = "configLoc";
 	private static final String SRCLOC = "srcLoc";
 	private static final String ISVALIDATION = "isValidation";
-	private static final String STATUSID = "statusId";
+
+	// Status Info
+	private static final String COMPILESTATUS = "compileStatus";
+	private static final String COMPILEMSG = "compileMsg";
+	private static final String RUNSTATUS = "runStatus";
+	private static final String RUNMSG = "runMsg";
+	private static final String VALIDATESTATUS = "validateStatus";
+	private static final String VALIDATEMSG = "validateMsg";
+	private static final String COMPLETESTATUS = "completeStatus";
+	private static final String COMPLETEMSG = "completeMsg";
 
 	@Value("${edhd.threads}")
 	private Integer nThreads;
 
 	@Autowired
 	private AbstractStorageService storageService;
-
-	@Autowired
-	AbstractSecurityService securityService;
 
 	private ExecutorService threadpool;
 
@@ -44,13 +50,14 @@ public class SubmissionService extends AbstractSubmissionService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ASSIGNMENTID + " UUID REFERENCES "
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, "+ ASSIGNMENTID + " UUID REFERENCES "
 				+ AbstractAssignmentService.TABLE_NAME() + ", " + USER + " TEXT REFERENCES "
 				+ AbstractSecurityService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
 				+ AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + ISVALIDATION + " BOOLEAN, " + STATUSID
-				+ " UUID REFERENCES " + AbstractStatusService.TABLE_NAME() + ", PRIMARY KEY(" + ASSIGNMENTID + ", "
-				+ USER + "))";
+				+ AbstractStorageService.TABLE_NAME() + ", " + ISVALIDATION + " BOOLEAN, " + COMPILESTATUS
+				+ " INTEGER, " + RUNSTATUS + " INTEGER, " + VALIDATESTATUS + " INTEGER, " + COMPLETESTATUS
+				+ " INTEGER, " + COMPILEMSG + " TEXT, " + RUNMSG + " TEXT, " + VALIDATEMSG + " TEXT, " + COMPLETEMSG
+				+ " TEXT, PRIMARY KEY(" + ID + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 
@@ -58,9 +65,12 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public UUID executeDefinition(AssignmentDefinition definition) {
-		// TODO Auto-generated method stub
-		return null;
+	public UUID executeDefinition(AssignmentDefinition definition) throws IOException {
+		UUID submissionId = UUID.randomUUID();
+		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, new StatusProperties(), storageService,
+				this);
+		threadpool.execute(worker);
+		return submissionId;
 	}
 
 	@Override
@@ -69,4 +79,15 @@ public class SubmissionService extends AbstractSubmissionService {
 		return null;
 	}
 
+	@Override
+	public StatusProperties getStatus(UUID id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateStatus(StatusProperties status) {
+		// TODO Auto-generated method stub
+
+	}
 }
