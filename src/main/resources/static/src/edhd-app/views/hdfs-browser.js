@@ -7,7 +7,7 @@ class HDFSBrowser extends Polymer.Element {
             },
             location: {
                 type: String,
-                value: "/"
+                value: '/'
             },
             hdfsChildren: {
                 type: Array,
@@ -23,7 +23,7 @@ class HDFSBrowser extends Polymer.Element {
     getHDFS(path) {
         if (path) {
             // double encode to avoid spring barfing on encoded slash
-            this.$.requestHDFS.url = "/hdfs-ls/" + encodeURIComponent(encodeURIComponent(path));
+            this.$.requestHDFS.url = '/hdfs-ls/' + encodeURIComponent(encodeURIComponent(path));
             let request = this.$.requestHDFS.generateRequest();
             request.completes.then(function (event) {
                 let data = event.response;
@@ -36,14 +36,14 @@ class HDFSBrowser extends Polymer.Element {
         this.getHDFS(this.location);
     }
     goUp() {
-        let parent = this.location.substr(0, this.location.lastIndexOf("/")) || "/";
+        let parent = this.location.substr(0, this.location.lastIndexOf('/')) || '/';
         this.getHDFS(parent);
     }
     mkDir(e) {
         if (e.keyCode !== 13) {
             return;
         }
-        let dir = this.$.mkdir.value;
+        let dir = this.shadowRoot.querySelector('#mkdir').value;
         if (dir) {
             dir = encodeURIComponent(encodeURIComponent(dir));
             let location = encodeURIComponent(encodeURIComponent(this.location));
@@ -51,12 +51,25 @@ class HDFSBrowser extends Polymer.Element {
             this.$.requestMkDir.headers = {
                 'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
             };
-            this.$.requestMkDir.url = "/hdfs-mkdir/" + location + "/" + dir;
+            this.$.requestMkDir.url = '/hdfs-mkdir/' + location + '/' + dir;
             let request = this.$.requestMkDir.generateRequest();
             request.completes.then(function () {
                 this.refresh();
             }.bind(this));
         }
+    }
+    remove(e) {
+        let path = e.model.__data.item.path;
+        path = encodeURIComponent(encodeURIComponent(path));
+        this.$.requestRm.headers = {
+            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
+        };
+        this.$.requestRm.url = '/hdfs-rm/' + path;
+        let request = this.$.requestRm.generateRequest();
+        request.completes.then(function () {
+            this.refresh();
+        }.bind(this));
+        console.log(e);
     }
     handleURLSelect(event) {
         this.getHDFS(event.model.__data.item.path);

@@ -50,6 +50,22 @@ public class HDFSController {
 		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
 		}
-		
+	}
+	
+	@RequestMapping(value = "/hdfs-rm/{path}", method = RequestMethod.DELETE)
+	public ResponseEntity<Boolean> delete(Principal principal, @PathVariable String path) {
+		if (securityService.isAdmin(principal.getName())) {
+			boolean success;
+			try {
+				path = URLDecoder.decode(path, "UTF-8");
+				success = hdfsService.delete(path);
+				return ResponseEntity.ok(success);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+			}
+		} else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+		}
 	}
 }
