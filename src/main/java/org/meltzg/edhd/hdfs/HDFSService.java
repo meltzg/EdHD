@@ -5,6 +5,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -20,6 +22,11 @@ public class HDFSService implements IHDFSService {
 	
 	@Value("${edhd.hadoop.hduser}")
 	private String hdUser;
+	
+	@PostConstruct
+	public void init() {
+		System.setProperty("HADOOP_USER_NAME", hdUser);
+	}
 
 	@Override
 	public HDFSLocationInfo getChildren(String path) throws IOException {
@@ -48,6 +55,15 @@ public class HDFSService implements IHDFSService {
 		return locInfo;
 	}
 	
+	@Override
+	public boolean mkDir(String location, String newDir) throws IOException {
+		Configuration conf = new Configuration();
+	    FileSystem fs = FileSystem.get(URI.create(fsName), conf);
+	    Path path = new Path(fsName + "/" + location + "/" + newDir);
+	    fs.mkdirs(path);
+	    return false;
+	}
+
 	private String removeFSName(Path path) {
 		return path.toString().replace(fsName, "");
 	}

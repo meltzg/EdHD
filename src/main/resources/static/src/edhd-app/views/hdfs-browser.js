@@ -35,6 +35,29 @@ class HDFSBrowser extends Polymer.Element {
     refresh() {
         this.getHDFS(this.location);
     }
+    goUp() {
+        let parent = this.location.substr(0, this.location.lastIndexOf("/")) || "/";
+        this.getHDFS(parent);
+    }
+    mkDir(e) {
+        if (e.keyCode !== 13) {
+            return;
+        }
+        let dir = this.$.mkdir.value;
+        if (dir) {
+            dir = encodeURIComponent(encodeURIComponent(dir));
+            let location = encodeURIComponent(encodeURIComponent(this.location));
+            // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to not GET
+            this.$.requestMkDir.headers = {
+                'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
+            };
+            this.$.requestMkDir.url = "/hdfs-mkdir/" + location + "/" + dir;
+            let request = this.$.requestMkDir.generateRequest();
+            request.completes.then(function () {
+                this.refresh();
+            }.bind(this));
+        }
+    }
     handleURLSelect(event) {
         this.getHDFS(event.model.__data.item.path);
     }
