@@ -1,5 +1,7 @@
 package org.meltzg.edhd.hdfs;
 
-public interface IHDFSService {
+import java.io.IOException;
 
+public interface IHDFSService {
+	public HDFSLocationInfo getChildren(String path) throws IOException;
 }

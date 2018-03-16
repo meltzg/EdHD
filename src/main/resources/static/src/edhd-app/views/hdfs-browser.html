@@ -1,4 +1,7 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../common-styles/common-styles.html">
 
 <dom-module id="hdfs-browser">
@@ -6,6 +9,30 @@
         <style include="common-styles"></style>
 
         <h1>HDFS Browser</h1>
+        <span>Current Location: {{location}}</span>
+        <vaadin-grid items="[[hdfsChildren]]">
+            <vaadin-grid-column resizeable>
+                <template class="header">Permissions</template>
+                <template>[[item.permissions]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column resizeable>
+                <template class="header">Owner</template>
+                <template>[[item.owner]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column resizeable>
+                <template class="header">Group</template>
+                <template>[[item.group]]</template>
+            </vaadin-grid-column>
+            <vaadin-grid-column resizeable>
+                <template class="header">Path</template>
+                <template>
+                    <span on-click="handleURLSelect" style="text-decoration: underline;">
+                        [[item.path]]
+                    </span>
+                </template>
+            </vaadin-grid-column>
+        </vaadin-grid>
+        <iron-ajax id="requestHDFS" url="/hdfs-ls"></iron-ajax>
     </template>
     <script src="hdfs-browser.js"></script>
 </dom-module>

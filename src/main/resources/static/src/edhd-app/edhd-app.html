@@ -79,7 +79,7 @@
 
                 <iron-pages selected="{{page}}" attr-for-selected="name" fallback-selection="all-assignments" role="main">
                     <all-assignments id="assignments" name="all-assignments" is-admin="[[_isAdmin]]"></all-assignments>
-                    <hdfs-browser name="hdfs-browser"></hdfs-browser>
+                    <hdfs-browser name="hdfs-browser" is-admin="[[_isAdmin]]"></hdfs-browser>
                     <create-assignment id="create_assignment" name="create-assignment"></create-assignment>
                     <user-settings name="user-settings" is-admin="[[_isAdmin]]"></user-settings>
                 </iron-pages>
