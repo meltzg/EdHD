@@ -50,10 +50,9 @@ public class SubmissionService extends AbstractSubmissionService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, "+ ASSIGNMENTID + " UUID REFERENCES "
-				+ AbstractAssignmentService.TABLE_NAME() + ", " + USER + " TEXT REFERENCES "
-				+ AbstractSecurityService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, " + ASSIGNMENTID
+				+ " UUID, " + USER + " TEXT REFERENCES " + AbstractSecurityService.TABLE_NAME() + ", " + CONFIGLOC
+				+ " UUID REFERENCES " + AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
 				+ AbstractStorageService.TABLE_NAME() + ", " + ISVALIDATION + " BOOLEAN, " + COMPILESTATUS
 				+ " INTEGER, " + RUNSTATUS + " INTEGER, " + VALIDATESTATUS + " INTEGER, " + COMPLETESTATUS
 				+ " INTEGER, " + COMPILEMSG + " TEXT, " + RUNMSG + " TEXT, " + VALIDATEMSG + " TEXT, " + COMPLETEMSG

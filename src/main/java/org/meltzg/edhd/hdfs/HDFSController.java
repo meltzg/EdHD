@@ -26,7 +26,7 @@ public class HDFSController {
 	@Autowired
 	AbstractSecurityService securityService;
 
-	@RequestMapping("/hdfs-ls/{path}")
+	@RequestMapping("/hdfs-ls/{path:.+}")
 	public HDFSLocationInfo getChildren(@PathVariable String path) {
 		try {
 			path = URLDecoder.decode(path, "UTF-8");
@@ -38,7 +38,7 @@ public class HDFSController {
 		return null;
 	}
 
-	@RequestMapping(value = "/hdfs-mkdir/{location}/{newDir}", method = RequestMethod.POST)
+	@RequestMapping(value = "/hdfs-mkdir/{location:.+}/{newDir:.+}", method = RequestMethod.POST)
 	public ResponseEntity<Boolean> mkDir(Principal principal, @PathVariable String location,
 			@PathVariable String newDir) {
 		if (securityService.isAdmin(principal.getName())) {
@@ -57,7 +57,7 @@ public class HDFSController {
 		}
 	}
 
-	@RequestMapping(value = "/hdfs-rm/{path}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/hdfs-rm/{path:.+}", method = RequestMethod.DELETE)
 	public ResponseEntity<Boolean> delete(Principal principal, @PathVariable String path) {
 		if (securityService.isAdmin(principal.getName())) {
 			boolean success;
@@ -74,7 +74,7 @@ public class HDFSController {
 		}
 	}
 
-	@RequestMapping(value = "/hdfs-put/{path}", method = RequestMethod.POST, consumes = { "multipart/form-data" })
+	@RequestMapping(value = "/hdfs-put", method = RequestMethod.POST, consumes = { "multipart/form-data" })
 	public ResponseEntity<Boolean> putFile(Principal principal,
 			@RequestPart("location") @Valid HDFSLocationInfo location,
 			@RequestPart("file") @Valid MultipartFile file) {

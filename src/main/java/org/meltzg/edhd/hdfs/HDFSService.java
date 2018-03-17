@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,8 +95,8 @@ public class HDFSService implements IHDFSService {
 			Files.createDirectories(Paths.get(storageDir + "/" + id.toString()));
 			File convFile = new File(storageDir + "/" + id.toString() + "/" + file.getOriginalFilename());
 			file.transferTo(convFile);
-			Path srcPath = new Path(convFile.getAbsolutePath());
-			Path destPath = new Path(fsName + "/" + location + "/" + convFile.getName());
+			Path srcPath = new Path("file:///" + convFile.getAbsolutePath());
+			Path destPath = new Path("/" + location + "/");
 			fs.copyFromLocalFile(srcPath, destPath);
 			success = true;
 		} catch (IOException e) {

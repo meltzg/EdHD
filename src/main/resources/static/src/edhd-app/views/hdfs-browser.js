@@ -18,6 +18,10 @@ class HDFSBrowser extends Polymer.Element {
             file: {
                 type: Object,
                 value: null
+            },
+            hasFile:  {
+                type: Boolean,
+                value: false
             }
         };
     }
@@ -80,7 +84,7 @@ class HDFSBrowser extends Polymer.Element {
         formData.append('location', new Blob([JSON.stringify({
             location: this.location
         })], {
-            type: 'application.json'
+            type: 'application/json'
         }));
         formData.append('file', this.file);
         this.$.requestPutFile.body = formData;
@@ -91,8 +95,15 @@ class HDFSBrowser extends Polymer.Element {
         };
         let request = this.$.requestPutFile.generateRequest();
     }
-    hasFile() {
-        return this.file !== null;
+    fileChange() {
+        let fileElem = this.shadowRoot.querySelector('#file');
+        if (fileElem.files.length) {
+            this.set('file', fileElem.files[0]);
+            this.hasFile = true;
+        } else {
+            this.set('file', null);
+            this.hasFile = false;
+        }
     }
     handleURLSelect(event) {
         this.getHDFS(event.model.__data.item.path);
