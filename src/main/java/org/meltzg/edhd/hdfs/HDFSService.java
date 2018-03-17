@@ -1,9 +1,15 @@
 package org.meltzg.edhd.hdfs;
 
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -11,8 +17,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class HDFSService implements IHDFSService {
@@ -22,6 +30,9 @@ public class HDFSService implements IHDFSService {
 
 	@Value("${edhd.hadoop.hduser}")
 	private String hdUser;
+
+	@Value("${edhd.storageDir}")
+	private String storageDir;
 
 	@PostConstruct
 	public void init() {
@@ -71,6 +82,31 @@ public class HDFSService implements IHDFSService {
 		Path hdPath = new Path(fsName + "/" + path);
 
 		return fs.delete(hdPath, true);
+	}
+
+	@Override
+	public boolean put(String location, MultipartFile file) throws IOException {
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
+
+		UUID id = UUID.randomUUID();
+		boolean success = false;
+
+		try {
+			Files.createDirectories(Paths.get(storageDir + "/" + id.toString()));
+			File convFile = new File(storageDir + "/" + id.toString() + "/" + file.getOriginalFilename());
+			file.transferTo(convFile);
+			Path srcPath = new Path(convFile.getAbsolutePath());
+			Path destPath = new Path(fsName + "/" + location + "/" + convFile.getName());
+			fs.copyFromLocalFile(srcPath, destPath);
+			success = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			FileUtils.forceDelete(new File(storageDir + "/" + id.toString()));
+		}
+
+		return success;
 	}
 
 	private String removeFSName(Path path) {

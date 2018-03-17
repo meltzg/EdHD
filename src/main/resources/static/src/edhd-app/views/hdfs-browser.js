@@ -14,6 +14,10 @@ class HDFSBrowser extends Polymer.Element {
                 value: function () {
                     return [];
                 }
+            },
+            file: {
+                type: Object,
+                value: null
             }
         };
     }
@@ -70,6 +74,25 @@ class HDFSBrowser extends Polymer.Element {
             this.refresh();
         }.bind(this));
         console.log(e);
+    }
+    sendFile() {
+        let formData = new FormData();
+        formData.append('location', new Blob([JSON.stringify({
+            location: this.location
+        })], {
+            type: 'application.json'
+        }));
+        formData.append('file', this.file);
+        this.$.requestPutFile.body = formData;
+        this.$.requestPutFile.contentType = null;
+        // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to post
+        this.$.requestPutFile.headers = {
+            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
+        };
+        let request = this.$.requestPutFile.generateRequest();
+    }
+    hasFile() {
+        return this.file !== null;
     }
     handleURLSelect(event) {
         this.getHDFS(event.model.__data.item.path);

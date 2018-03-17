@@ -17,6 +17,10 @@
                 <span>Current Location: {{location}}</span>
                 <template is="dom-if" if="{{isAdmin}}">
                     <paper-input id="mkdir" label="New Folder (Hit Enter to create)" on-keyup="mkDir" prevent-invalid-input allowed-pattern="^[^*&%\\/]+$"></paper-icon-button>
+                    <div class="row">
+                        <input class="cell" type="file" value="{{file}}">
+                        <paper-button on-click="sendFile" raised disabled="{{hasFile()}}">Send File</paper-button>
+                    </div>
                 </template>
             </div>
             <paper-icon-button class="cell" icon="refresh" on-click="refresh" style="float: right;"></paper-icon-button>
@@ -54,6 +58,7 @@
         </vaadin-grid>
         <iron-ajax id="requestHDFS" url="/hdfs-ls"></iron-ajax>
         <iron-ajax id="requestMkDir" url="/hdfs-mkdir" method="POST"></iron-ajax>
+        <iron-ajax id="requestPutFile" url="/hdfs-put" method="POST"></iron-ajax>
         <iron-ajax id="requestRm" url="/hdfs-rm" method="DELETE"></iron-ajax>
     </template>
     <script src="hdfs-browser.js"></script>
