@@ -5,14 +5,16 @@ public class HDFSEntry {
 		private String owner;
 		private String permissions;
 		private String path;
+		private long size;
 		private boolean isDirectory;
 
-		public HDFSEntry(String group, String owner, String permissions, String path, boolean isDirectory) {
+		public HDFSEntry(String group, String owner, String permissions, String path, long size, boolean isDirectory) {
 			super();
 			this.group = group;
 			this.owner = owner;
 			this.permissions = permissions;
 			this.path = path;
+			this.setSize(size);
 			this.isDirectory = isDirectory;
 		}
 
@@ -49,6 +51,14 @@ public class HDFSEntry {
 
 		public void setPath(String path) {
 			this.path = path;
+		}
+
+		public long getSize() {
+			return size;
+		}
+
+		public void setSize(long size) {
+			this.size = size;
 		}
 
 		public boolean isDirectory() {

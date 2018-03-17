@@ -56,8 +56,9 @@ public class HDFSService implements IHDFSService {
 			String permissions = fstat.getPermission().toString();
 			String group = fstat.getGroup();
 			String owner = fstat.getOwner();
+			long size = fstat.getLen();
 			boolean isDirectory = fstat.isDirectory();
-			children.add(new HDFSEntry(group, owner, permissions, cPath, isDirectory));
+			children.add(new HDFSEntry(group, owner, permissions, cPath, size, isDirectory));
 		}
 
 		HDFSLocationInfo locInfo = new HDFSLocationInfo(path, children);

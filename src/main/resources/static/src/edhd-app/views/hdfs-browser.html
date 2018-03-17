@@ -51,7 +51,11 @@
                 <template class="header">Group</template>
                 <template>[[item.group]]</template>
             </vaadin-grid-column>
-            <vaadin-grid-column resizable flex-grow="8">
+            <vaadin-grid-column resizable flex-grow="2">
+                    <template class="header">Size</template>
+                    <template>[[item.size]]</template>
+                </vaadin-grid-column>
+            <vaadin-grid-column resizable flex-grow="12">
                 <template class="header">Path</template>
                 <template>
                     <span on-click="handleURLSelect" style="text-decoration: underline;">
