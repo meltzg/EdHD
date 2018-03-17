@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class HDFSService implements IHDFSService {
 
-	@Value("${edhd.hadoop.fsname}")
+	@Value("${edhd.hadoop.hdfsProxy}")
 	private String fsName;
 
 	@Value("${edhd.hadoop.hduser}")
@@ -40,7 +39,7 @@ public class HDFSService implements IHDFSService {
 
 	@Override
 	public HDFSLocationInfo getChildren(String path) throws IOException {
-		Configuration conf = new Configuration();
+		Configuration conf = getConfiguration();
 		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
 
 		Path[] paths = new Path[1];
@@ -67,7 +66,7 @@ public class HDFSService implements IHDFSService {
 
 	@Override
 	public boolean mkDir(String location, String newDir) throws IOException {
-		Configuration conf = new Configuration();
+		Configuration conf = getConfiguration();
 		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
 		Path path = new Path(fsName + "/" + location + "/" + newDir);
 
@@ -76,7 +75,7 @@ public class HDFSService implements IHDFSService {
 
 	@Override
 	public boolean delete(String path) throws IOException {
-		Configuration conf = new Configuration();
+		Configuration conf = getConfiguration();
 		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
 		Path hdPath = new Path(fsName + "/" + path);
 
@@ -85,7 +84,7 @@ public class HDFSService implements IHDFSService {
 
 	@Override
 	public boolean put(String location, MultipartFile file) throws IOException {
-		Configuration conf = new Configuration();
+		Configuration conf = getConfiguration();
 		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
 
 		UUID id = UUID.randomUUID();
@@ -96,7 +95,7 @@ public class HDFSService implements IHDFSService {
 			File convFile = new File(storageDir + "/" + id.toString() + "/" + file.getOriginalFilename());
 			file.transferTo(convFile);
 			Path srcPath = new Path("file:///" + convFile.getAbsolutePath());
-			Path destPath = new Path("/" + location + "/");
+			Path destPath = new Path("/" + location + "/" + convFile.getName());
 			fs.copyFromLocalFile(srcPath, destPath);
 			success = true;
 		} catch (IOException e) {
@@ -110,5 +109,11 @@ public class HDFSService implements IHDFSService {
 
 	private String removeFSName(Path path) {
 		return path.toString().replace(fsName, "");
+	}
+	
+	private Configuration getConfiguration() {
+		Configuration conf = new Configuration();
+		conf.set("fs.webhdfs.impl", org.apache.hadoop.hdfs.web.WebHdfsFileSystem.class.getName());
+		return conf;
 	}
 }

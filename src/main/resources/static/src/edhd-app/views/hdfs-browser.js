@@ -19,7 +19,11 @@ class HDFSBrowser extends Polymer.Element {
                 type: Object,
                 value: null
             },
-            hasFile:  {
+            hasFile: {
+                type: Boolean,
+                value: false
+            },
+            isBusy: {
                 type: Boolean,
                 value: false
             }
@@ -30,6 +34,7 @@ class HDFSBrowser extends Polymer.Element {
     }
     getHDFS(path) {
         if (path) {
+            this.isBusy = true;
             // double encode to avoid spring barfing on encoded slash
             this.$.requestHDFS.url = '/hdfs-ls/' + encodeURIComponent(encodeURIComponent(path));
             let request = this.$.requestHDFS.generateRequest();
@@ -37,6 +42,7 @@ class HDFSBrowser extends Polymer.Element {
                 let data = event.response;
                 this.set('hdfsChildren', data.children);
                 this.location = data.location;
+                this.isBusy = false;
             }.bind(this));
         }
     }
@@ -61,7 +67,10 @@ class HDFSBrowser extends Polymer.Element {
             };
             this.$.requestMkDir.url = '/hdfs-mkdir/' + location + '/' + dir;
             let request = this.$.requestMkDir.generateRequest();
+            this.isBusy = true;
             request.completes.then(function () {
+                this.refresh();
+            }.bind(this), function () {
                 this.refresh();
             }.bind(this));
         }
@@ -74,10 +83,12 @@ class HDFSBrowser extends Polymer.Element {
         };
         this.$.requestRm.url = '/hdfs-rm/' + path;
         let request = this.$.requestRm.generateRequest();
+        this.isBusy = true;
         request.completes.then(function () {
             this.refresh();
+        }.bind(this), function () {
+            this.refresh();
         }.bind(this));
-        console.log(e);
     }
     sendFile() {
         let formData = new FormData();
@@ -94,6 +105,12 @@ class HDFSBrowser extends Polymer.Element {
             'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
         };
         let request = this.$.requestPutFile.generateRequest();
+        this.isBusy = true;
+        request.completes.then(function () {
+            this.refresh();
+        }.bind(this), function () {
+            this.refresh();
+        }.bind(this));
     }
     fileChange() {
         let fileElem = this.shadowRoot.querySelector('#file');

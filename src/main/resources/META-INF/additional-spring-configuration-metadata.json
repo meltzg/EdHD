@@ -16,7 +16,22 @@
   },
   {
     "name": "edhd.threads",
-    "type": "java.lang.String",
+    "type": "java.lang.Integer",
     "description": "Number of threads for submission processing"
+  },
+  {
+    "name": "edhd.hadoop.fsname",
+    "type": "java.lang.String",
+    "description": "fs.default.name for the submission runner"
+  },
+  {
+    "name": "edhd.hadoop.hdfs-proxy",
+    "type": "java.lang.String",
+    "description": "webhdfs url for HttpFS so that EdHD can access HDFS"
+  },
+  {
+    "name": "edhd.hadoop.hduser",
+    "type": "java.lang.String",
+    "description": "The user to run as for Hadoop/HDFS operations"
   }
 ]}

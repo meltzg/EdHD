@@ -15,11 +15,16 @@ spring:
     url: jdbc:postgresql://localhost:5432
     username: postgres
     password: PG123User
+  http:
+    multipart:
+      max-file-size: 2000MB
+      max-request-size: 2500MB
 edhd:
   adminPassword: ADMIN123User
   dbName: edhd
   storageDir: C:/tmp
   threads: 20
   hadoop:
-    fsname: hdfs://192.168.137.110:54310
+    fsname: hdfs://192.168.50.100:54310
+    hdfsProxy: webhdfs://192.168.50.100:14000
     hduser: hduser

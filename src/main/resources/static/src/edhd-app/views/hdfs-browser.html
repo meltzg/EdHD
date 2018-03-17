@@ -1,16 +1,20 @@
-<link rel="import" href="../../../bower_components/polymer/polymer-element.html" <link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../../../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../busy-overlay/busy-overlay.html">
 <link rel="import" href="../../common-styles/common-styles.html">
 
 <dom-module id="hdfs-browser">
     <template>
         <style include="common-styles"></style>
 
+        <busy-overlay is-busy="[[isBusy]]" with-backdrop no-cancel-on-esc-key no-cancel-on-outside-click></busy-overlay>
+        
         <h1>HDFS Browser</h1>
         <div class="row" style="background-color: white;">
             <div class="cell">
