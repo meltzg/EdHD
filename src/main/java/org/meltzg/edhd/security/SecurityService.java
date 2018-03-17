@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.meltzg.edhd.db.DBServiceBase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

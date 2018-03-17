@@ -1,7 +1,5 @@
 package org.meltzg.edhd.hdfs;
 
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;

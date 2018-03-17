@@ -6,7 +6,6 @@ import java.security.Principal;
 
 import javax.validation.Valid;
 
-import org.meltzg.edhd.assignment.AssignmentDefinition;
 import org.meltzg.edhd.security.AbstractSecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

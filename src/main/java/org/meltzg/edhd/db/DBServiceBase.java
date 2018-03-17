@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.meltzg.edhd.db.DBServiceBase.DBType;
-import org.meltzg.edhd.db.DBServiceBase.StatementParameter;
 import org.springframework.beans.factory.annotation.Value;
 
 public abstract class DBServiceBase {
