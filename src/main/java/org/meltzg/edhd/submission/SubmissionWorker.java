@@ -25,8 +25,13 @@ import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.meltzg.edhd.assignment.AssignmentDefinition;
 import org.meltzg.edhd.storage.AbstractStorageService;
+import org.meltzg.genmapred.conf.GenJobConfiguration;
+import org.meltzg.genmapred.runner.GenJobRunner;
 
 public class SubmissionWorker implements Runnable {
 
@@ -61,7 +66,12 @@ public class SubmissionWorker implements Runnable {
 			if (this.definition.getSrcLoc() != null) {
 				unzipFile(this.storageService.getFile(this.definition.getSrcLoc()));
 			}
-			boolean compileSuccess = compileSrc();
+
+			String compiledJar = compileSrc();
+			if (compiledJar != null) {
+				// submit jar to GenMapred
+				boolean success = submitJar(compiledJar);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,7 +118,9 @@ public class SubmissionWorker implements Runnable {
 		zipFile.close();
 	}
 
-	private boolean compileSrc() {
+	private String compileSrc() {
+		String compiledJar = null;
+
 		Collection<File> srcFiles = FileUtils.listFiles(new File(this.workerDir), new SuffixFileFilter(".java"),
 				TrueFileFilter.INSTANCE);
 
@@ -153,6 +165,7 @@ public class SubmissionWorker implements Runnable {
 					jos.closeEntry();
 				}
 				jos.close();
+				compiledJar = jarFile.getAbsolutePath();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				success = false;
@@ -160,7 +173,55 @@ public class SubmissionWorker implements Runnable {
 			}
 		}
 
-		return success;
+		return compiledJar;
+	}
+
+	private boolean submitJar(String compiledJar) {
+		// read configs, fill in submission specific info, save to worker dir
+		File primaryConfigFile = storageService.getFile(definition.getPrimaryConfigLoc());
+		File secondaryConfigFile = storageService.getFile(definition.getConfigLoc());
+		GenJobConfiguration primaryConfig = null;
+		GenJobConfiguration secondaryConfig = null;
+		String primaryConfigWorkerPath = workerDir + "/primaryConfig.json";
+		String secondaryConfigWorkerPath = workerDir + "/secondaryConfig.json";
+
+		try {
+			primaryConfig = new GenJobConfiguration(primaryConfigFile.getAbsolutePath());
+			secondaryConfig = new GenJobConfiguration(secondaryConfigFile.getAbsolutePath());
+
+			primaryConfig.setProp(GenJobConfiguration.JOB_NAME, "Submission " + submissionId.toString());
+			primaryConfig.setProp(GenJobConfiguration.OUTPUT_PATH, "/submission/" + submissionId.toString());
+			secondaryConfig.setProp(GenJobConfiguration.ARTIFACT_JAR_PATHS, compiledJar);
+
+			if (primaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
+				primaryConfig.setProp(GenJobConfiguration.INPUT_PATH, submissionService.getFsDefaultName() + "/"
+						+ primaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
+			} else if (secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
+				secondaryConfig.setProp(GenJobConfiguration.INPUT_PATH, submissionService.getFsDefaultName() + "/"
+						+ secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
+			}
+
+			primaryConfig.marshal(primaryConfigWorkerPath);
+			secondaryConfig.marshal(secondaryConfigWorkerPath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+
+		Configuration conf = new Configuration();
+		conf.set("fs.default.name", submissionService.getFsDefaultName());
+		conf.set("fs.defaultFS", submissionService.getFsDefaultName());
+		Tool runner = new GenJobRunner();
+		String[] args = { primaryConfigWorkerPath, secondaryConfigWorkerPath };
+		try {
+			ToolRunner.run(conf, runner, args);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	private void cleanup() {

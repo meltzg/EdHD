@@ -39,6 +39,9 @@ public class SubmissionService extends AbstractSubmissionService {
 
 	@Value("${edhd.threads}")
 	private Integer nThreads;
+	
+	@Value("${edhd.hadoop.fsname}")
+	private String fsName;
 
 	@Autowired
 	private AbstractStorageService storageService;
@@ -88,5 +91,10 @@ public class SubmissionService extends AbstractSubmissionService {
 	public void updateStatus(StatusProperties status) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public String getFsDefaultName() {
+		return fsName;
 	}
 }
