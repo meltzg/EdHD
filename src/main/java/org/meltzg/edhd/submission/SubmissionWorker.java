@@ -210,8 +210,11 @@ public class SubmissionWorker implements Runnable {
 		}
 
 		Configuration conf = new Configuration();
-		conf.set("fs.default.name", submissionService.getFsDefaultName());
-		conf.set("fs.defaultFS", submissionService.getFsDefaultName());
+//		conf.set("fs.default.name", submissionService.getFsDefaultName());
+		conf.set("fs.default.name", "webhdfs://192.168.50.100:14000");
+		conf.set("mapreduce.framework.name", "yarn");
+		conf.set("yarn.resourcemanager.address", "192.168.50.100:8040");
+//		conf.set("fs.defaultFS", submissionService.getFsDefaultName());
 		Tool runner = new GenJobRunner();
 		String[] args = { primaryConfigWorkerPath, secondaryConfigWorkerPath };
 		try {
