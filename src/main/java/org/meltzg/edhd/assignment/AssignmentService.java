@@ -45,12 +45,16 @@ public class AssignmentService extends AbstractAssignmentService {
 		Statement statement = conn.createStatement();
 		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, " + DUEDATE
 				+ " BIGINT, " + ASSIGNMENTNAME + " TEXT, " + ASSIGNMENTDESC + " TEXT, " + PRIMARYCONFIGLOC
-				+ " UUID REFERENCES " + AbstractStorageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + "PRIMARY KEY(" + ID + "))";
+				+ " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
+				+ storageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME()
+				+ ", " + SRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + "PRIMARY KEY(" + ID + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
+	}
+
+	@Override
+	public String TABLE_NAME() {
+		return "assignments";
 	}
 
 	@Override
@@ -181,8 +185,8 @@ public class AssignmentService extends AbstractAssignmentService {
 		return assignment;
 	}
 
-	private UUID commitDefinition(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc, UUID id,
-			boolean isUpdate) throws IOException {
+	private UUID commitDefinition(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc,
+			UUID id, boolean isUpdate) throws IOException {
 		UUID primarySrcLoc = null;
 		UUID secondarySrcLoc = null;
 		UUID primaryConfigLoc = null;

@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 
-import org.meltzg.edhd.assignment.AbstractAssignmentService;
 import org.meltzg.edhd.assignment.AssignmentDefinition;
 import org.meltzg.edhd.assignment.AssignmentSubmission;
 import org.meltzg.edhd.security.AbstractSecurityService;
@@ -39,12 +38,15 @@ public class SubmissionService extends AbstractSubmissionService {
 
 	@Value("${edhd.threads}")
 	private Integer nThreads;
-	
+
 	@Value("${edhd.hadoop.fsname}")
 	private String fsName;
 
 	@Autowired
 	private AbstractStorageService storageService;
+
+	@Autowired
+	private AbstractSecurityService securityService;
 
 	private ExecutorService threadpool;
 
@@ -54,16 +56,21 @@ public class SubmissionService extends AbstractSubmissionService {
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
 		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, " + ASSIGNMENTID
-				+ " UUID, " + USER + " TEXT REFERENCES " + AbstractSecurityService.TABLE_NAME() + ", " + CONFIGLOC
-				+ " UUID REFERENCES " + AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + ISVALIDATION + " BOOLEAN, " + COMPILESTATUS
-				+ " INTEGER, " + RUNSTATUS + " INTEGER, " + VALIDATESTATUS + " INTEGER, " + COMPLETESTATUS
-				+ " INTEGER, " + COMPILEMSG + " TEXT, " + RUNMSG + " TEXT, " + VALIDATEMSG + " TEXT, " + COMPLETEMSG
-				+ " TEXT, PRIMARY KEY(" + ID + "))";
+				+ " UUID, " + USER + " TEXT REFERENCES " + securityService.TABLE_NAME() + ", " + CONFIGLOC
+				+ " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
+				+ storageService.TABLE_NAME() + ", " + ISVALIDATION + " BOOLEAN, " + COMPILESTATUS + " INTEGER, "
+				+ RUNSTATUS + " INTEGER, " + VALIDATESTATUS + " INTEGER, " + COMPLETESTATUS + " INTEGER, " + COMPILEMSG
+				+ " TEXT, " + RUNMSG + " TEXT, " + VALIDATEMSG + " TEXT, " + COMPLETEMSG + " TEXT, PRIMARY KEY(" + ID
+				+ "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
 
 		threadpool = Executors.newFixedThreadPool(nThreads);
+	}
+
+	@Override
+	public String TABLE_NAME() {
+		return "submissions";
 	}
 
 	@Override

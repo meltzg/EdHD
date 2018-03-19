@@ -10,12 +10,12 @@ import org.meltzg.edhd.db.DBServiceBase;
 public abstract class AbstractSubmissionService extends DBServiceBase {
 
 	public abstract UUID executeDefinition(AssignmentDefinition definition) throws IOException;
+
 	public abstract UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission);
+
 	public abstract StatusProperties getStatus(UUID id);
+
 	public abstract void updateStatus(StatusProperties status);
+
 	public abstract String getFsDefaultName();
-	
-	public static String TABLE_NAME() {
-		return "submissions";
-	}
 }

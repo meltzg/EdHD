@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SecurityService extends AbstractSecurityService {
-	
+
 	private static final String NAME = "name";
 
 	@Value("${edhd.adminPassword}")
@@ -26,10 +26,15 @@ public class SecurityService extends AbstractSecurityService {
 		super.init();
 		Connection conn = getConnection();
 		Statement statement = conn.createStatement();
-		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + "" + NAME + " TEXT, " + "isAdmin BOOLEAN DEFAULT FALSE, "
-				+ "PRIMARY KEY(" + NAME + "))";
+		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + "" + NAME + " TEXT, "
+				+ "isAdmin BOOLEAN DEFAULT FALSE, " + "PRIMARY KEY(" + NAME + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
+	}
+
+	@Override
+	public String TABLE_NAME() {
+		return "users";
 	}
 
 	@Override
@@ -58,7 +63,7 @@ public class SecurityService extends AbstractSecurityService {
 			if (rs.next()) {
 				return rs.getBoolean("isAdmin");
 			}
-		}  catch (ClassNotFoundException | SQLException e) {
+		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
 		return false;

@@ -6,10 +6,8 @@ import org.meltzg.edhd.db.DBServiceBase;
 
 public abstract class AbstractSecurityService extends DBServiceBase {
 	public abstract void addUser(String user);
+
 	public abstract boolean isAdmin(String user);
+
 	public abstract boolean updateAdmin(String user, Map<String, String> options);
-	
-	public static String TABLE_NAME() {
-		return "users";
-	}
 }

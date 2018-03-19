@@ -19,8 +19,4 @@ public abstract class AbstractAssignmentService extends DBServiceBase {
 	public abstract List<AssignmentDefinition> getAllAssignments() throws IOException;
 
 	public abstract AssignmentDefinition getAssignment(UUID id, boolean includeSecondary) throws IOException;
-
-	public static String TABLE_NAME() {
-		return "assignments";
-	}
 }
