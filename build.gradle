@@ -30,7 +30,6 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.security.oauth:spring-security-oauth2')
 	compile('org.postgresql:postgresql')
 	compile('org.apache.hadoop:hadoop-client:3.0.0')
 	compile('com.github.meltzg:GenMapred:master-SNAPSHOT')

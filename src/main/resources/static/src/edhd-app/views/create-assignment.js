@@ -102,10 +102,6 @@ class CreateAssignment extends Polymer.Element {
 
         this.$.createAssignment.body = formData;
         this.$.createAssignment.contentType = null;
-        // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to post
-        this.$.createAssignment.headers = {
-            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-        };
         let request = this.$.createAssignment.generateRequest();
         request.completes.then(function () {
             this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));

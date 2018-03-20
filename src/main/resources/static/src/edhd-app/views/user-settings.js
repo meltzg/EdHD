@@ -15,9 +15,6 @@ class UserSettings extends Polymer.Element {
         };
         this.$.updateAdmin.body = adminSettings;
         // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to post
-        this.$.updateAdmin.headers = {
-            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-        };
         let request = this.$.updateAdmin.generateRequest();
         request.completes.then(function () {
             location.reload();

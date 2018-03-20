@@ -32,10 +32,6 @@ class AssignmentCard extends Polymer.Element {
         this.dispatchEvent(new CustomEvent('edit-assignment', { bubbles: true, composed: true, detail: { id: this.assignmentProps.id } }));
     }
     deleteAssignment() {
-        // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to not GET
-        this.$.delete.headers = {
-            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-        };
         let request = this.$.delete.generateRequest();
         request.completes.then(function () {
             this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));

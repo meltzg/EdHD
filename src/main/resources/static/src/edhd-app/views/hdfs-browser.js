@@ -61,10 +61,6 @@ class HDFSBrowser extends Polymer.Element {
         if (dir) {
             dir = encodeURIComponent(encodeURIComponent(dir));
             let location = encodeURIComponent(encodeURIComponent(this.location));
-            // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to not GET
-            this.$.requestMkDir.headers = {
-                'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-            };
             this.$.requestMkDir.url = '/hdfs-mkdir/' + location + '/' + dir;
             let request = this.$.requestMkDir.generateRequest();
             this.isBusy = true;
@@ -78,9 +74,6 @@ class HDFSBrowser extends Polymer.Element {
     remove(e) {
         let path = e.model.__data.item.path;
         path = encodeURIComponent(encodeURIComponent(path));
-        this.$.requestRm.headers = {
-            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-        };
         this.$.requestRm.url = '/hdfs-rm/' + path;
         let request = this.$.requestRm.generateRequest();
         this.isBusy = true;
@@ -100,10 +93,6 @@ class HDFSBrowser extends Polymer.Element {
         formData.append('file', this.file);
         this.$.requestPutFile.body = formData;
         this.$.requestPutFile.contentType = null;
-        // This shouldn't be necessary, but there seems to be a bug in iron-ajax related to post
-        this.$.requestPutFile.headers = {
-            'X-XSRF-TOKEN': document.cookie.match('XSRF-TOKEN.*')[0].split('=')[1]
-        };
         let request = this.$.requestPutFile.generateRequest();
         this.isBusy = true;
         request.completes.then(function () {
