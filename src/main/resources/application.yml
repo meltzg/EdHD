@@ -13,6 +13,6 @@ edhd:
   storageDir: C:/tmp
   threads: 20
   hadoop:
-    fsname: hdfs://192.168.50.100:54310
-    hdfsProxy: webhdfs://192.168.50.100:14000
+    fsname: hdfs://192.168.137.110:54310
+    hdfsProxy: webhdfs://192.168.137.110:14000
     hduser: hduser

@@ -152,7 +152,6 @@ class CreateAssignment extends Polymer.Element {
     }
     showError(msg) {
         this.$.errorToast.fitInto = this;
-        this.$.errorToast.positionTarget = this.$.top;
         this.$.errorToast.show({ text: msg });
     }
 }

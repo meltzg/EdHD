@@ -26,11 +26,15 @@ class LoginView extends Polymer.Element {
     submitLogin() {
         this.$.requestLogin.params = this.credentials;
         let request = this.$.requestLogin.generateRequest();
-        request.completes.then(function (event) {
-            console.log(event);
-        }.bind(this), function (rejected) {
-            console.log(rejected);
+        request.completes.then(function () {
+            location.reload();
+        }.bind(this), function () {
+            this.showError('Login failed!');
         }.bind(this));
+    }
+    showError(msg) {
+        this.$.errorToast.fitInto = this;
+        this.$.errorToast.show({ text: msg });
     }
 }
 customElements.define(LoginView.is, LoginView);

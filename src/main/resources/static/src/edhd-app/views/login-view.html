@@ -17,6 +17,7 @@
         <paper-button on-click="submitLogin" disabled="{{!loginEnabled}}" raised>Sign In</paper-button>
 
         <iron-ajax id="requestLogin" url="/login" handle-as="json" method="POST"></iron-ajax>
+        <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
     </template>
     <script src="login-view.js"></script>
 </dom-module>

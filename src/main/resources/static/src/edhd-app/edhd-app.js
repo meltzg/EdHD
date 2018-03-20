@@ -43,6 +43,7 @@ class EdhdApp extends Polymer.Element {
     }
     handleUserError() {
         this._set_userInfo(null);
+        this.page = 'login-view';
     }
     handleLogout() {
         location.reload();
