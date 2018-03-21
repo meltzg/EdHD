@@ -1,9 +1,12 @@
 package org.meltzg.edhd.security;
 
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,8 +25,27 @@ public class SecurityController {
 
 	@RequestMapping("/user")
 	public Principal user(Principal principal) {
-		securityService.addUser(principal.getName());
 		return principal;
+	}
+
+	@RequestMapping(value = "/register", method = RequestMethod.POST, consumes = "application/json")
+	public ResponseEntity<Map<String, Object>> registerUser(@RequestBody @Valid UserDTO accountInfo) {
+		Map<String, Object> responseBody = new HashMap<String, Object>();
+		responseBody.put("success", false);
+
+		try {
+			if (securityService.userExists(accountInfo.getUsername())) {
+				responseBody.put("message", "A user " + accountInfo.getUsername() + " already exists");
+			} else {
+				securityService.addUser(accountInfo);
+				responseBody.put("success", true);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+		}
+
+		return ResponseEntity.ok().body(responseBody);
 	}
 
 	@RequestMapping("/is-admin/{user}")
@@ -32,12 +54,11 @@ public class SecurityController {
 	}
 
 	@RequestMapping(value = "/update-admin", method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<Map<String, Object>> updateUser(Principal principal,
-			@RequestBody Map<String, String> body) {
+	public ResponseEntity<Map<String, Object>> updateUser(Principal principal, @RequestBody Map<String, String> body) {
 		boolean success = securityService.updateAdmin(principal.getName(), body);
 		Map<String, Object> returnBody = new HashMap<String, Object>();
 		returnBody.put("success", success);
-		
+
 		if (success) {
 			return ResponseEntity.ok(returnBody);
 		} else {

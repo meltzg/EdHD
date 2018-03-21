@@ -12,11 +12,19 @@
 
         <h1>Login</h1>
 
-        <paper-input label="Username" value="{{credentials.username}}"></paper-input>
+        <paper-input label="E-Mail" value="{{credentials.username}}"></paper-input>
         <paper-input label="Password" type="password" value="{{credentials.password}}"></paper-input>
         <paper-button on-click="submitLogin" disabled="{{!loginEnabled}}" raised>Sign In</paper-button>
 
+        <h1>Not registered? Sign up!</h1>
+
+        <paper-input label="E-Mail" value="{{signup.username}}"></paper-input>
+        <paper-input label="Password" type="password" value="{{signup.password}}"></paper-input>
+        <paper-input label="Confirm Password" type="password" value="{{signup.matchingPassword}}"></paper-input>
+        <paper-button on-click="submitSignup" disabled="{{!signupEnabled}}" raised>Sign Up</paper-button>
+
         <iron-ajax id="requestLogin" url="/login" handle-as="json" method="POST"></iron-ajax>
+        <iron-ajax id="requestRegister" url="/register"  content-type="application/json" method="POST"></iron-ajax>
         <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
     </template>
     <script src="login-view.js"></script>
