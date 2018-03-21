@@ -48,7 +48,7 @@ public class SecurityController {
 		return ResponseEntity.ok().body(responseBody);
 	}
 
-	@RequestMapping("/is-admin/{user}")
+	@RequestMapping("/is-admin/{user:.+}")
 	public Map<String, Boolean> isAdmin(@PathVariable String user) {
 		return Collections.singletonMap("isAdmin", securityService.isAdmin(user));
 	}

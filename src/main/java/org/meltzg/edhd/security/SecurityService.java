@@ -129,9 +129,8 @@ public class SecurityService extends AbstractSecurityService {
 			boolean accountNonExpired = true;
 			boolean credentialsNonExpired = true;
 			boolean accountNonLocked = true;
-			return new org.springframework.security.core.userdetails.User(user.getUsername(),
-					user.getPassword().toLowerCase(), enabled, accountNonExpired, credentialsNonExpired,
-					accountNonLocked, user.getAuthorities());
+			return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+					enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, user.getAuthorities());
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
