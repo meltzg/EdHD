@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 
 import org.meltzg.edhd.assignment.AssignmentDefinition;
 import org.meltzg.edhd.assignment.AssignmentSubmission;
+import org.meltzg.edhd.hadoop.IHadoopService;
 import org.meltzg.edhd.security.AbstractSecurityService;
 import org.meltzg.edhd.storage.AbstractStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +40,14 @@ public class SubmissionService extends AbstractSubmissionService {
 	@Value("${edhd.threads}")
 	private Integer nThreads;
 
-	@Value("${edhd.hadoop.fsname}")
-	private String fsName;
-
 	@Autowired
 	private AbstractStorageService storageService;
 
 	@Autowired
 	private AbstractSecurityService securityService;
+
+	@Autowired
+	IHadoopService hadoopService;
 
 	private ExecutorService threadpool;
 
@@ -77,7 +78,7 @@ public class SubmissionService extends AbstractSubmissionService {
 	public UUID executeDefinition(AssignmentDefinition definition) throws IOException {
 		UUID submissionId = UUID.randomUUID();
 		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, new StatusProperties(), storageService,
-				this);
+				this, hadoopService);
 		threadpool.execute(worker);
 		return submissionId;
 	}
@@ -98,10 +99,5 @@ public class SubmissionService extends AbstractSubmissionService {
 	public void updateStatus(StatusProperties status) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public String getFsDefaultName() {
-		return fsName;
 	}
 }

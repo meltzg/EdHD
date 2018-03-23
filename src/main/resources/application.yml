@@ -10,9 +10,8 @@ spring:
 edhd:
   adminPassword: ADMIN123User
   dbName: edhd
-  storageDir: C:/tmp
+  storageDir: /home/hduser/tmp
   threads: 20
   hadoop:
-    fsname: hdfs://192.168.137.110:54310
-    hdfsProxy: webhdfs://192.168.137.110:14000
+    defaultFS: hdfs://hadoop-master:54310
     hduser: hduser

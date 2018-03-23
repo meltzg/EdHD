@@ -16,6 +16,4 @@ public abstract class AbstractSubmissionService extends DBServiceBase {
 	public abstract StatusProperties getStatus(UUID id);
 
 	public abstract void updateStatus(StatusProperties status);
-
-	public abstract String getFsDefaultName();
 }

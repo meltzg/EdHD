@@ -7,8 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.UUID;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -29,6 +32,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.meltzg.edhd.assignment.AssignmentDefinition;
+import org.meltzg.edhd.hadoop.IHadoopService;
 import org.meltzg.edhd.storage.AbstractStorageService;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.meltzg.genmapred.runner.GenJobRunner;
@@ -40,16 +44,19 @@ public class SubmissionWorker implements Runnable {
 	private StatusProperties statProps;
 	private AbstractStorageService storageService;
 	private AbstractSubmissionService submissionService;
+	private IHadoopService hadoopService;
 	private String workerDir;
 
 	public SubmissionWorker(UUID submissionId, AssignmentDefinition definition, StatusProperties statProps,
-			AbstractStorageService storageService, AbstractSubmissionService submissionService) throws IOException {
+			AbstractStorageService storageService, AbstractSubmissionService submissionService,
+			IHadoopService hadoopService) throws IOException {
 		super();
 		this.submissionId = submissionId;
 		this.definition = definition;
 		this.statProps = statProps;
 		this.storageService = storageService;
 		this.submissionService = submissionService;
+		this.hadoopService = hadoopService;
 
 		this.workerDir = storageService.getStorageDir() + "/worker/" + submissionId.toString();
 		FileUtils.forceMkdir(new File(this.workerDir));
@@ -121,12 +128,19 @@ public class SubmissionWorker implements Runnable {
 	private String compileSrc() {
 		String compiledJar = null;
 
+		List<String> optionList = new ArrayList<String>();
+		// set compiler's classpath to be same as the runtime's
+		String classpath = hadoopService.getHadoopClasspath();
+		if (classpath != null && classpath.length() > 0) {
+			optionList.addAll(Arrays.asList("-cp", classpath));
+		}
+
 		Collection<File> srcFiles = FileUtils.listFiles(new File(this.workerDir), new SuffixFileFilter(".java"),
 				TrueFileFilter.INSTANCE);
 
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, null);
-		CompilationTask task = compiler.getTask(null, manager, null, null, null,
+		CompilationTask task = compiler.getTask(null, manager, null, optionList, null,
 				manager.getJavaFileObjectsFromFiles(srcFiles));
 
 		boolean success = task.call();
@@ -193,13 +207,15 @@ public class SubmissionWorker implements Runnable {
 			primaryConfig.setProp(GenJobConfiguration.OUTPUT_PATH, "/submission/" + submissionId.toString());
 			secondaryConfig.setProp(GenJobConfiguration.ARTIFACT_JAR_PATHS, compiledJar);
 
-			if (primaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
-				primaryConfig.setProp(GenJobConfiguration.INPUT_PATH, submissionService.getFsDefaultName() + "/"
-						+ primaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
-			} else if (secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
-				secondaryConfig.setProp(GenJobConfiguration.INPUT_PATH, submissionService.getFsDefaultName() + "/"
-						+ secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
-			}
+			// if (primaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
+			// primaryConfig.setProp(GenJobConfiguration.INPUT_PATH,
+			// submissionService.getDefaultFS() + "/"
+			// + primaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
+			// } else if (secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
+			// secondaryConfig.setProp(GenJobConfiguration.INPUT_PATH,
+			// submissionService.getDefaultFS() + "/"
+			// + secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
+			// }
 
 			primaryConfig.marshal(primaryConfigWorkerPath);
 			secondaryConfig.marshal(secondaryConfigWorkerPath);
@@ -209,14 +225,9 @@ public class SubmissionWorker implements Runnable {
 			return false;
 		}
 
-		Configuration conf = new Configuration();
-//		conf.set("fs.default.name", submissionService.getFsDefaultName());
-		conf.set("fs.default.name", "webhdfs://192.168.50.100:14000");
-		conf.set("mapreduce.framework.name", "yarn");
-		conf.set("yarn.resourcemanager.address", "192.168.50.100:8040");
-//		conf.set("fs.defaultFS", submissionService.getFsDefaultName());
+		Configuration conf = hadoopService.getConfiguration();
 		Tool runner = new GenJobRunner();
-		String[] args = { primaryConfigWorkerPath, secondaryConfigWorkerPath };
+		String[] args = { "--primary", primaryConfigWorkerPath, "--secondary", secondaryConfigWorkerPath };
 		try {
 			ToolRunner.run(conf, runner, args);
 		} catch (Exception e) {

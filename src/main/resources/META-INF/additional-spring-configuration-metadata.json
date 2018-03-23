@@ -20,12 +20,12 @@
     "description": "Number of threads for submission processing"
   },
   {
-    "name": "edhd.hadoop.fsname",
+    "name": "edhd.hadoop.defaultFS",
     "type": "java.lang.String",
     "description": "fs.default.name for the submission runner"
   },
   {
-    "name": "edhd.hadoop.hdfs-proxy",
+    "name": "edhd.hadoop.httpFS",
     "type": "java.lang.String",
     "description": "webhdfs url for HttpFS so that EdHD can access HDFS"
   },

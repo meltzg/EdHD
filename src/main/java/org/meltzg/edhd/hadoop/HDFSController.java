@@ -1,4 +1,4 @@
-package org.meltzg.edhd.hdfs;
+package org.meltzg.edhd.hadoop;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class HDFSController {
 
 	@Autowired
-	private IHDFSService hdfsService;
+	private IHadoopService hdfsService;
 
 	@Autowired
 	AbstractSecurityService securityService;

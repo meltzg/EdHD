@@ -1,4 +1,4 @@
-package org.meltzg.edhd.hdfs;
+package org.meltzg.edhd.hadoop;
 
 public class HDFSEntry {
 		private String group;
