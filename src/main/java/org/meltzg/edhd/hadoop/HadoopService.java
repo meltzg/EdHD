@@ -8,11 +8,16 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -118,10 +123,12 @@ public class HadoopService implements IHadoopService {
 	@Override
 	public Configuration getConfiguration() {
 		Configuration conf = new Configuration();
-//		conf.set("fs.defaultFS", getDefaultFS());
-//		conf.set("mapreduce.framework.name", "yarn");
-//		conf.set("yarn.resourcemanager.address", "192.168.137.26:8040");
-//		conf.set("fs.webhdfs.impl", org.apache.hadoop.hdfs.web.WebHdfsFileSystem.class.getName());
+		String hadoopConfDir = System.getenv().get("HADOOP_CONF_DIR");
+		conf.addResource(new Path("file://" + hadoopConfDir + "/core-site.xml"));
+		conf.addResource(new Path("file://" + hadoopConfDir + "/hdfs-site.xml"));
+		conf.addResource(new Path("file://" + hadoopConfDir + "/yarn-site.xml"));
+		conf.addResource(new Path("file://" + hadoopConfDir + "/mapred-site.xml"));
+
 		return conf;
 	}
 
@@ -135,6 +142,20 @@ public class HadoopService implements IHadoopService {
 			while ((tmp = reader.readLine()) != null) {
 				classpath += tmp;
 			}
+
+			String[] subPaths = classpath.split(":");
+			Set<String> jarPaths = new HashSet<String>();
+			for (String subPath : subPaths) {
+				if (subPath.charAt(subPath.length() - 1) == '*') {
+					subPath = subPath.substring(0, subPath.length() - 1);
+				}
+				Collection<File> jars = org.apache.commons.io.FileUtils.listFiles(new File(subPath),
+						new SuffixFileFilter(".jar"), TrueFileFilter.INSTANCE);
+				for (File jar : jars) {
+					jarPaths.add(jar.getAbsolutePath());
+				}
+			}
+			classpath = String.join(":", jarPaths);
 			return classpath;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

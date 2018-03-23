@@ -207,15 +207,6 @@ public class SubmissionWorker implements Runnable {
 			primaryConfig.setProp(GenJobConfiguration.OUTPUT_PATH, "/submission/" + submissionId.toString());
 			secondaryConfig.setProp(GenJobConfiguration.ARTIFACT_JAR_PATHS, compiledJar);
 
-			// if (primaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
-			// primaryConfig.setProp(GenJobConfiguration.INPUT_PATH,
-			// submissionService.getDefaultFS() + "/"
-			// + primaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
-			// } else if (secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH) != null) {
-			// secondaryConfig.setProp(GenJobConfiguration.INPUT_PATH,
-			// submissionService.getDefaultFS() + "/"
-			// + secondaryConfig.getProp(GenJobConfiguration.INPUT_PATH));
-			// }
 
 			primaryConfig.marshal(primaryConfigWorkerPath);
 			secondaryConfig.marshal(secondaryConfigWorkerPath);
