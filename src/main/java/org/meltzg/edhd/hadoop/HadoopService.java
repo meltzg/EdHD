@@ -103,7 +103,7 @@ public class HadoopService implements IHadoopService {
 			File convFile = new File(storageDir + "/" + id.toString() + "/" + file.getOriginalFilename());
 			file.transferTo(convFile);
 			Path srcPath = new Path("file:///" + convFile.getAbsolutePath());
-			Path destPath = new Path(location + "/" + convFile.getName());
+			Path destPath = new Path(defaultFS + "/" + location + "/" + convFile.getName());
 			fs.copyFromLocalFile(srcPath, destPath);
 			success = true;
 		} catch (IOException e) {
