@@ -222,7 +222,7 @@ public class SubmissionWorker implements Runnable {
 		try {
 			ToolRunner.run(conf, runner, args);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			// TODO Check HDFS for the SUCCESS file. sometimes the cluster barfs even when things are good.
 			e.printStackTrace();
 			return false;
 		}

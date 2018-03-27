@@ -2,6 +2,7 @@ package org.meltzg.edhd.assignment;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import org.meltzg.edhd.security.AbstractSecurityService;
+import org.meltzg.edhd.submission.AbstractSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,9 @@ public class AssignmentController {
 
 	@Autowired
 	AbstractAssignmentService assignmentService;
+	
+	@Autowired
+	AbstractSubmissionService submissionService;
 
 	@RequestMapping(value = "/create-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
 	public ResponseEntity<Map<String, String>> createAssignment(Principal principal,
@@ -71,7 +76,8 @@ public class AssignmentController {
 	@RequestMapping("/get-assignment/{id}")
 	public ResponseEntity<AssignmentDefinition> getAssignment(Principal principal, @PathVariable UUID id) {
 		try {
-			AssignmentDefinition assignment = assignmentService.getAssignment(id, securityService.isAdmin(principal.getName()));
+			AssignmentDefinition assignment = assignmentService.getAssignment(id,
+					securityService.isAdmin(principal.getName()));
 			return ResponseEntity.ok(assignment);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -94,5 +100,30 @@ public class AssignmentController {
 			returnBody.put("message", "Only admins can create assignments");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(returnBody);
 		}
+	}
+
+	@RequestMapping(value = "/submit-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
+	public ResponseEntity<Map<String, String>> createAssignment(Principal principal,
+			@RequestPart("properties") @Valid AssignmentSubmission submission,
+			@RequestPart(name = "src", required = true) MultipartFile src) {
+		Map<String, String> returnBody = new HashMap<String, String>();
+
+		UUID submissionId;
+		try {
+			AssignmentDefinition definition = assignmentService.getAssignment(submission.getId(), false);
+			if (definition != null) {
+				submissionId = submissionService.executeSubmission(definition, submission, src);
+				returnBody.put("submission_id", submissionId.toString());
+			} else {
+				returnBody.put("message", "Could not find assignment with ID " + submission.getId().toString());
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(returnBody);
+			}
+		} catch (IOException | ClassNotFoundException | SQLException e) {
+			returnBody.put("message", "An error occured while creating the assignment");
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(returnBody);
+		}
+
+		return ResponseEntity.ok(returnBody);
 	}
 }

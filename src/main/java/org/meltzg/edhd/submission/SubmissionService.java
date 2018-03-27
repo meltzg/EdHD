@@ -2,7 +2,11 @@ package org.meltzg.edhd.submission;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,9 +18,11 @@ import org.meltzg.edhd.assignment.AssignmentSubmission;
 import org.meltzg.edhd.hadoop.IHadoopService;
 import org.meltzg.edhd.security.AbstractSecurityService;
 import org.meltzg.edhd.storage.AbstractStorageService;
+import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class SubmissionService extends AbstractSubmissionService {
@@ -75,18 +81,22 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public UUID executeDefinition(AssignmentDefinition definition) throws IOException {
-		UUID submissionId = UUID.randomUUID();
-		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, new StatusProperties(), storageService,
-				this, hadoopService);
-		threadpool.execute(worker);
-		return submissionId;
+	public UUID executeDefinition(AssignmentDefinition definition) throws IOException, ClassNotFoundException, SQLException {
+		return executeSubmission(definition, true);
 	}
 
 	@Override
-	public UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission) {
-		// TODO Auto-generated method stub
-		return null;
+	public UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission, MultipartFile src)
+			throws IOException, ClassNotFoundException, SQLException {
+		UUID srcLoc = storageService.putFile(src);
+		UUID configLoc = storageService.putFile(new GenJobConfiguration(submission.getConfig()));
+
+		definition.setConfig(submission.getConfig());
+		definition.setConfigLoc(configLoc);
+		definition.setSrcName(submission.getSrcName());
+		definition.setSrcLoc(srcLoc);
+		definition.setUser(submission.getUser());
+		return executeSubmission(definition, false);
 	}
 
 	@Override
@@ -99,5 +109,83 @@ public class SubmissionService extends AbstractSubmissionService {
 	public void updateStatus(StatusProperties status) {
 		// TODO Auto-generated method stub
 
+	}
+
+	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation) throws IOException, ClassNotFoundException, SQLException {
+		UUID submissionId = UUID.randomUUID();
+		StatusProperties statProps = new StatusProperties(submissionId);
+		
+		deleteByUserAssignment(definition.getUser(), definition.getId(), isValidation);
+		
+		
+		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, statProps, storageService, this,
+				hadoopService);
+		threadpool.execute(worker);
+		return submissionId;
+	}
+
+	private AssignmentSubmission getByUserAssignment(String user, UUID assignmentId, boolean isValidation) {
+		AssignmentSubmission submission = null;
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(user, DBType.TEXT));
+		params.add(new StatementParameter(assignmentId, DBType.UUID));
+		params.add(new StatementParameter(isValidation, DBType.BOOLEAN));
+
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + USER + "=? AND " + ASSIGNMENTID
+					+ "=? AND " + ISVALIDATION + "=?;", params);
+			if (rs.next()) {
+				submission = extractSubmissionProps(rs);
+			}
+		} catch (ClassNotFoundException | SQLException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return submission;
+	}
+
+	
+
+	private boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation) throws ClassNotFoundException, SQLException, IOException {
+		AssignmentSubmission existingSubmission = getByUserAssignment(user, assignmentId, isValidation);
+		if (existingSubmission != null) {
+			UUID srcLoc = existingSubmission.getSrcLoc();
+			UUID configLoc = existingSubmission.getConfigLoc();
+			deleteById(TABLE_NAME(), existingSubmission.getId());
+			
+			if (!isValidation) {
+				storageService.deleteFile(configLoc);
+				storageService.deleteFile(srcLoc);
+				hadoopService.delete("/submission/" + existingSubmission.getId());
+			}
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private AssignmentSubmission extractSubmissionProps(ResultSet rs) throws SQLException, IOException {
+		UUID id = (UUID) rs.getObject(ID);
+		String user = rs.getString(USER);
+		UUID configLoc = (UUID) rs.getObject(CONFIGLOC);
+		UUID srcLoc = (UUID) rs.getObject(SRCLOC);
+		
+		AssignmentSubmission submission = new AssignmentSubmission();
+		submission.setId(id);
+		submission.setUser(user);
+		submission.setConfigLoc(configLoc);
+		submission.setSrcLoc(srcLoc);
+		
+		if (configLoc != null) {
+			GenJobConfiguration gConfig = new GenJobConfiguration(
+					storageService.getFile(configLoc).getAbsolutePath());
+			submission.setConfig(gConfig.getconfigProps());
+		}
+		if (srcLoc != null) {
+			submission.setSrcName(storageService.getFile(srcLoc).getName());
+		}
+		
+		return submission;
 	}
 }

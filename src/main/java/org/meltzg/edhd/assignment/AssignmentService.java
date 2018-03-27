@@ -291,7 +291,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			}
 		}
 
-		AssignmentDefinition assignment = new AssignmentDefinition(id, dueDate, name, desc, primaryConfig,
+		AssignmentDefinition assignment = new AssignmentDefinition(id, null, dueDate, name, desc, primaryConfig,
 				primaryConfigLoc, config, configLoc, primarySrcName, primarySrcLoc, srcName, srcLoc);
 
 		return assignment;
