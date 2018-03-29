@@ -103,7 +103,7 @@ public class AssignmentController {
 	}
 
 	@RequestMapping(value = "/submit-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
-	public ResponseEntity<Map<String, String>> createAssignment(Principal principal,
+	public ResponseEntity<Map<String, String>> submitAssignment(Principal principal,
 			@RequestPart("properties") @Valid AssignmentSubmission submission,
 			@RequestPart(name = "src", required = true) MultipartFile src) {
 		Map<String, String> returnBody = new HashMap<String, String>();
@@ -112,6 +112,7 @@ public class AssignmentController {
 		try {
 			AssignmentDefinition definition = assignmentService.getAssignment(submission.getId(), false);
 			if (definition != null) {
+				submission.setUser(principal.getName());
 				submissionId = submissionService.executeSubmission(definition, submission, src);
 				returnBody.put("submission_id", submissionId.toString());
 			} else {

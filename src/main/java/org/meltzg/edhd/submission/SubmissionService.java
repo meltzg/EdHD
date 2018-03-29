@@ -81,7 +81,8 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public UUID executeDefinition(AssignmentDefinition definition) throws IOException, ClassNotFoundException, SQLException {
+	public UUID executeDefinition(AssignmentDefinition definition)
+			throws IOException, ClassNotFoundException, SQLException {
 		return executeSubmission(definition, true);
 	}
 
@@ -106,18 +107,77 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public void updateStatus(StatusProperties status) {
-		// TODO Auto-generated method stub
+	public void updateStatus(StatusProperties status) throws ClassNotFoundException, SQLException {
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(status.getCompileStatus().value(), DBType.INT));
+		params.add(new StatementParameter(status.getCompileMsg(), DBType.TEXT));
+		params.add(new StatementParameter(status.getRunStatus().value(), DBType.INT));
+		params.add(new StatementParameter(status.getRunMsg(), DBType.TEXT));
+		params.add(new StatementParameter(status.getValidateStatus().value(), DBType.INT));
+		params.add(new StatementParameter(status.getValidateMsg(), DBType.TEXT));
+		params.add(new StatementParameter(status.getCompleteStatus().value(), DBType.INT));
+		params.add(new StatementParameter(status.getCompleteMsg(), DBType.TEXT));
+		params.add(new StatementParameter(status.getId(), DBType.UUID));
 
+		executeUpdate("UPDATE " + TABLE_NAME() + " SET " + COMPILESTATUS + "=?, " + COMPILEMSG + "=?, " + RUNSTATUS
+				+ "=?, " + RUNMSG + "=?, " + VALIDATESTATUS + "=?, " + VALIDATEMSG + "=?, " + COMPLETESTATUS + "=?, "
+				+ COMPLETEMSG + "=? WHERE " + ID + "=?;", params);
 	}
 
-	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation) throws IOException, ClassNotFoundException, SQLException {
+	@Override
+	public void deleteByAssignment(UUID id) {
+		List<AssignmentSubmission> submissionsToDelete = getByAssignment(id);
+		for (AssignmentSubmission sub : submissionsToDelete) {
+			try {
+				deleteById(sub.getId(), true);
+			} catch (ClassNotFoundException | SQLException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation)
+			throws ClassNotFoundException, SQLException, IOException {
+		AssignmentSubmission existingSubmission = getByUserAssignment(user, assignmentId, isValidation);
+		if (existingSubmission != null) {
+			UUID srcLoc = existingSubmission.getSrcLoc();
+			UUID configLoc = existingSubmission.getConfigLoc();
+			deleteById(TABLE_NAME(), existingSubmission.getId());
+	
+			if (!isValidation) {
+				storageService.deleteFile(configLoc);
+				storageService.deleteFile(srcLoc);
+				hadoopService.delete("/submission/" + existingSubmission.getId());
+			}
+	
+			return true;
+		}
+	
+		return false;
+	}
+
+	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation)
+			throws IOException, ClassNotFoundException, SQLException {
 		UUID submissionId = UUID.randomUUID();
 		StatusProperties statProps = new StatusProperties(submissionId);
-		
+
 		deleteByUserAssignment(definition.getUser(), definition.getId(), isValidation);
-		
-		
+
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(submissionId, DBType.UUID));
+		params.add(new StatementParameter(definition.getUser(), DBType.TEXT));
+		params.add(new StatementParameter(definition.getId(), DBType.UUID));
+		params.add(new StatementParameter(definition.getConfigLoc(), DBType.UUID));
+		params.add(new StatementParameter(definition.getSrcLoc(), DBType.UUID));
+		params.add(new StatementParameter(isValidation, DBType.BOOLEAN));
+		int added = executeUpdate("INSERT INTO " + TABLE_NAME() + "(" + ID + ", " + USER + ", " + ASSIGNMENTID + ", "
+				+ CONFIGLOC + ", " + SRCLOC + ", " + ISVALIDATION + ") VALUES (?, ?, ?, ?, ?, ?);", params);
+		if (added > 0) {
+			updateStatus(statProps);
+		}
+
 		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, statProps, storageService, this,
 				hadoopService);
 		threadpool.execute(worker);
@@ -143,49 +203,78 @@ public class SubmissionService extends AbstractSubmissionService {
 		}
 		return submission;
 	}
-
 	
+	private AssignmentSubmission getById(UUID id) {
+		AssignmentSubmission submission = null;
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(id, DBType.UUID));
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + ID + "=?;", params);
+			if (rs.next()) {
+				submission = extractSubmissionProps(rs);
+			}
+		} catch (ClassNotFoundException | SQLException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return submission;
+	}
 
-	private boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation) throws ClassNotFoundException, SQLException, IOException {
-		AssignmentSubmission existingSubmission = getByUserAssignment(user, assignmentId, isValidation);
+	private List<AssignmentSubmission> getByAssignment(UUID assignmentId) {
+		List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>();
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(assignmentId, DBType.UUID));
+
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + ASSIGNMENTID + "=?;", params);
+			while (rs.next()) {
+				submissions.add(extractSubmissionProps(rs));
+			}
+		} catch (ClassNotFoundException | SQLException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return submissions;
+	}
+
+	private boolean deleteById(UUID id, boolean deleteFiles) throws ClassNotFoundException, SQLException, IOException {
+		AssignmentSubmission existingSubmission = getById(id);
 		if (existingSubmission != null) {
 			UUID srcLoc = existingSubmission.getSrcLoc();
 			UUID configLoc = existingSubmission.getConfigLoc();
 			deleteById(TABLE_NAME(), existingSubmission.getId());
-			
-			if (!isValidation) {
+
+			if (deleteFiles) {
 				storageService.deleteFile(configLoc);
 				storageService.deleteFile(srcLoc);
 				hadoopService.delete("/submission/" + existingSubmission.getId());
 			}
-			
+
 			return true;
 		}
-		
 		return false;
 	}
-	
+
 	private AssignmentSubmission extractSubmissionProps(ResultSet rs) throws SQLException, IOException {
 		UUID id = (UUID) rs.getObject(ID);
 		String user = rs.getString(USER);
 		UUID configLoc = (UUID) rs.getObject(CONFIGLOC);
 		UUID srcLoc = (UUID) rs.getObject(SRCLOC);
-		
+
 		AssignmentSubmission submission = new AssignmentSubmission();
 		submission.setId(id);
 		submission.setUser(user);
 		submission.setConfigLoc(configLoc);
 		submission.setSrcLoc(srcLoc);
-		
+
 		if (configLoc != null) {
-			GenJobConfiguration gConfig = new GenJobConfiguration(
-					storageService.getFile(configLoc).getAbsolutePath());
+			GenJobConfiguration gConfig = new GenJobConfiguration(storageService.getFile(configLoc).getAbsolutePath());
 			submission.setConfig(gConfig.getconfigProps());
 		}
 		if (srcLoc != null) {
 			submission.setSrcName(storageService.getFile(srcLoc).getName());
 		}
-		
+
 		return submission;
 	}
 }

@@ -73,6 +73,14 @@ public class AssignmentService extends AbstractAssignmentService {
 	public UUID updateAssignment(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc)
 			throws IOException {
 		AssignmentDefinition current = getAssignment(props.getId(), true);
+		
+		try {
+			submissionService.deleteByUserAssignment("admin", current.getId(), true);
+		} catch (ClassNotFoundException | SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		List<StatementParameter> params;
 
 		// delete old src files if necessary
@@ -134,14 +142,11 @@ public class AssignmentService extends AbstractAssignmentService {
 			ResultSet rs = executeQuery("SELECT " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", "
 					+ SRCLOC + " FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
 			if (rs.next()) {
+				submissionService.deleteByAssignment(id);
 				deleteById(TABLE_NAME(), id);
 				// delete associated files
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYCONFIGLOC));
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYSRCLOC));
-				storageService.deleteFile((UUID) rs.getObject(CONFIGLOC));
-				storageService.deleteFile((UUID) rs.getObject(SRCLOC));
-				// TODO delete submissions
-				// TODO delete HDFS content
 				return true;
 			}
 		} catch (ClassNotFoundException | SQLException e) {
@@ -214,7 +219,7 @@ public class AssignmentService extends AbstractAssignmentService {
 
 		String insertQuery = "INSERT INTO " + TABLE_NAME() + " (" + ID + ", " + DUEDATE + ", " + ASSIGNMENTNAME + ", "
 				+ ASSIGNMENTDESC + ", " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", " + SRCLOC
-				+ ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+				+ ") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
 		String updateQuery = "UPDATE " + TABLE_NAME() + " SET " + DUEDATE + "=?, " + ASSIGNMENTNAME + "=?, "
 				+ ASSIGNMENTDESC + "=?, " + PRIMARYCONFIGLOC + "=?, " + CONFIGLOC + "=?, " + PRIMARYSRCLOC + "=?, "
@@ -241,7 +246,9 @@ public class AssignmentService extends AbstractAssignmentService {
 
 		try {
 			int inserted = executeUpdate(queryString, params);
-			submissionService.executeDefinition(getAssignment(id, true));
+			AssignmentDefinition def = getAssignment(id, true);
+			def.setUser("admin");
+			submissionService.executeDefinition(def);
 			if (inserted > 0) {
 				return id;
 			}

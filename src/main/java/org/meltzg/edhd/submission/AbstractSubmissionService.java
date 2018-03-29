@@ -11,11 +11,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 public abstract class AbstractSubmissionService extends DBServiceBase {
 
-	public abstract UUID executeDefinition(AssignmentDefinition definition) throws IOException, ClassNotFoundException, SQLException;
+	public abstract UUID executeDefinition(AssignmentDefinition definition)
+			throws IOException, ClassNotFoundException, SQLException;
 
-	public abstract UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission, MultipartFile src) throws IOException, ClassNotFoundException, SQLException;
+	public abstract UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission,
+			MultipartFile src) throws IOException, ClassNotFoundException, SQLException;
 
 	public abstract StatusProperties getStatus(UUID id);
 
-	public abstract void updateStatus(StatusProperties status);
+	public abstract void updateStatus(StatusProperties status) throws ClassNotFoundException, SQLException;
+
+	public abstract void deleteByAssignment(UUID id);
+
+	public abstract boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation)
+			throws ClassNotFoundException, SQLException, IOException;
 }

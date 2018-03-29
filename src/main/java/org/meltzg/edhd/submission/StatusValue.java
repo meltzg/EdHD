@@ -1,7 +1,8 @@
 package org.meltzg.edhd.submission;
 
 public enum StatusValue {
-	SUCCESS(1),
+	SUCCESS(2),
+	COMPLETE(1),
 	PENDING(0),
 	FAIL(-1);
 	
@@ -9,5 +10,9 @@ public enum StatusValue {
 
 	StatusValue(int val) {
 		this.val = val;
+	}
+	
+	public int value() {
+		return this.val;
 	}
 }
