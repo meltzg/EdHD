@@ -187,13 +187,21 @@ public class SubmissionService extends AbstractSubmissionService {
 	private AssignmentSubmission getByUserAssignment(String user, UUID assignmentId, boolean isValidation) {
 		AssignmentSubmission submission = null;
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
-		params.add(new StatementParameter(user, DBType.TEXT));
 		params.add(new StatementParameter(assignmentId, DBType.UUID));
 		params.add(new StatementParameter(isValidation, DBType.BOOLEAN));
+		
+		String queryString = "SELECT * FROM " + TABLE_NAME() + " WHERE " + ASSIGNMENTID
+				+ "=? AND " + ISVALIDATION + "=?";
+		if (!isValidation) {
+			queryString += " AND " + USER + "=?";
+			params.add(new StatementParameter(user, DBType.TEXT));
+		} else {
+			queryString += " AND " + USER + " IS NULL";
+		}
+		queryString += ";";
 
 		try {
-			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + USER + "=? AND " + ASSIGNMENTID
-					+ "=? AND " + ISVALIDATION + "=?;", params);
+			ResultSet rs = executeQuery(queryString, params);
 			if (rs.next()) {
 				submission = extractSubmissionProps(rs);
 			}

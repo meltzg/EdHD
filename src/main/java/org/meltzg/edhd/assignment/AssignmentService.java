@@ -75,7 +75,7 @@ public class AssignmentService extends AbstractAssignmentService {
 		AssignmentDefinition current = getAssignment(props.getId(), true);
 		
 		try {
-			submissionService.deleteByUserAssignment("admin", current.getId(), true);
+			submissionService.deleteByUserAssignment(null, current.getId(), true);
 		} catch (ClassNotFoundException | SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -142,8 +142,8 @@ public class AssignmentService extends AbstractAssignmentService {
 			ResultSet rs = executeQuery("SELECT " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", "
 					+ SRCLOC + " FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
 			if (rs.next()) {
-				submissionService.deleteByAssignment(id);
 				deleteById(TABLE_NAME(), id);
+				submissionService.deleteByAssignment(id);
 				// delete associated files
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYCONFIGLOC));
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYSRCLOC));
@@ -247,7 +247,6 @@ public class AssignmentService extends AbstractAssignmentService {
 		try {
 			int inserted = executeUpdate(queryString, params);
 			AssignmentDefinition def = getAssignment(id, true);
-			def.setUser("admin");
 			submissionService.executeDefinition(def);
 			if (inserted > 0) {
 				return id;
