@@ -15,7 +15,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 
 public abstract class DBServiceBase {
-	
+
 	protected static final String ID = "id";
 
 	@Value("${spring.datasource.url}")
@@ -29,7 +29,9 @@ public abstract class DBServiceBase {
 
 	@Value("${edhd.dbName}")
 	private String dbName;
-	
+
+	public abstract String TABLE_NAME();
+
 	protected void init() throws Exception {
 		Connection conn;
 		try {
@@ -61,24 +63,27 @@ public abstract class DBServiceBase {
 
 		return c;
 	}
-	
-	protected ResultSet executeQuery(String query, List<StatementParameter> params) throws SQLException, ClassNotFoundException {		
+
+	protected ResultSet executeQuery(String query, List<StatementParameter> params)
+			throws SQLException, ClassNotFoundException {
 		return (ResultSet) executeQuery(query, params, false);
 	}
-	
-	protected int executeUpdate(String query, List<StatementParameter> params) throws SQLException, ClassNotFoundException {		
+
+	protected int executeUpdate(String query, List<StatementParameter> params)
+			throws SQLException, ClassNotFoundException {
 		return (Integer) executeQuery(query, params, true);
 	}
-	
+
 	protected int deleteById(String tableName, UUID id) throws ClassNotFoundException, SQLException {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(id, DBType.UUID));
 		return executeUpdate("DELETE FROM " + tableName + " WHERE " + ID + " = ?;", params);
 	}
-	
-	private Object executeQuery(String query, List<StatementParameter> params, boolean isUpdate) throws SQLException, ClassNotFoundException {
+
+	private Object executeQuery(String query, List<StatementParameter> params, boolean isUpdate)
+			throws SQLException, ClassNotFoundException {
 		Object results = null;
-		
+
 		Connection conn = getConnection();
 		PreparedStatement stmt = conn.prepareStatement(query);
 		setStatementParams(stmt, params, conn);
@@ -88,14 +93,15 @@ public abstract class DBServiceBase {
 			results = stmt.executeQuery();
 		}
 		conn.close();
-		
+
 		return results;
 	}
 
-	private void setStatementParams(PreparedStatement stmt, List<StatementParameter> params, Connection conn) throws SQLException {
+	private void setStatementParams(PreparedStatement stmt, List<StatementParameter> params, Connection conn)
+			throws SQLException {
 		if (params != null) {
 			for (int i = 1; i <= params.size(); i++) {
-				StatementParameter prm = params.get(i-1);
+				StatementParameter prm = params.get(i - 1);
 				switch (prm.getType()) {
 				case ARRAY:
 					Array tempArray = conn.createArrayOf(prm.getItemsType().toString(),
@@ -129,7 +135,8 @@ public abstract class DBServiceBase {
 	}
 
 	protected enum DBType {
-		ARRAY("array"), BIGINT("bigint"), BOOLEAN("boolean"), DOUBLE("double"), INT("integer"), UUID("uuid"), TEXT("text");
+		ARRAY("array"), BIGINT("bigint"), BOOLEAN("boolean"), DOUBLE("double"), INT("integer"), UUID("uuid"), TEXT(
+				"text");
 
 		private final String name;
 
@@ -154,7 +161,7 @@ public abstract class DBServiceBase {
 		public StatementParameter(Object value, DBType type) {
 			this(value, type, null);
 		}
-		
+
 		public StatementParameter(Object value, DBType type, DBType itemsType) {
 			this.value = value;
 			this.type = type;

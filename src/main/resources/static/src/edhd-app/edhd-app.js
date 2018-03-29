@@ -30,6 +30,9 @@ class EdhdApp extends Polymer.Element {
         this.addEventListener('reload-assignments', this.handleReloadAssignments.bind(this));
         this.addEventListener('edit-assignment', this.handleEditAssignment.bind(this));
     }
+    showLogin() {
+        this.page = 'login-view';
+    }
     sendLogout() {
         this.$.logout.generateRequest();
     }
@@ -40,6 +43,7 @@ class EdhdApp extends Polymer.Element {
     }
     handleUserError() {
         this._set_userInfo(null);
+        this.page = 'login-view';
     }
     handleLogout() {
         location.reload();

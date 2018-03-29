@@ -45,12 +45,16 @@ public class AssignmentService extends AbstractAssignmentService {
 		Statement statement = conn.createStatement();
 		String createUsers = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME() + " (" + ID + " UUID, " + DUEDATE
 				+ " BIGINT, " + ASSIGNMENTNAME + " TEXT, " + ASSIGNMENTDESC + " TEXT, " + PRIMARYCONFIGLOC
-				+ " UUID REFERENCES " + AbstractStorageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + SRCLOC + " UUID REFERENCES "
-				+ AbstractStorageService.TABLE_NAME() + ", " + "PRIMARY KEY(" + ID + "))";
+				+ " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + CONFIGLOC + " UUID REFERENCES "
+				+ storageService.TABLE_NAME() + ", " + PRIMARYSRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME()
+				+ ", " + SRCLOC + " UUID REFERENCES " + storageService.TABLE_NAME() + ", " + "PRIMARY KEY(" + ID + "))";
 		statement.executeUpdate(createUsers);
 		conn.close();
+	}
+
+	@Override
+	public String TABLE_NAME() {
+		return "assignments";
 	}
 
 	@Override
@@ -69,6 +73,14 @@ public class AssignmentService extends AbstractAssignmentService {
 	public UUID updateAssignment(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc)
 			throws IOException {
 		AssignmentDefinition current = getAssignment(props.getId(), true);
+		
+		try {
+			submissionService.deleteByUserAssignment(null, current.getId(), true);
+		} catch (ClassNotFoundException | SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		List<StatementParameter> params;
 
 		// delete old src files if necessary
@@ -131,13 +143,10 @@ public class AssignmentService extends AbstractAssignmentService {
 					+ SRCLOC + " FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
 			if (rs.next()) {
 				deleteById(TABLE_NAME(), id);
+				submissionService.deleteByAssignment(id);
 				// delete associated files
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYCONFIGLOC));
 				storageService.deleteFile((UUID) rs.getObject(PRIMARYSRCLOC));
-				storageService.deleteFile((UUID) rs.getObject(CONFIGLOC));
-				storageService.deleteFile((UUID) rs.getObject(SRCLOC));
-				// TODO delete submissions
-				// TODO delete HDFS content
 				return true;
 			}
 		} catch (ClassNotFoundException | SQLException e) {
@@ -181,8 +190,8 @@ public class AssignmentService extends AbstractAssignmentService {
 		return assignment;
 	}
 
-	private UUID commitDefinition(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc, UUID id,
-			boolean isUpdate) throws IOException {
+	private UUID commitDefinition(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc,
+			UUID id, boolean isUpdate) throws IOException {
 		UUID primarySrcLoc = null;
 		UUID secondarySrcLoc = null;
 		UUID primaryConfigLoc = null;
@@ -210,7 +219,7 @@ public class AssignmentService extends AbstractAssignmentService {
 
 		String insertQuery = "INSERT INTO " + TABLE_NAME() + " (" + ID + ", " + DUEDATE + ", " + ASSIGNMENTNAME + ", "
 				+ ASSIGNMENTDESC + ", " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", " + SRCLOC
-				+ ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+				+ ") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
 		String updateQuery = "UPDATE " + TABLE_NAME() + " SET " + DUEDATE + "=?, " + ASSIGNMENTNAME + "=?, "
 				+ ASSIGNMENTDESC + "=?, " + PRIMARYCONFIGLOC + "=?, " + CONFIGLOC + "=?, " + PRIMARYSRCLOC + "=?, "
@@ -237,7 +246,8 @@ public class AssignmentService extends AbstractAssignmentService {
 
 		try {
 			int inserted = executeUpdate(queryString, params);
-			submissionService.executeDefinition(getAssignment(id, true));
+			AssignmentDefinition def = getAssignment(id, true);
+			submissionService.executeDefinition(def);
 			if (inserted > 0) {
 				return id;
 			}
@@ -287,7 +297,7 @@ public class AssignmentService extends AbstractAssignmentService {
 			}
 		}
 
-		AssignmentDefinition assignment = new AssignmentDefinition(id, dueDate, name, desc, primaryConfig,
+		AssignmentDefinition assignment = new AssignmentDefinition(id, null, dueDate, name, desc, primaryConfig,
 				primaryConfigLoc, config, configLoc, primarySrcName, primarySrcLoc, srcName, srcLoc);
 
 		return assignment;

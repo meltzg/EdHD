@@ -1,0 +1,31 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../common-styles/common-styles.html">
+
+<dom-module id="login-view">
+    <template>
+        <style include="common-styles"></style>
+
+        <h1>Login</h1>
+
+        <paper-input label="E-Mail" value="{{credentials.username}}"></paper-input>
+        <paper-input label="Password" type="password" value="{{credentials.password}}"></paper-input>
+        <paper-button on-click="submitLogin" disabled="{{!loginEnabled}}" raised>Sign In</paper-button>
+
+        <h1>Not registered? Sign up!</h1>
+
+        <paper-input label="E-Mail" value="{{signup.username}}"></paper-input>
+        <paper-input label="Password" type="password" value="{{signup.password}}"></paper-input>
+        <paper-input label="Confirm Password" type="password" value="{{signup.matchingPassword}}"></paper-input>
+        <paper-button on-click="submitSignup" disabled="{{!signupEnabled}}" raised>Sign Up</paper-button>
+
+        <iron-ajax id="requestLogin" url="/login" handle-as="json" method="POST"></iron-ajax>
+        <iron-ajax id="requestRegister" url="/register"  content-type="application/json" method="POST"></iron-ajax>
+        <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
+    </template>
+    <script src="login-view.js"></script>
+</dom-module>

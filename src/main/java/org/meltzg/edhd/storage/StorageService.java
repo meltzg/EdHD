@@ -46,6 +46,11 @@ public class StorageService extends AbstractStorageService {
 	}
 
 	@Override
+	public String TABLE_NAME() {
+		return "storage";
+	}
+
+	@Override
 	public UUID putFile(MultipartFile file) throws IllegalStateException, IOException {
 		UUID id = UUID.randomUUID();
 		Files.createDirectories(Paths.get(storageDir + "/" + id.toString()));

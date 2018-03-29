@@ -1,16 +1,23 @@
-package org.meltzg.edhd.hdfs;
+package org.meltzg.edhd.hadoop;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -21,10 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class HDFSService implements IHDFSService {
+public class HadoopService implements IHadoopService {
 
-	@Value("${edhd.hadoop.hdfsProxy}")
-	private String fsName;
+	@Value("${edhd.hadoop.defaultFS}")
+	private String defaultFS;
 
 	@Value("${edhd.hadoop.hduser}")
 	private String hdUser;
@@ -40,7 +47,7 @@ public class HDFSService implements IHDFSService {
 	@Override
 	public HDFSLocationInfo getChildren(String path) throws IOException {
 		Configuration conf = getConfiguration();
-		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
 
 		Path[] paths = new Path[1];
 		paths[0] = new Path(path);
@@ -68,8 +75,8 @@ public class HDFSService implements IHDFSService {
 	@Override
 	public boolean mkDir(String location, String newDir) throws IOException {
 		Configuration conf = getConfiguration();
-		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
-		Path path = new Path(fsName + "/" + location + "/" + newDir);
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
+		Path path = new Path(defaultFS + "/" + location + "/" + newDir);
 
 		return fs.mkdirs(path);
 	}
@@ -77,8 +84,8 @@ public class HDFSService implements IHDFSService {
 	@Override
 	public boolean delete(String path) throws IOException {
 		Configuration conf = getConfiguration();
-		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
-		Path hdPath = new Path(fsName + "/" + path);
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
+		Path hdPath = new Path(defaultFS + "/" + path);
 
 		return fs.delete(hdPath, true);
 	}
@@ -86,7 +93,7 @@ public class HDFSService implements IHDFSService {
 	@Override
 	public boolean put(String location, MultipartFile file) throws IOException {
 		Configuration conf = getConfiguration();
-		FileSystem fs = FileSystem.get(URI.create(fsName), conf);
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
 
 		UUID id = UUID.randomUUID();
 		boolean success = false;
@@ -96,7 +103,7 @@ public class HDFSService implements IHDFSService {
 			File convFile = new File(storageDir + "/" + id.toString() + "/" + file.getOriginalFilename());
 			file.transferTo(convFile);
 			Path srcPath = new Path("file:///" + convFile.getAbsolutePath());
-			Path destPath = new Path(location + "/" + convFile.getName());
+			Path destPath = new Path(defaultFS + "/" + location + "/" + convFile.getName());
 			fs.copyFromLocalFile(srcPath, destPath);
 			success = true;
 		} catch (IOException e) {
@@ -108,13 +115,57 @@ public class HDFSService implements IHDFSService {
 		return success;
 	}
 
-	private String removeFSName(Path path) {
-		return path.toString().replace(fsName, "");
+	@Override
+	public String getDefaultFS() {
+		return defaultFS;
 	}
-	
-	private Configuration getConfiguration() {
+
+	@Override
+	public Configuration getConfiguration() {
 		Configuration conf = new Configuration();
-		conf.set("fs.webhdfs.impl", org.apache.hadoop.hdfs.web.WebHdfsFileSystem.class.getName());
+		String hadoopConfDir = System.getenv().get("HADOOP_CONF_DIR");
+		conf.addResource(new Path("file://" + hadoopConfDir + "/core-site.xml"));
+		conf.addResource(new Path("file://" + hadoopConfDir + "/hdfs-site.xml"));
+		conf.addResource(new Path("file://" + hadoopConfDir + "/yarn-site.xml"));
+		conf.addResource(new Path("file://" + hadoopConfDir + "/mapred-site.xml"));
+
 		return conf;
 	}
+
+	@Override
+	public String getHadoopClasspath() {
+		try {
+			Process proc = Runtime.getRuntime().exec("hadoop classpath");
+			BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			String classpath = "";
+			String tmp = null;
+			while ((tmp = reader.readLine()) != null) {
+				classpath += tmp;
+			}
+
+			String[] subPaths = classpath.split(":");
+			Set<String> jarPaths = new HashSet<String>();
+			for (String subPath : subPaths) {
+				if (subPath.charAt(subPath.length() - 1) == '*') {
+					subPath = subPath.substring(0, subPath.length() - 1);
+				}
+				Collection<File> jars = org.apache.commons.io.FileUtils.listFiles(new File(subPath),
+						new SuffixFileFilter(".jar"), TrueFileFilter.INSTANCE);
+				for (File jar : jars) {
+					jarPaths.add(jar.getAbsolutePath());
+				}
+			}
+			classpath = String.join(":", jarPaths);
+			return classpath;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private String removeFSName(Path path) {
+		return path.toString().replace(defaultFS, "");
+	}
+
 }

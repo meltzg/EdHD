@@ -15,9 +15,9 @@ public class AssignmentDefinition extends AssignmentSubmission {
 	private String primarySrcName;
 	private UUID primarySrcLoc;
 	
-	public AssignmentDefinition(UUID id, Long dueDate, String name, String desc, Map<String, PropValue> primaryConfig, UUID primaryConfigLoc,
+	public AssignmentDefinition(UUID id, String user, Long dueDate, String name, String desc, Map<String, PropValue> primaryConfig, UUID primaryConfigLoc,
 			Map<String, PropValue> config, UUID configLoc, String primarySrcName, UUID primarySrcLoc, String srcName, UUID srcLoc) {
-		super(id, config, configLoc, srcName, srcLoc);
+		super(id, user, config, configLoc, srcName, srcLoc);
 		this.dueDate = dueDate;
 		this.name = name;
 		this.desc = desc;

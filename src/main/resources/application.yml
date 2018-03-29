@@ -1,15 +1,3 @@
-security:
-  oauth2:
-    client:
-      clientId: a6e4c3d5be141637b9b2
-      clientSecret: dfb32d3b1176ca09800d2e4e1d952114d5497230
-      accessTokenUri:  https://github.com/login/oauth/access_token
-      userAuthorizationUri: https://github.com/login/oauth/authorize
-      tokenName: oauth_token
-      authenticationScheme: query
-      clientAuthenticationScheme: form
-    resource:
-      userInfoUri: https://api.github.com/user
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432
@@ -22,9 +10,8 @@ spring:
 edhd:
   adminPassword: ADMIN123User
   dbName: edhd
-  storageDir: C:/tmp
+  storageDir: /home/hduser/tmp
   threads: 20
   hadoop:
-    fsname: hdfs://192.168.50.100:54310
-    hdfsProxy: webhdfs://192.168.50.100:14000
+    defaultFS: hdfs://hadoop-master:54310
     hduser: hduser

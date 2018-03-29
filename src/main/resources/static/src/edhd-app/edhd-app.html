@@ -64,9 +64,7 @@
                                     <paper-item>Sign Out</paper-item>
                                 </template>
                                 <template is="dom-if" if="{{!_userInfo.authenticated}}">
-                                    <a href="/login">
-                                        <paper-item>Sign In</paper-item>
-                                    </a>
+                                    <paper-item on-click="showLogin">Sign In</paper-item>
                                 </template>
                                 <template is="dom-if" if="{{_userInfo.authenticated}}">
                                     <paper-item on-click="openSettings">User Settings</paper-item>
@@ -82,6 +80,7 @@
                     <hdfs-browser name="hdfs-browser" is-admin="[[_isAdmin]]"></hdfs-browser>
                     <create-assignment id="create_assignment" name="create-assignment"></create-assignment>
                     <user-settings name="user-settings" is-admin="[[_isAdmin]]"></user-settings>
+                    <login-view name="login-view"></login-view>
                 </iron-pages>
             </app-header-layout>
         </app-drawer-layout>

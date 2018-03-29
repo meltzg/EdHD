@@ -27,7 +27,20 @@ public class StatusProperties {
 		this.completeMsg = completeMsg;
 	}
 
-	public StatusProperties() {
+	public StatusProperties(UUID id) {
+		this();
+		this.id = id;
+	}
+	
+	private StatusProperties() {
+		this.compileStatus = StatusValue.PENDING;
+		this.compileMsg = "";
+		this.runStatus = StatusValue.PENDING;
+		this.runMsg = "";
+		this.validateStatus = StatusValue.PENDING;
+		this.validateMsg = "";
+		this.completeStatus = StatusValue.PENDING;
+		this.completeMsg = "";
 	}
 
 	public UUID getId() {

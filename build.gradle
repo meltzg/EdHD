@@ -30,13 +30,14 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.security.oauth:spring-security-oauth2')
 	compile('org.postgresql:postgresql')
-	compile('org.apache.hadoop:hadoop-client:2.7.5')
-	compile('com.github.meltzg:GenMapred:master-SNAPSHOT')
+	compile('org.apache.hadoop:hadoop-client:3.0.0')
+	// compile('com.github.meltzg:GenMapred:master-SNAPSHOT')
 	compile('commons-io:commons-io:2.6')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	
+	compile('commons-cli:commons-cli:1.4')
 }
 
 war {

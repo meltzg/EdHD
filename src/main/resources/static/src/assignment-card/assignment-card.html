@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../mapred-config/mapred-config.html">
@@ -26,7 +27,7 @@
                 <div class="multiline" style="padding-bottom: 20px;">[[assignmentProps.desc]]</div>
                 <paper-button on-click="toggle" raised>Show/Hide Configuration</paper-button>
                 <iron-collapse id="collapse_config">
-                    <mapred-config primary-config="[[assignmentProps.primaryConfig]]"></mapred-config>
+                    <mapred-config id="sibmissionConfig" primary-config="[[assignmentProps.primaryConfig]]" full-config="{{submissionProps}}"></mapred-config>
                 </iron-collapse>
             </div>
             <div class="card-actions">
@@ -38,6 +39,8 @@
             </div>
         </paper-card>
         <iron-ajax id="delete" url="/delete-assignment/{{assignmentProps.id}}" method="DELETE"></iron-ajax>
+        <iron-ajax id="submitAssignment" url="/submit-assignment" method="POST"></iron-ajax>
+        <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
     </template>
 
     <script src="assignment-card.js"></script>
