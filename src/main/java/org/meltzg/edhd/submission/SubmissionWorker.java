@@ -1,12 +1,15 @@
 package org.meltzg.edhd.submission;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,8 +23,11 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
+import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
@@ -64,6 +70,7 @@ public class SubmissionWorker implements Runnable {
 
 	@Override
 	public void run() {
+		boolean succeeded = true;
 
 		try {
 			// unzip source archives to worker dir
@@ -73,18 +80,31 @@ public class SubmissionWorker implements Runnable {
 			if (this.definition.getSrcLoc() != null) {
 				unzipFile(this.storageService.getFile(this.definition.getSrcLoc()));
 			}
-
-			String compiledJar = compileSrc();
-			if (compiledJar != null) {
-				// submit jar to GenMapred
-				boolean success = submitJar(compiledJar);
-			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			cleanup();
+			statProps.setCompileInfo(StatusValue.FAIL, e.toString());
+			updateStatus();
+			succeeded = false;
 		}
+
+		String compiledJar = compileSrc();
+		if (compiledJar == null) {
+			succeeded = false;
+		}
+
+		if (succeeded) {
+			// submit jar to GenMapred
+			succeeded = submitJar(compiledJar);
+		}
+
+		if (succeeded) {
+			statProps.setCompleteInfo(StatusValue.SUCCESS, "Submission completed successfully!");
+			updateStatus();
+		} else {
+			statProps.setCompleteInfo(StatusValue.FAIL, "Submission failed.");
+			updateStatus();
+		}
+
+		cleanup();
 	}
 
 	private void unzipFile(File srcFile) throws IOException {
@@ -140,7 +160,8 @@ public class SubmissionWorker implements Runnable {
 
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, null);
-		CompilationTask task = compiler.getTask(null, manager, null, optionList, null,
+		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+		CompilationTask task = compiler.getTask(null, manager, diagnostics, optionList, null,
 				manager.getJavaFileObjectsFromFiles(srcFiles));
 
 		boolean success = task.call();
@@ -180,11 +201,19 @@ public class SubmissionWorker implements Runnable {
 				}
 				jos.close();
 				compiledJar = jarFile.getAbsolutePath();
+				statProps.setCompileInfo(StatusValue.SUCCESS, "Submission compiled!");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				success = false;
-				e.printStackTrace();
+				statProps.setCompileInfo(StatusValue.FAIL, e.toString());
+				updateStatus();
 			}
+		} else {
+			StringBuilder errors = new StringBuilder();
+			for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
+				errors.append(diagnostic.toString());
+			}
+			statProps.setCompileInfo(StatusValue.FAIL, errors.toString());
+			updateStatus();
 		}
 
 		return compiledJar;
@@ -207,26 +236,48 @@ public class SubmissionWorker implements Runnable {
 			primaryConfig.setProp(GenJobConfiguration.OUTPUT_PATH, "/submission/" + submissionId.toString());
 			secondaryConfig.setProp(GenJobConfiguration.ARTIFACT_JAR_PATHS, compiledJar);
 
-
 			primaryConfig.marshal(primaryConfigWorkerPath);
 			secondaryConfig.marshal(secondaryConfigWorkerPath);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			statProps.setRunInfo(StatusValue.FAIL, e.toString());
+			updateStatus();
 			return false;
 		}
 
 		Configuration conf = hadoopService.getConfiguration();
 		Tool runner = new GenJobRunner();
+		 
+		// Create a stream to hold the output
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos);
+		// IMPORTANT: Save the old System.out!
+		PrintStream old = System.out;
+		// Tell Java to use your special stream
+		System.setOut(ps);
+
 		String[] args = { "--primary", primaryConfigWorkerPath, "--secondary", secondaryConfigWorkerPath };
+		Boolean success = false;
 		try {
 			ToolRunner.run(conf, runner, args);
 		} catch (Exception e) {
-			// TODO Check HDFS for the SUCCESS file. sometimes the cluster barfs even when things are good.
-			e.printStackTrace();
-			return false;
+			// TODO Check HDFS for the SUCCESS file. sometimes the cluster barfs even when
+			// things are good.
+			success = false;
 		}
-		return true;
+		
+		System.out.flush();
+	    System.setOut(old);
+	    String output = baos.toString();
+		
+		if (success) {
+			statProps.setRunInfo(StatusValue.SUCCESS, output);
+		} else {
+			statProps.setRunInfo(StatusValue.FAIL, output);
+		}
+		
+		updateStatus();
+		
+		return success;
 	}
 
 	private void cleanup() {
@@ -235,6 +286,15 @@ public class SubmissionWorker implements Runnable {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	private void updateStatus() {
+		try {
+			submissionService.updateStatus(statProps);
+		} catch (ClassNotFoundException | SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 }

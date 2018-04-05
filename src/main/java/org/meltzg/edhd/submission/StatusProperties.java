@@ -67,6 +67,11 @@ public class StatusProperties {
 		this.compileMsg = compileMsg;
 	}
 
+	public void setCompileInfo(StatusValue status, String message) {
+		setCompileStatus(status);
+		setCompileMsg(message);
+	}
+
 	public StatusValue getRunStatus() {
 		return runStatus;
 	}
@@ -81,6 +86,11 @@ public class StatusProperties {
 
 	public void setRunMsg(String runMsg) {
 		this.runMsg = runMsg;
+	}
+	
+	public void setRunInfo(StatusValue status, String message) {
+		setRunStatus(status);
+		setRunMsg(message);
 	}
 
 	public StatusValue getValidateStatus() {
@@ -98,6 +108,11 @@ public class StatusProperties {
 	public void setValidateMsg(String validateMsg) {
 		this.validateMsg = validateMsg;
 	}
+	
+	public void setValidateInfo(StatusValue status, String message) {
+		setValidateStatus(status);
+		setValidateMsg(message);
+	}
 
 	public StatusValue getCompleteStatus() {
 		return completeStatus;
@@ -113,5 +128,10 @@ public class StatusProperties {
 
 	public void setCompleteMsg(String completeMsg) {
 		this.completeMsg = completeMsg;
+	}
+	
+	public void setCompleteInfo(StatusValue status, String message) {
+		setCompleteStatus(status);
+		setCompleteMsg(message);
 	}
 }
