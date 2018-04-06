@@ -101,34 +101,56 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public StatusProperties getStatus(UUID id, boolean isAdmin, String user) {
+	public StatusProperties getStatus(UUID id, boolean isAdmin, String user)
+			throws ClassNotFoundException, SQLException {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(id, DBType.UUID));
-		try {
-			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + ID + "=?;", params);
-			if (rs.next()) {
-				String statUser = rs.getString(USER);
-				StatusValue compileStatus = StatusValue.fromInteger(rs.getInt(COMPILESTATUS));
-				String compileMsg = rs.getString(COMPILEMSG);
-				StatusValue runStatus = StatusValue.fromInteger(rs.getInt(RUNSTATUS));
-				String runMsg = rs.getString(RUNMSG);
-				StatusValue validateStatus = StatusValue.fromInteger(rs.getInt(VALIDATESTATUS));
-				String validateMsg = rs.getString(VALIDATEMSG);
-				StatusValue completeStatus = StatusValue.fromInteger(rs.getInt(COMPLETESTATUS));
-				String completeMsg = rs.getString(COMPLETEMSG);
+		ResultSet rs = executeQuery(
+				"SELECT * FROM " + TABLE_NAME() + " WHERE " + ID + "=? ORDER BY " + ISVALIDATION + " DESC;", params);
+		if (rs.next()) {
+			String statUser = rs.getString(USER);
+			StatusValue compileStatus = StatusValue.fromInteger(rs.getInt(COMPILESTATUS));
+			String compileMsg = rs.getString(COMPILEMSG);
+			StatusValue runStatus = StatusValue.fromInteger(rs.getInt(RUNSTATUS));
+			String runMsg = rs.getString(RUNMSG);
+			StatusValue validateStatus = StatusValue.fromInteger(rs.getInt(VALIDATESTATUS));
+			String validateMsg = rs.getString(VALIDATEMSG);
+			StatusValue completeStatus = StatusValue.fromInteger(rs.getInt(COMPLETESTATUS));
+			String completeMsg = rs.getString(COMPLETEMSG);
 
-				StatusProperties props = new StatusProperties(id, statUser, compileStatus, compileMsg, runStatus, runMsg,
-						validateStatus, validateMsg, completeStatus, completeMsg);
-				if (isAdmin || props.getUser().equals(user)) {
-					return props;
-				}
+			StatusProperties props = new StatusProperties(id, statUser, compileStatus, compileMsg, runStatus, runMsg,
+					validateStatus, validateMsg, completeStatus, completeMsg);
+			if (isAdmin || props.getUser().equals(user)) {
+				return props;
 			}
-
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+
 		return null;
+	}
+
+	@Override
+	public List<UUID> getSubmissionIds(UUID assignmentId, String user) throws ClassNotFoundException, SQLException {
+		List<UUID> ids = new ArrayList<UUID>();
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+
+		boolean isAdmin = securityService.isAdmin(user);
+
+		String query = "SELECT " + ID + " FROM " + TABLE_NAME() + " WHERE " + ASSIGNMENTID + "=?";
+		params.add(new StatementParameter(assignmentId, DBType.UUID));
+		if (!isAdmin) {
+			query += " AND (" + USER + "=? OR " + ISVALIDATION + "=?)";
+			params.add(new StatementParameter(user, DBType.TEXT));
+			params.add(new StatementParameter(true, DBType.BOOLEAN));
+		}
+		query += ";";
+
+		ResultSet rs = executeQuery(query, params);
+		while (rs.next()) {
+			UUID id = (UUID) rs.getObject(ID);
+			ids.add(id);
+		}
+
+		return ids;
 	}
 
 	@Override

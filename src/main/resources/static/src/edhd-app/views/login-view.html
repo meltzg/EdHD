@@ -24,7 +24,7 @@
         <paper-button on-click="submitSignup" disabled="{{!signupEnabled}}" raised>Sign Up</paper-button>
 
         <iron-ajax id="requestLogin" url="/login" handle-as="json" method="POST"></iron-ajax>
-        <iron-ajax id="requestRegister" url="/register"  content-type="application/json" method="POST"></iron-ajax>
+        <iron-ajax id="requestRegister" url="/register" content-type="application/json" method="POST"></iron-ajax>
         <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
     </template>
     <script src="login-view.js"></script>

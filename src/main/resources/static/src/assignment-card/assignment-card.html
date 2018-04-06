@@ -25,6 +25,9 @@
             <div class="card-content">
                 <h3>Description</h3>
                 <div class="multiline" style="padding-bottom: 20px;">[[assignmentProps.desc]]</div>
+                <template is="dom-repeat" items="{{submissionStatuses}}">
+                    <span>{{item}}</span>
+                </template>
                 <paper-button on-click="toggle" raised>Show/Hide Configuration</paper-button>
                 <iron-collapse id="collapse_config">
                     <mapred-config id="sibmissionConfig" primary-config="[[assignmentProps.primaryConfig]]" full-config="{{submissionProps}}"></mapred-config>
@@ -40,6 +43,8 @@
         </paper-card>
         <iron-ajax id="delete" url="/delete-assignment/{{assignmentProps.id}}" method="DELETE"></iron-ajax>
         <iron-ajax id="submitAssignment" url="/submit-assignment" method="POST"></iron-ajax>
+        <iron-ajax id="getSubmissionIds" url="/submission/status/{{assignmentProps.id}}"></iron-ajax>
+        <iron-ajax id="getSubmissionStatuses" url="/submission/status" content-type="application/json" method="POST"></iron-ajax>
         <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
     </template>
 

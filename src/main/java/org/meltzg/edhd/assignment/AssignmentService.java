@@ -160,7 +160,7 @@ public class AssignmentService extends AbstractAssignmentService {
 	public List<AssignmentDefinition> getAllAssignments() throws IOException {
 		List<AssignmentDefinition> assignments = null;
 		try {
-			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + ";", null);
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " ORDER BY " + DUEDATE + " ASC;", null);
 			assignments = new ArrayList<AssignmentDefinition>();
 
 			while (rs.next()) {

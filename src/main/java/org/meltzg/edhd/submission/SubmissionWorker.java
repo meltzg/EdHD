@@ -1,14 +1,12 @@
 package org.meltzg.edhd.submission;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -247,13 +245,13 @@ public class SubmissionWorker implements Runnable {
 		Configuration conf = hadoopService.getConfiguration();
 		Tool runner = new GenJobRunner();
 		 
-		// Create a stream to hold the output
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
-		// IMPORTANT: Save the old System.out!
-		PrintStream old = System.out;
-		// Tell Java to use your special stream
-		System.setOut(ps);
+//		// Create a stream to hold the output
+//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//		PrintStream ps = new PrintStream(baos);
+//		// IMPORTANT: Save the old System.out!
+//		PrintStream old = System.out;
+//		// Tell Java to use your special stream
+//		System.setOut(ps);
 
 		String[] args = { "--primary", primaryConfigWorkerPath, "--secondary", secondaryConfigWorkerPath };
 		Boolean success = false;
@@ -265,14 +263,14 @@ public class SubmissionWorker implements Runnable {
 			success = false;
 		}
 		
-		System.out.flush();
-	    System.setOut(old);
-	    String output = baos.toString();
+//		System.out.flush();
+//	    System.setOut(old);
+//	    String output = baos.toString();
 		
 		if (success) {
-			statProps.setRunInfo(StatusValue.SUCCESS, output);
+			statProps.setRunInfo(StatusValue.SUCCESS, "Submission ran successfully!");
 		} else {
-			statProps.setRunInfo(StatusValue.FAIL, output);
+			statProps.setRunInfo(StatusValue.FAIL, "Submission failed to run!");
 		}
 		
 		updateStatus();
