@@ -17,7 +17,7 @@ public abstract class AbstractSubmissionService extends DBServiceBase {
 	public abstract UUID executeSubmission(AssignmentDefinition definition, AssignmentSubmission submission,
 			MultipartFile src) throws IOException, ClassNotFoundException, SQLException;
 
-	public abstract StatusProperties getStatus(UUID id);
+	public abstract StatusProperties getStatus(UUID submissionId, boolean isAdmin, String name);
 
 	public abstract void updateStatus(StatusProperties status) throws ClassNotFoundException, SQLException;
 
@@ -25,4 +25,5 @@ public abstract class AbstractSubmissionService extends DBServiceBase {
 
 	public abstract boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation)
 			throws ClassNotFoundException, SQLException, IOException;
+
 }

@@ -15,4 +15,17 @@ public enum StatusValue {
 	public int value() {
 		return this.val;
 	}
+	
+	public static StatusValue fromInteger(int x) {
+        switch(x) {
+        case 0:
+            return PENDING;
+        case 1:
+            return COMPLETE;
+        case 2:
+        	return SUCCESS;
+        default:
+        	return FAIL;
+        }
+    }
 }

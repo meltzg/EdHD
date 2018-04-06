@@ -101,8 +101,33 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public StatusProperties getStatus(UUID id) {
-		// TODO Auto-generated method stub
+	public StatusProperties getStatus(UUID id, boolean isAdmin, String user) {
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(id, DBType.UUID));
+		try {
+			ResultSet rs = executeQuery("SELECT * FROM " + TABLE_NAME() + " WHERE " + ID + "=?;", params);
+			if (rs.next()) {
+				String statUser = rs.getString(USER);
+				StatusValue compileStatus = StatusValue.fromInteger(rs.getInt(COMPILESTATUS));
+				String compileMsg = rs.getString(COMPILEMSG);
+				StatusValue runStatus = StatusValue.fromInteger(rs.getInt(RUNSTATUS));
+				String runMsg = rs.getString(RUNMSG);
+				StatusValue validateStatus = StatusValue.fromInteger(rs.getInt(VALIDATESTATUS));
+				String validateMsg = rs.getString(VALIDATEMSG);
+				StatusValue completeStatus = StatusValue.fromInteger(rs.getInt(COMPLETESTATUS));
+				String completeMsg = rs.getString(COMPLETEMSG);
+
+				StatusProperties props = new StatusProperties(id, statUser, compileStatus, compileMsg, runStatus, runMsg,
+						validateStatus, validateMsg, completeStatus, completeMsg);
+				if (isAdmin || props.getUser().equals(user)) {
+					return props;
+				}
+			}
+
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 
@@ -145,16 +170,16 @@ public class SubmissionService extends AbstractSubmissionService {
 			UUID srcLoc = existingSubmission.getSrcLoc();
 			UUID configLoc = existingSubmission.getConfigLoc();
 			deleteById(TABLE_NAME(), existingSubmission.getId());
-	
+
 			if (!isValidation) {
 				storageService.deleteFile(configLoc);
 				storageService.deleteFile(srcLoc);
 				hadoopService.delete("/submission/" + existingSubmission.getId());
 			}
-	
+
 			return true;
 		}
-	
+
 		return false;
 	}
 
@@ -189,9 +214,9 @@ public class SubmissionService extends AbstractSubmissionService {
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(assignmentId, DBType.UUID));
 		params.add(new StatementParameter(isValidation, DBType.BOOLEAN));
-		
-		String queryString = "SELECT * FROM " + TABLE_NAME() + " WHERE " + ASSIGNMENTID
-				+ "=? AND " + ISVALIDATION + "=?";
+
+		String queryString = "SELECT * FROM " + TABLE_NAME() + " WHERE " + ASSIGNMENTID + "=? AND " + ISVALIDATION
+				+ "=?";
 		if (!isValidation) {
 			queryString += " AND " + USER + "=?";
 			params.add(new StatementParameter(user, DBType.TEXT));
@@ -211,7 +236,7 @@ public class SubmissionService extends AbstractSubmissionService {
 		}
 		return submission;
 	}
-	
+
 	private AssignmentSubmission getById(UUID id) {
 		AssignmentSubmission submission = null;
 		List<StatementParameter> params = new ArrayList<StatementParameter>();

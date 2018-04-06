@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public class StatusProperties {
 	private UUID id;
+	private String user;
 	private StatusValue compileStatus;
 	private String compileMsg;
 	private StatusValue runStatus;
@@ -12,11 +13,11 @@ public class StatusProperties {
 	private String validateMsg;
 	private StatusValue completeStatus;
 	private String completeMsg;
-
-	public StatusProperties(UUID id, StatusValue compileStatus, String compileMsg, StatusValue runStatus, String runMsg,
+	public StatusProperties(UUID id, String user, StatusValue compileStatus, String compileMsg, StatusValue runStatus, String runMsg,
 			StatusValue validateStatus, String validateMsg, StatusValue completeStatus, String completeMsg) {
 		super();
 		this.id = id;
+		this.user = user;
 		this.compileStatus = compileStatus;
 		this.compileMsg = compileMsg;
 		this.runStatus = runStatus;
@@ -49,6 +50,14 @@ public class StatusProperties {
 
 	public void setId(UUID id) {
 		this.id = id;
+	}
+
+	public Object getUser() {
+		return user;
+	}
+	
+	public void setUser(String user) {
+		this.user=user;
 	}
 
 	public StatusValue getCompileStatus() {
