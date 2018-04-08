@@ -79,27 +79,31 @@ class AssignmentCard extends Polymer.Element {
         if (this._statusInterval) {
             clearInterval(this._statusInterval);
         }
+        this.refreshStatusInfo();
         this._set_statusInterval(setInterval(function () {
-            this.$.getSubmissionStatuses.body = this.submissionIds;
-            let request = this.$.getSubmissionStatuses.generateRequest();
-            request.completes.then(function (event) {
-                this.set('submissionStatuses', event.__data.response);
-                let hasPending = false;
-                for (let i = 0; i < this.submissionStatuses.length; i++) {
-                    if (this.submissionStatuses[i].completeStatus === 'PENDING') {
-                        hasPending = true;
-                        break;
-                    }
-                }
-                if (!hasPending) {
-                    clearInterval(this._statusInterval);
-                }
-            }.bind(this), function (rejected) {
-                this.showError(rejected);
-                clearInterval(this._statusInterval);
-                this.set('submissionStatuses', []);
-            }.bind(this));
+            this.refreshStatusInfo();
         }.bind(this), 5000));
+    }
+    refreshStatusInfo() {
+        this.$.getSubmissionStatuses.body = this.submissionIds;
+        let request = this.$.getSubmissionStatuses.generateRequest();
+        request.completes.then(function (event) {
+            this.set('submissionStatuses', event.__data.response);
+            let hasPending = false;
+            for (let i = 0; i < this.submissionStatuses.length; i++) {
+                if (this.submissionStatuses[i].completeStatus === 'PENDING') {
+                    hasPending = true;
+                    break;
+                }
+            }
+            if (!hasPending) {
+                clearInterval(this._statusInterval);
+            }
+        }.bind(this), function (rejected) {
+            this.showError(rejected);
+            clearInterval(this._statusInterval);
+            this.set('submissionStatuses', []);
+        }.bind(this));
     }
     submit() {
         let formData = new FormData();

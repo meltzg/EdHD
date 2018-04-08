@@ -1,0 +1,70 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../common-styles/common-styles.html">
+
+<dom-module id="submission-status">
+    <template>
+        <style include="common-styles"></style>
+        <style>
+            .fail {
+                --iron-icon-fill-color: red;
+            }
+
+            .pending {
+                --iron-icon-fill-color: rgb(145, 180, 221);
+            }
+
+            .complete {
+                --iron-icon-fill-color: black;
+            }
+
+            .success {
+                --iron-icon-fill-color: green;
+            }
+        </style>
+
+        <div class="row">
+            <template is="dom-if" if="{{statusProps.validation}}">
+                <iron-icon class="cell" icon="star" style="--iron-icon-fill-color: gold;"></iron-icon>
+            </template>
+            <span class="cell">{{statusProps.user}}</span>
+            <paper-icon-button class$="cell {{getStatClass(statusProps.compileStatus)}}" on-click="showCompileStatus" title="Compilation Status"
+                icon="build"></paper-icon-button>
+            <paper-icon-button class$="cell {{getStatClass(statusProps.runStatus)}}" on-click="showRunStatus" title="Run Status" icon="maps:directions-run"></paper-icon-button>
+            <paper-icon-button class$="cell {{getStatClass(statusProps.validateStatus)}}" on-click="showValidateStatus" title="Validation Status"
+                icon="spellcheck"></paper-icon-button>
+            <paper-icon-button class$="cell {{getStatClass(statusProps.completeStatus)}}" on-click="showCompleteStatus" title="Completion Status"
+                icon="done-all"></paper-icon-button>
+            <paper-spinner class="cell" active="{{!isComplete}}"></paper-spinner>
+
+            <paper-dialog id="compileMsg">
+                <h2>Compilation Status</h2>
+                <div class="multiline">[[statusProps.compileMsg]]</div>
+                <paper-button dialog-confirm autofocus>Tap to close</paper-button>
+            </paper-dialog>
+            <paper-dialog id="runMsg">
+                <h2>Run Status</h2>
+                <div class="multiline">[[statusProps.runMsg]]</div>
+                <paper-button dialog-confirm autofocus>Tap to close</paper-button>
+            </paper-dialog>
+            <paper-dialog id="validateMsg">
+                <h2>Validation Status</h2>
+                <div class="multiline">[[statusProps.validateMsg]]</div>
+                <paper-button dialog-confirm autofocus>Tap to close</paper-button>
+            </paper-dialog>
+            <paper-dialog id="completeMsg">
+                <h2>Completion Status</h2>
+                <div class="multiline">[[statusProps.completeMsg]]</div>
+                <paper-button dialog-confirm autofocus>Tap to close</paper-button>
+            </paper-dialog>
+        </div>
+    </template>
+
+    <script src="submission-status.js"></script>
+</dom-module>

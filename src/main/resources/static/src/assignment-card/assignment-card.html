@@ -10,23 +10,18 @@
 <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../mapred-config/mapred-config.html">
+<link rel="import" href="../submission-status/submission-status.html">
 <link rel="import" href="../common-styles/common-styles.html">
 
 <dom-module id="assignment-card">
     <template>
         <style include="common-styles"></style>
-        <style>
-            .multiline {
-                white-space: pre-wrap;
-            }
-        </style>
-
         <paper-card heading="[[assignmentProps.name]] Due: [[_formattedDate]]" style="width: 100%">
             <div class="card-content">
                 <h3>Description</h3>
                 <div class="multiline" style="padding-bottom: 20px;">[[assignmentProps.desc]]</div>
                 <template is="dom-repeat" items="{{submissionStatuses}}">
-                    <span>{{item}}</span>
+                    <submission-status status-props="{{item}}" style="padding: unset;"></submission-status>
                 </template>
                 <paper-button on-click="toggle" raised>Show/Hide Configuration</paper-button>
                 <iron-collapse id="collapse_config">

@@ -5,6 +5,8 @@ import java.util.UUID;
 public class StatusProperties {
 	private UUID id;
 	private String user;
+	private UUID assignmentId;
+	private boolean isValidation;
 	private StatusValue compileStatus;
 	private String compileMsg;
 	private StatusValue runStatus;
@@ -13,11 +15,13 @@ public class StatusProperties {
 	private String validateMsg;
 	private StatusValue completeStatus;
 	private String completeMsg;
-	public StatusProperties(UUID id, String user, StatusValue compileStatus, String compileMsg, StatusValue runStatus, String runMsg,
+	public StatusProperties(UUID id, String user, UUID assignmentId, boolean isValidation, StatusValue compileStatus, String compileMsg, StatusValue runStatus, String runMsg,
 			StatusValue validateStatus, String validateMsg, StatusValue completeStatus, String completeMsg) {
 		super();
 		this.id = id;
 		this.user = user;
+		this.assignmentId = assignmentId;
+		this.isValidation = isValidation;
 		this.compileStatus = compileStatus;
 		this.compileMsg = compileMsg;
 		this.runStatus = runStatus;
@@ -58,6 +62,22 @@ public class StatusProperties {
 	
 	public void setUser(String user) {
 		this.user=user;
+	}
+
+	public UUID getAssignmentId() {
+		return assignmentId;
+	}
+
+	public void setAssignmentId(UUID assignmentId) {
+		this.assignmentId = assignmentId;
+	}
+
+	public boolean isValidation() {
+		return isValidation;
+	}
+
+	public void setValidation(boolean isValidation) {
+		this.isValidation = isValidation;
 	}
 
 	public StatusValue getCompileStatus() {

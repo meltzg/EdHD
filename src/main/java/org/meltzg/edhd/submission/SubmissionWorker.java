@@ -254,13 +254,18 @@ public class SubmissionWorker implements Runnable {
 //		System.setOut(ps);
 
 		String[] args = { "--primary", primaryConfigWorkerPath, "--secondary", secondaryConfigWorkerPath };
-		Boolean success = false;
 		try {
 			ToolRunner.run(conf, runner, args);
 		} catch (Exception e) {
-			// TODO Check HDFS for the SUCCESS file. sometimes the cluster barfs even when
-			// things are good.
+			e.printStackTrace();
+		}
+		
+		boolean success;
+		try {
+			success = hadoopService.isJobSuccessful(primaryConfig.getProp(GenJobConfiguration.OUTPUT_PATH));
+		} catch (IOException e) {
 			success = false;
+			e.printStackTrace();
 		}
 		
 //		System.out.flush();

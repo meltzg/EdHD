@@ -109,6 +109,8 @@ public class SubmissionService extends AbstractSubmissionService {
 				"SELECT * FROM " + TABLE_NAME() + " WHERE " + ID + "=? ORDER BY " + ISVALIDATION + " DESC;", params);
 		if (rs.next()) {
 			String statUser = rs.getString(USER);
+			UUID assignmentId = (UUID) rs.getObject(ASSIGNMENTID);
+			boolean isValidation = rs.getBoolean(ISVALIDATION);
 			StatusValue compileStatus = StatusValue.fromInteger(rs.getInt(COMPILESTATUS));
 			String compileMsg = rs.getString(COMPILEMSG);
 			StatusValue runStatus = StatusValue.fromInteger(rs.getInt(RUNSTATUS));
@@ -118,9 +120,9 @@ public class SubmissionService extends AbstractSubmissionService {
 			StatusValue completeStatus = StatusValue.fromInteger(rs.getInt(COMPLETESTATUS));
 			String completeMsg = rs.getString(COMPLETEMSG);
 
-			StatusProperties props = new StatusProperties(id, statUser, compileStatus, compileMsg, runStatus, runMsg,
-					validateStatus, validateMsg, completeStatus, completeMsg);
-			if (isAdmin || props.getUser().equals(user)) {
+			StatusProperties props = new StatusProperties(id, statUser, assignmentId, isValidation, compileStatus,
+					compileMsg, runStatus, runMsg, validateStatus, validateMsg, completeStatus, completeMsg);
+			if (isAdmin || props.isValidation() || props.getUser().equals(user)) {
 				return props;
 			}
 		}
@@ -196,8 +198,8 @@ public class SubmissionService extends AbstractSubmissionService {
 			if (!isValidation) {
 				storageService.deleteFile(configLoc);
 				storageService.deleteFile(srcLoc);
-				hadoopService.delete("/submission/" + existingSubmission.getId());
 			}
+			hadoopService.delete("/submission/" + existingSubmission.getId());
 
 			return true;
 		}

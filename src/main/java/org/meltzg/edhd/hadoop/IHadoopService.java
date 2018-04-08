@@ -11,7 +11,7 @@ public interface IHadoopService {
 	public boolean delete(String path) throws IOException;
 	public boolean put(String location, MultipartFile file) throws IOException;
 	public String getDefaultFS();
-//	public String getHttpFS();
-	Configuration getConfiguration();
-	String getHadoopClasspath();
+	public Configuration getConfiguration();
+	public String getHadoopClasspath();
+	public boolean isJobSuccessful(String outputPath) throws IOException;
 }

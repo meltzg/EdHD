@@ -164,6 +164,15 @@ public class HadoopService implements IHadoopService {
 		return null;
 	}
 
+	@Override
+	public boolean isJobSuccessful(String outputPath) throws IOException {
+		Configuration conf = getConfiguration();
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
+		Path successPath = new Path(defaultFS + "/" + outputPath + "/_SUCCESS");
+		
+		return fs.exists(successPath);
+	}
+
 	private String removeFSName(Path path) {
 		return path.toString().replace(defaultFS, "");
 	}
