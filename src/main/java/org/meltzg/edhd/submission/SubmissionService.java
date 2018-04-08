@@ -207,6 +207,36 @@ public class SubmissionService extends AbstractSubmissionService {
 		return false;
 	}
 
+	@Override
+	public boolean validatorPending(UUID assignmentId) {
+		AssignmentSubmission submission = getByUserAssignment(null, assignmentId, true);
+		if (submission != null) {
+			try {
+				StatusProperties stat = getStatus(submission.getId(), true, null);
+				return stat.getCompileStatus().equals(StatusValue.PENDING);
+			} catch (ClassNotFoundException | SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean submissionPending(UUID assignmentId, String user) {
+		AssignmentSubmission submission = getByUserAssignment(user, assignmentId, false);
+		if (submission != null) {
+			try {
+				StatusProperties stat = getStatus(submission.getId(), false, user);
+				return stat.getCompileStatus().equals(StatusValue.PENDING);
+			} catch (ClassNotFoundException | SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+
 	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation)
 			throws IOException, ClassNotFoundException, SQLException {
 		UUID submissionId = UUID.randomUUID();

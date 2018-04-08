@@ -38,6 +38,18 @@ class AssignmentCard extends Polymer.Element {
                     return [];
                 }
             },
+            _submissionStatuses: {
+                type: Array,
+                value: function () {
+                    return [];
+                }
+            },
+            validatorStatus: {
+                type: Object,
+                value: function () {
+                    return {};
+                }
+            },
             submissionStatuses: {
                 type: Array,
                 value: function () {
@@ -56,7 +68,8 @@ class AssignmentCard extends Polymer.Element {
             'computeSubmission(assignmentProps.*, submissionProps.*)',
             'updateDueDate(assignmentProps.dueDate)',
             'assignmentPropsChanged(assignmentProps.*)',
-            'submissionIdsChanged(submissionIds.*)'
+            'submissionIdsChanged(submissionIds.*)',
+            'statusesChanged(_submissionStatuses.*)'
         ];
     }
     ready() {
@@ -84,14 +97,24 @@ class AssignmentCard extends Polymer.Element {
             this.refreshStatusInfo();
         }.bind(this), 5000));
     }
+    statusesChanged() {
+        let validator = this._submissionStatuses.filter(stat => stat.validation)[0];
+        let submissions = this._submissionStatuses.filter(stat => !stat.validation);
+        if (validator) {
+            this.set('validatorStatus', validator);
+        } else {
+            this.set('validatorStatus', {});
+        }
+        this.set('submissionStatuses', submissions);
+    }
     refreshStatusInfo() {
         this.$.getSubmissionStatuses.body = this.submissionIds;
         let request = this.$.getSubmissionStatuses.generateRequest();
         request.completes.then(function (event) {
-            this.set('submissionStatuses', event.__data.response);
+            this.set('_submissionStatuses', event.__data.response);
             let hasPending = false;
-            for (let i = 0; i < this.submissionStatuses.length; i++) {
-                if (this.submissionStatuses[i].completeStatus === 'PENDING') {
+            for (let i = 0; i < this._submissionStatuses.length; i++) {
+                if (this._submissionStatuses[i].completeStatus === 'PENDING') {
                     hasPending = true;
                     break;
                 }
@@ -102,7 +125,7 @@ class AssignmentCard extends Polymer.Element {
         }.bind(this), function (rejected) {
             this.showError(rejected);
             clearInterval(this._statusInterval);
-            this.set('submissionStatuses', []);
+            this.set('_submissionStatuses', []);
         }.bind(this));
     }
     submit() {

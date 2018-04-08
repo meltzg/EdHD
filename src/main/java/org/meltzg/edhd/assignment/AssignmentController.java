@@ -113,6 +113,14 @@ public class AssignmentController {
 			AssignmentDefinition definition = assignmentService.getAssignment(submission.getId(), false);
 			if (definition != null) {
 				submission.setUser(principal.getName());
+				if (submissionService.validatorPending(definition.getId())) {
+					returnBody.put("message", "Cannopt submit assignment while validator is pending!");
+					return ResponseEntity.status(HttpStatus.CONFLICT).body(returnBody);
+				}
+				if (submissionService.submissionPending(definition.getId(), principal.getName())) {
+					returnBody.put("message", "Cannopt submit assignment while previous submission is pending!");
+					return ResponseEntity.status(HttpStatus.CONFLICT).body(returnBody);
+				}
 				submissionId = submissionService.executeSubmission(definition, submission, src);
 				returnBody.put("submission_id", submissionId.toString());
 			} else {

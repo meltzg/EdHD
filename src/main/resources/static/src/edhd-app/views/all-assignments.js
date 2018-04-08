@@ -20,10 +20,9 @@ class AllAssignments extends Polymer.Element {
     }
     refresh() {
         let request = this.$.refreshRequest.generateRequest();
+        this.set('assignments', []);
         request.completes.then(function(event) {
             this.set('assignments', event.__data.response);
-        }.bind(this), function() {
-            this.set('assignments', []);
         }.bind(this));
     }
 }

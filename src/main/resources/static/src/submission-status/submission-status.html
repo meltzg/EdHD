@@ -33,7 +33,7 @@
             <template is="dom-if" if="{{statusProps.validation}}">
                 <iron-icon class="cell" icon="star" style="--iron-icon-fill-color: gold;"></iron-icon>
             </template>
-            <span class="cell">{{statusProps.user}}</span>
+            <span class="cell" style="padding: 8px;">{{statusProps.user}}</span>
             <paper-icon-button class$="cell {{getStatClass(statusProps.compileStatus)}}" on-click="showCompileStatus" title="Compilation Status"
                 icon="build"></paper-icon-button>
             <paper-icon-button class$="cell {{getStatClass(statusProps.runStatus)}}" on-click="showRunStatus" title="Run Status" icon="maps:directions-run"></paper-icon-button>

@@ -18,11 +18,21 @@
         <style include="common-styles"></style>
         <paper-card heading="[[assignmentProps.name]] Due: [[_formattedDate]]" style="width: 100%">
             <div class="card-content">
-                <h3>Description</h3>
-                <div class="multiline" style="padding-bottom: 20px;">[[assignmentProps.desc]]</div>
-                <template is="dom-repeat" items="{{submissionStatuses}}">
-                    <submission-status status-props="{{item}}" style="padding: unset;"></submission-status>
-                </template>
+                <div class="row">
+                    <div class="cell" style="width: 50%;">
+                        <h3>Description</h3>
+                        <div class="multiline" style="padding-bottom: 20px;">[[assignmentProps.desc]]</div>
+                    </div>
+                    <div class="cell" style="border-left: 1px solid #ccc; padding-left:8px; width: calc(50% - 40px);">
+                        <h3>Validator</h3>
+                        <submission-status status-props="{{validatorStatus}}" style="padding: unset;"></submission-status>
+                        <h3>Submissions</h3>
+                        <template is="dom-repeat" items="{{submissionStatuses}}">
+                            <submission-status status-props="{{item}}" style="padding: unset;"></submission-status>
+                        </template>
+                    </div>
+                </div>
+
                 <paper-button on-click="toggle" raised>Show/Hide Configuration</paper-button>
                 <iron-collapse id="collapse_config">
                     <mapred-config id="sibmissionConfig" primary-config="[[assignmentProps.primaryConfig]]" full-config="{{submissionProps}}"></mapred-config>

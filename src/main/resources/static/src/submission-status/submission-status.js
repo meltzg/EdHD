@@ -33,18 +33,22 @@ class SubmissionStatus extends Polymer.Element {
         return this.statusProps.completeStatus !== 'PENDING';
     }
     showCompileStatus(element) {
+        document.body.appendChild(this.$.compileMsg);
         this.$.compileMsg.positionTarget = element;
         this.$.compileMsg.open();
     }
     showRunStatus(element) {
+        document.body.appendChild(this.$.runMsg);
         this.$.runMsg.positionTarget = element;
         this.$.runMsg.open();
     }
     showValidateStatus(element) {
+        document.body.appendChild(this.$.validateMsg);
         this.$.validateMsg.positionTarget = element;
         this.$.validateMsg.open();
     }
     showCompleteStatus(element) {
+        document.body.appendChild(this.$.completeMsg);
         this.$.completeMsg.positionTarget = element;
         this.$.completeMsg.open();
     }
