@@ -199,7 +199,8 @@ public class SubmissionService extends AbstractSubmissionService {
 				storageService.deleteFile(configLoc);
 				storageService.deleteFile(srcLoc);
 			}
-			hadoopService.delete("/submission/" + existingSubmission.getId());
+			hadoopService.delete(SubmissionWorker.SUBMISSION_DIR + existingSubmission.getId());
+			hadoopService.delete(SubmissionWorker.VALIDATION_DIR + existingSubmission.getId());
 
 			return true;
 		}

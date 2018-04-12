@@ -54,6 +54,8 @@ class MapredConfig extends Polymer.Element {
                     'reducerClass',
                     'outputKeyClass',
                     'outputValueClass',
+                    'mapOutputKeyClass',
+                    'mapOutputValueClass',
                     'inputPath'
                 ]
             }

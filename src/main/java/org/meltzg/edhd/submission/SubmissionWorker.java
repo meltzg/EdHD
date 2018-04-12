@@ -51,8 +51,8 @@ import com.google.common.io.Files;
 
 public class SubmissionWorker implements Runnable {
 
-	private static final String SUBMISSION_DIR = "/submission/";
-	private static final String VALIDATION_DIR = "/validation/";
+	public static final String SUBMISSION_DIR = "/submission/";
+	public static final String VALIDATION_DIR = "/validation/";
 
 	private UUID submissionId;
 	private AssignmentDefinition definition;
@@ -274,6 +274,8 @@ public class SubmissionWorker implements Runnable {
 		String outputPath = VALIDATION_DIR + submissionId.toString();
 		validator.setProp(GenJobConfiguration.MAP_CLASS, GenJobValidatorMapper.class.getCanonicalName());
 		validator.setProp(GenJobConfiguration.REDUCER_CLASS, GenJobValidatorReducer.class.getCanonicalName());
+		validator.setProp(GenJobConfiguration.MAP_OUTPUT_KEY_CLASS, GenJobValidatorMapper.getOutputKeyClassName());
+		validator.setProp(GenJobConfiguration.MAP_OUTPUT_VALUE_CLASS, GenJobValidatorMapper.getOutputValueClassName());
 		validator.setProp(GenJobConfiguration.OUTPUT_KEY_CLASS, GenJobValidatorReducer.getOutputKeyClassName());
 		validator.setProp(GenJobConfiguration.OUTPUT_VALUE_CLASS, GenJobValidatorReducer.getOutputValueClassName());
 		validator.setProp(GenJobConfiguration.JOB_NAME, "Validation " + submissionId.toString());
