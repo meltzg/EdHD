@@ -208,16 +208,25 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public boolean validatorPending(UUID assignmentId) {
+	public StatusProperties getValidatorStatProps(UUID assignmentId) {
 		AssignmentSubmission submission = getByUserAssignment(null, assignmentId, true);
 		if (submission != null) {
 			try {
 				StatusProperties stat = getStatus(submission.getId(), true, null);
-				return stat.getCompileStatus().equals(StatusValue.PENDING);
+				return stat;
 			} catch (ClassNotFoundException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public boolean validatorPending(UUID assignmentId) {
+		StatusProperties stat = getValidatorStatProps(assignmentId);
+		if (stat != null) {
+			return stat.getCompileStatus().equals(StatusValue.PENDING);
 		}
 		return false;
 	}
@@ -237,33 +246,8 @@ public class SubmissionService extends AbstractSubmissionService {
 		return false;
 	}
 
-	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation)
-			throws IOException, ClassNotFoundException, SQLException {
-		UUID submissionId = UUID.randomUUID();
-		StatusProperties statProps = new StatusProperties(submissionId);
-
-		deleteByUserAssignment(definition.getUser(), definition.getId(), isValidation);
-
-		List<StatementParameter> params = new ArrayList<StatementParameter>();
-		params.add(new StatementParameter(submissionId, DBType.UUID));
-		params.add(new StatementParameter(definition.getUser(), DBType.TEXT));
-		params.add(new StatementParameter(definition.getId(), DBType.UUID));
-		params.add(new StatementParameter(definition.getConfigLoc(), DBType.UUID));
-		params.add(new StatementParameter(definition.getSrcLoc(), DBType.UUID));
-		params.add(new StatementParameter(isValidation, DBType.BOOLEAN));
-		int added = executeUpdate("INSERT INTO " + TABLE_NAME() + "(" + ID + ", " + USER + ", " + ASSIGNMENTID + ", "
-				+ CONFIGLOC + ", " + SRCLOC + ", " + ISVALIDATION + ") VALUES (?, ?, ?, ?, ?, ?);", params);
-		if (added > 0) {
-			updateStatus(statProps);
-		}
-
-		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, statProps, storageService, this,
-				hadoopService);
-		threadpool.execute(worker);
-		return submissionId;
-	}
-
-	private AssignmentSubmission getByUserAssignment(String user, UUID assignmentId, boolean isValidation) {
+	@Override
+	public AssignmentSubmission getByUserAssignment(String user, UUID assignmentId, boolean isValidation) {
 		AssignmentSubmission submission = null;
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(assignmentId, DBType.UUID));
@@ -289,6 +273,33 @@ public class SubmissionService extends AbstractSubmissionService {
 			e.printStackTrace();
 		}
 		return submission;
+	}
+
+	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation)
+			throws IOException, ClassNotFoundException, SQLException {
+		UUID submissionId = UUID.randomUUID();
+		StatusProperties statProps = new StatusProperties(submissionId);
+		statProps.setValidation(isValidation);
+
+		deleteByUserAssignment(definition.getUser(), definition.getId(), isValidation);
+
+		List<StatementParameter> params = new ArrayList<StatementParameter>();
+		params.add(new StatementParameter(submissionId, DBType.UUID));
+		params.add(new StatementParameter(definition.getUser(), DBType.TEXT));
+		params.add(new StatementParameter(definition.getId(), DBType.UUID));
+		params.add(new StatementParameter(definition.getConfigLoc(), DBType.UUID));
+		params.add(new StatementParameter(definition.getSrcLoc(), DBType.UUID));
+		params.add(new StatementParameter(isValidation, DBType.BOOLEAN));
+		int added = executeUpdate("INSERT INTO " + TABLE_NAME() + "(" + ID + ", " + USER + ", " + ASSIGNMENTID + ", "
+				+ CONFIGLOC + ", " + SRCLOC + ", " + ISVALIDATION + ") VALUES (?, ?, ?, ?, ?, ?);", params);
+		if (added > 0) {
+			updateStatus(statProps);
+		}
+
+		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, statProps, storageService, this,
+				hadoopService);
+		threadpool.execute(worker);
+		return submissionId;
 	}
 
 	private AssignmentSubmission getById(UUID id) {

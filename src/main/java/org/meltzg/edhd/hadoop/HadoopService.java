@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -171,6 +172,28 @@ public class HadoopService implements IHadoopService {
 		Path successPath = new Path(defaultFS + "/" + outputPath + "/_SUCCESS");
 		
 		return fs.exists(successPath);
+	}
+
+	@Override
+	public long lineCount(String path) throws IOException {
+		Configuration conf = getConfiguration();
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
+		Path fsPath = new Path(defaultFS + "/" + path);
+		FileStatus[] status = fs.listStatus(fsPath);
+		
+		long count = 0;
+		for (FileStatus stat : status) {
+			if (stat.isFile()) {
+				FSDataInputStream is = fs.open(stat.getPath());
+				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+				while (reader.readLine() != null) {
+					count++;
+				}
+				reader.close();
+			}
+		}
+		
+		return count;
 	}
 
 	private String removeFSName(Path path) {

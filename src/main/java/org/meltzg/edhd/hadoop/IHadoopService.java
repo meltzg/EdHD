@@ -14,4 +14,5 @@ public interface IHadoopService {
 	public Configuration getConfiguration();
 	public String getHadoopClasspath();
 	public boolean isJobSuccessful(String outputPath) throws IOException;
+	public long lineCount(String path) throws IOException;
 }
