@@ -36,4 +36,6 @@ public abstract class AbstractSubmissionService extends DBServiceBase {
 	public abstract boolean submissionPending(UUID assignmentId, String user);
 
 	public abstract AssignmentSubmission getByUserAssignment(String user, UUID assignmentId, boolean isValidation);
+
+	public abstract void revalidateSubmissions(AssignmentDefinition definition);
 }

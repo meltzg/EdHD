@@ -1,5 +1,6 @@
 package org.meltzg.edhd.assignment;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -7,10 +8,10 @@ import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
 
 public class AssignmentDefinition extends AssignmentSubmission {
 	
-	protected Long dueDate;
-	protected String name;
-	protected String desc;
-	protected Map<String, PropValue> primaryConfig;
+	private Long dueDate;
+	private String name;
+	private String desc;
+	private Map<String, PropValue> primaryConfig;
 	private UUID primaryConfigLoc;
 	private String primarySrcName;
 	private UUID primarySrcLoc;
@@ -30,6 +31,20 @@ public class AssignmentDefinition extends AssignmentSubmission {
 	public AssignmentDefinition() {
 	}
 	
+	public AssignmentDefinition(AssignmentDefinition other) {
+		super(other);
+		this.dueDate = other.dueDate;
+		this.name = other.name;
+		this.desc = other.desc;
+		this.primaryConfig = new HashMap<String, PropValue>();
+		for (Map.Entry<String, PropValue> entry : other.primaryConfig.entrySet()) {
+			this.primaryConfig.put(entry.getKey(), new PropValue(entry.getValue()));
+		}
+		this.primaryConfigLoc = other.primaryConfigLoc;
+		this.primarySrcName = other.primarySrcName;
+		this.primarySrcLoc = other.primarySrcLoc;
+	}
+
 	public Long getDueDate() {
 		return dueDate;
 	}

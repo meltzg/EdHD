@@ -116,6 +116,7 @@ public class SubmissionWorker implements Runnable {
 		if (succeeded) {
 			statProps.setCompleteInfo(StatusValue.SUCCESS, "Submission completed successfully!");
 			updateStatus();
+			submissionService.revalidateSubmissions(definition);
 		} else {
 			statProps.setCompleteInfo(StatusValue.FAIL, "Submission failed.");
 			updateStatus();

@@ -1,5 +1,6 @@
 package org.meltzg.edhd.assignment;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,6 +28,18 @@ public class AssignmentSubmission {
 	}
 
 	public AssignmentSubmission() {
+	}
+
+	public AssignmentSubmission(AssignmentDefinition other) {
+		this.id = other.id;
+		this.user = other.user;
+		this.config = new HashMap<String, PropValue>();
+		for (Map.Entry<String, PropValue> entry : other.config.entrySet()) {
+			this.config.put(entry.getKey(), new PropValue(entry.getValue()));
+		}
+		this.configLoc = other.configLoc;
+		this.srcName = other.srcName;
+		this.srcLoc = other.srcLoc;
 	}
 
 	public UUID getId() {

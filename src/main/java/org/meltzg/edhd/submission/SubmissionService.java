@@ -276,6 +276,28 @@ public class SubmissionService extends AbstractSubmissionService {
 		return submission;
 	}
 
+	@Override
+	public void revalidateSubmissions(AssignmentDefinition definition) {
+		List<AssignmentSubmission> submissions = getByAssignment(definition.getId());
+		for (AssignmentSubmission submission : submissions) {
+			try {
+				StatusProperties stat = getStatus(submission.getId(), true, null);
+				if (stat != null && !stat.isValidation()) {
+					AssignmentDefinition tmpDef = new AssignmentDefinition(definition);
+					tmpDef.setConfig(submission.getConfig());
+					tmpDef.setConfigLoc(submission.getConfigLoc());
+					tmpDef.setSrcName(submission.getSrcName());
+					tmpDef.setSrcLoc(submission.getSrcLoc());
+					tmpDef.setUser(submission.getUser());
+					executeSubmission(tmpDef, false);
+				}
+			} catch (ClassNotFoundException | SQLException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation)
 			throws IOException, ClassNotFoundException, SQLException {
 		UUID submissionId = UUID.randomUUID();
