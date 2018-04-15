@@ -26,7 +26,7 @@ public abstract class AbstractSubmissionService extends DBServiceBase {
 
 	public abstract void deleteByAssignment(UUID id);
 
-	public abstract boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation)
+	public abstract boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation, boolean deleteOldFiles)
 			throws ClassNotFoundException, SQLException, IOException;
 
 	public abstract StatusProperties getValidatorStatProps(UUID assignmentId);

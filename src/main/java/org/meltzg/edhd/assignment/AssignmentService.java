@@ -75,7 +75,7 @@ public class AssignmentService extends AbstractAssignmentService {
 		AssignmentDefinition current = getAssignment(props.getId(), true);
 		
 		try {
-			submissionService.deleteByUserAssignment(null, current.getId(), true);
+			submissionService.deleteByUserAssignment(null, current.getId(), true, false);
 		} catch (ClassNotFoundException | SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

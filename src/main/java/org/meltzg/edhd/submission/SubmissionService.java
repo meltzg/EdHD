@@ -83,7 +83,7 @@ public class SubmissionService extends AbstractSubmissionService {
 	@Override
 	public UUID executeDefinition(AssignmentDefinition definition)
 			throws IOException, ClassNotFoundException, SQLException {
-		return executeSubmission(definition, true);
+		return executeSubmission(definition, true, false);
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class SubmissionService extends AbstractSubmissionService {
 		definition.setSrcName(submission.getSrcName());
 		definition.setSrcLoc(srcLoc);
 		definition.setUser(submission.getUser());
-		return executeSubmission(definition, false);
+		return executeSubmission(definition, false, true);
 	}
 
 	@Override
@@ -187,7 +187,7 @@ public class SubmissionService extends AbstractSubmissionService {
 	}
 
 	@Override
-	public boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation)
+	public boolean deleteByUserAssignment(String user, UUID assignmentId, boolean isValidation, boolean deleteOldFiles)
 			throws ClassNotFoundException, SQLException, IOException {
 		AssignmentSubmission existingSubmission = getByUserAssignment(user, assignmentId, isValidation);
 		if (existingSubmission != null) {
@@ -195,7 +195,7 @@ public class SubmissionService extends AbstractSubmissionService {
 			UUID configLoc = existingSubmission.getConfigLoc();
 			deleteById(TABLE_NAME(), existingSubmission.getId());
 
-			if (!isValidation) {
+			if (deleteOldFiles) {
 				storageService.deleteFile(configLoc);
 				storageService.deleteFile(srcLoc);
 			}
@@ -289,7 +289,9 @@ public class SubmissionService extends AbstractSubmissionService {
 					tmpDef.setSrcName(submission.getSrcName());
 					tmpDef.setSrcLoc(submission.getSrcLoc());
 					tmpDef.setUser(submission.getUser());
-					executeSubmission(tmpDef, false);
+					stat.resetStatus();
+					updateStatus(stat);
+					executeSubmission(tmpDef, false, false);
 				}
 			} catch (ClassNotFoundException | SQLException | IOException e) {
 				// TODO Auto-generated catch block
@@ -298,13 +300,13 @@ public class SubmissionService extends AbstractSubmissionService {
 		}
 	}
 
-	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation)
+	private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation, boolean deleteOldFiles)
 			throws IOException, ClassNotFoundException, SQLException {
 		UUID submissionId = UUID.randomUUID();
 		StatusProperties statProps = new StatusProperties(submissionId);
 		statProps.setValidation(isValidation);
 
-		deleteByUserAssignment(definition.getUser(), definition.getId(), isValidation);
+		deleteByUserAssignment(definition.getUser(), definition.getId(), isValidation, deleteOldFiles);
 
 		List<StatementParameter> params = new ArrayList<StatementParameter>();
 		params.add(new StatementParameter(submissionId, DBType.UUID));
@@ -319,10 +321,14 @@ public class SubmissionService extends AbstractSubmissionService {
 			updateStatus(statProps);
 		}
 
-		SubmissionWorker worker = new SubmissionWorker(submissionId, definition, statProps, storageService, this,
+		return executeSubmission(definition, statProps);
+	}
+	
+	private UUID executeSubmission(AssignmentDefinition definition, StatusProperties statProps) throws IOException {
+		SubmissionWorker worker = new SubmissionWorker(statProps.getId(), definition, statProps, storageService, this,
 				hadoopService);
 		threadpool.execute(worker);
-		return submissionId;
+		return statProps.getId();
 	}
 
 	private AssignmentSubmission getById(UUID id) {

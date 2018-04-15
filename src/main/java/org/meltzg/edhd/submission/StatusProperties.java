@@ -38,6 +38,10 @@ public class StatusProperties {
 	}
 	
 	private StatusProperties() {
+		this.resetStatus();
+	}
+	
+	public void resetStatus() {
 		this.compileStatus = StatusValue.PENDING;
 		this.compileMsg = "";
 		this.runStatus = StatusValue.PENDING;
