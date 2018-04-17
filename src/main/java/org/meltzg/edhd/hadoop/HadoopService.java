@@ -3,6 +3,7 @@ package org.meltzg.edhd.hadoop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.file.Files;
@@ -37,6 +38,9 @@ public class HadoopService implements IHadoopService {
 	@Value("${edhd.hadoop.hduser}")
 	private String hdUser;
 
+	@Value("${edhd.hadoop.hdfsFilePreview}")
+	private int previewLength;
+
 	@Value("${edhd.storageDir}")
 	private String storageDir;
 
@@ -60,17 +64,19 @@ public class HadoopService implements IHadoopService {
 			return getChildren(removeFSName(status[0].getPath().getParent()));
 		}
 		for (FileStatus fstat : status) {
-			String cPath = removeFSName(fstat.getPath());
-			String permissions = fstat.getPermission().toString();
-			String group = fstat.getGroup();
-			String owner = fstat.getOwner();
-			long size = fstat.getLen();
-			boolean isDirectory = fstat.isDirectory();
-			children.add(new HDFSEntry(group, owner, permissions, cPath, size, isDirectory));
+			children.add(getHDFSFileInfo(fstat));
 		}
 
 		HDFSLocationInfo locInfo = new HDFSLocationInfo(path, children);
 		return locInfo;
+	}
+
+	@Override
+	public HDFSEntry getHDFSFileInfo(String path) throws IOException {
+		Configuration conf = getConfiguration();
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
+		Path fsPath = new Path(defaultFS + "/" + path);
+		return getHDFSFileInfo(fs.getFileStatus(fsPath));
 	}
 
 	@Override
@@ -170,7 +176,7 @@ public class HadoopService implements IHadoopService {
 		Configuration conf = getConfiguration();
 		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
 		Path successPath = new Path(defaultFS + "/" + outputPath + "/_SUCCESS");
-		
+
 		return fs.exists(successPath);
 	}
 
@@ -180,11 +186,11 @@ public class HadoopService implements IHadoopService {
 		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
 		Path fsPath = new Path(defaultFS + "/" + path);
 		FileStatus[] status = fs.listStatus(fsPath);
-		
+
 		long count = 0;
 		for (FileStatus stat : status) {
 			if (stat.isFile()) {
-				FSDataInputStream is = fs.open(stat.getPath());
+                FSDataInputStream is = fs.open(stat.getPath());
 				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 				while (reader.readLine() != null) {
 					count++;
@@ -192,12 +198,51 @@ public class HadoopService implements IHadoopService {
 				reader.close();
 			}
 		}
-		
+
 		return count;
+	}
+
+	@Override
+	public String getHDFSFilePreview(String path) throws IOException {
+		StringBuilder preview = new StringBuilder();
+		InputStream fileStream = getHDFSFile(path);
+
+		if (fileStream != null) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(fileStream));
+
+			String tmp = null;
+			for (int i = 0; i < previewLength && (tmp = in.readLine()) != null; i++) {
+				preview.append(tmp + "\n");
+			}
+		}
+		return preview.toString();
+	}
+
+	@Override
+	public InputStream getHDFSFile(String path) throws IOException {
+		Configuration conf = getConfiguration();
+		FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
+		Path fsPath = new Path(defaultFS + "/" + path);
+
+		FileStatus stat = fs.getFileLinkStatus(fsPath);
+		if (stat.isFile()) {
+			return fs.open(fsPath);
+		}
+
+		return null;
 	}
 
 	private String removeFSName(Path path) {
 		return path.toString().replace(defaultFS, "");
 	}
 
+	private HDFSEntry getHDFSFileInfo(FileStatus stat) {
+		String cPath = removeFSName(stat.getPath());
+		String permissions = stat.getPermission().toString();
+		String group = stat.getGroup();
+		String owner = stat.getOwner();
+		long size = stat.getLen();
+		boolean isDirectory = stat.isDirectory();
+		return new HDFSEntry(group, owner, permissions, cPath, size, isDirectory);
+	}
 }

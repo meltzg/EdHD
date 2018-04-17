@@ -33,5 +33,10 @@
     "name": "edhd.hadoop.hduser",
     "type": "java.lang.String",
     "description": "The user to run as for Hadoop/HDFS operations"
+  },
+  {
+    "name": "edhd.hadoop.hdfs-file-preview",
+    "type": "java.lang.Integer",
+    "description": "Number of lines to return for HDFS file previews"
   }
 ]}

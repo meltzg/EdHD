@@ -14,7 +14,7 @@
         <style include="common-styles"></style>
 
         <busy-overlay is-busy="[[isBusy]]" with-backdrop no-cancel-on-esc-key no-cancel-on-outside-click></busy-overlay>
-        
+
         <h1>HDFS Browser</h1>
         <div class="row" style="background-color: white;">
             <div class="cell">
@@ -34,9 +34,14 @@
             <vaadin-grid-column resizable flex-grow="1">
                 <template class="header">Actions</template>
                 <template>
-                    <template is="dom-if" if="{{isAdmin}}">
-                        <paper-icon-button class="cell" icon="delete-forever" on-click="remove" style="float: right;"></paper-icon-button>
-                    </template>
+                    <div class="row">
+                        <template is="dom-if" if="{{isAdmin}}">
+                            <paper-icon-button class="cell" icon="delete-forever" on-click="remove"></paper-icon-button>
+                        </template>
+                        <template is="dom-if" if="{{!item.directory}}">
+                            <paper-icon-button class="cell" icon="file-download" on-click="download"></paper-icon-button>
+                        </template>
+                    </div>
                 </template>
             </vaadin-grid-column>
             <vaadin-grid-column resizable flex-grow="2">
@@ -52,9 +57,9 @@
                 <template>[[item.group]]</template>
             </vaadin-grid-column>
             <vaadin-grid-column resizable flex-grow="2">
-                    <template class="header">Size</template>
-                    <template>[[item.size]]</template>
-                </vaadin-grid-column>
+                <template class="header">Size</template>
+                <template>[[item.size]]</template>
+            </vaadin-grid-column>
             <vaadin-grid-column resizable flex-grow="12">
                 <template class="header">Path</template>
                 <template>
@@ -64,10 +69,14 @@
                 </template>
             </vaadin-grid-column>
         </vaadin-grid>
-        <iron-ajax id="requestHDFS" url="/hdfs-ls"></iron-ajax>
-        <iron-ajax id="requestMkDir" url="/hdfs-mkdir" method="POST"></iron-ajax>
-        <iron-ajax id="requestPutFile" url="/hdfs-put" method="POST"></iron-ajax>
-        <iron-ajax id="requestRm" url="/hdfs-rm" method="DELETE"></iron-ajax>
+        <h2>Preview: {{previewLocation}}</h2>
+        <span class="multiline">{{previewContent}}</span>
+        <iron-ajax id="requestHDFS" url="/hdfs/ls"></iron-ajax>
+        <iron-ajax id="requestPreview" url="/hdfs/preview"></iron-ajax>
+        <iron-ajax id="requestFile" url="/hdfs/get" handle-as="blob"></iron-ajax>
+        <iron-ajax id="requestMkDir" url="/hdfs/mkdir" method="POST"></iron-ajax>
+        <iron-ajax id="requestPutFile" url="/hdfs/put" method="POST"></iron-ajax>
+        <iron-ajax id="requestRm" url="/hdfs/rm" method="DELETE"></iron-ajax>
     </template>
     <script src="hdfs-browser.js"></script>
 </dom-module>
