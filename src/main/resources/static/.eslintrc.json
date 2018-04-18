@@ -27,6 +27,7 @@
     },
     "globals": {
         "moment": true,
-        "Polymer": true
+        "Polymer": true,
+        "saveAs": true
       }
 }

@@ -34,7 +34,7 @@ public class SecurityConfig {
 			http.httpBasic().authenticationEntryPoint(new EdHDAuthenticationEntryPoint()).and().formLogin()
 					.successHandler(new EdHDAuthenticationSuccessHandler())
 					.failureHandler(new EdHDAuthenticationFailureHandler()).and().logout().and().authorizeRequests()
-					.antMatchers("/", "/login**", "/register**", "/bower_components/**", "/src/**").permitAll().anyRequest()
+					.antMatchers("/", "/login**", "/register**", "/bower_components/**", "/node_modules/**", "/src/**").permitAll().anyRequest()
 					.authenticated().and().csrf().disable();
 		}
 		

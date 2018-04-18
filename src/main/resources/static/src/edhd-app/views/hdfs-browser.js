@@ -154,17 +154,23 @@ class HDFSBrowser extends Polymer.Element {
             let request = this.$.requestFile.generateRequest();
             request.completes.then(function (event) {
                 let data = event.response;
-                let header = event.xhr.getResponseHeader('content-disposition').split(';').map(elem => elem.split('='));
-                // header = header.reduce(function (prev, curr) {
-                //     if (curr.length === 2) {
-                //         prev[curr[0]] = curr[1];
-                //     }
-                // });
-                // let lastSlash = header.lastIndexOf('/');
-                // if (lastSlash != -1) {
-                //     header = header.substr(lastSlash + 1);
-                // }
-                // console.log(header);
+                let contentDisposition = event.xhr.getResponseHeader('content-disposition').split(';').map(elem => elem.split('='));
+                let cDispDict = {};
+                contentDisposition.forEach(elem => {
+                    if (elem.length === 2) {
+                        cDispDict[elem[0]] = elem[1];
+                    }
+                });
+
+                let filename = cDispDict.filename;
+                if (filename) {
+                    let lastSlash = filename.lastIndexOf('/');
+                    if (lastSlash != -1) {
+                        filename = filename.substr(lastSlash + 1);
+                    }
+                    
+                }
+                saveAs(data, filename);
                 this.isBusy = false;
             }.bind(this), function () {
                 this.isBusy = false;

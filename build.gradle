@@ -45,14 +45,16 @@ war {
     // version =  '0.0.1'
 }
 
-task bowerInstall(type: Exec) {
+task jsInstall(type: Exec) {
 	workingDir './src/main/resources/static'
 	
 	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
 		commandLine 'cmd', '/c', 'bower', 'install'
+		commandLine 'cmd', '/c', 'npm', 'install'
 	} else {
 		commandLine 'bower', 'install'
+		commandLine 'npm', 'install'
 	}
 }
 
-compileJava.dependsOn bowerInstall
+compileJava.dependsOn jsInstall

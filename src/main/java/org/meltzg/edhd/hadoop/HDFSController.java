@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.ws.rs.core.MediaType;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -123,7 +124,7 @@ public class HDFSController {
 			if (!fileInfo.isDirectory()) {
                 InputStream file = hadoopService.getHDFSFile(path);
                 response.addHeader("Content-disposition", "attachment;filename=" + path);
-                response.setContentType("txt/plain");
+                response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
                 IOUtils.copy(file, response.getOutputStream());
                 response.flushBuffer();
             }
