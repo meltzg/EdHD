@@ -7,12 +7,12 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 @SpringBootApplication
 public class EdhdApplication extends SpringBootServletInitializer {
-	public static void main(String[] args) {
-		SpringApplication.run(EdhdApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(EdhdApplication.class, args);
+    }
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-		return builder.sources(EdhdApplication.class);
-	}
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(EdhdApplication.class);
+    }
 }

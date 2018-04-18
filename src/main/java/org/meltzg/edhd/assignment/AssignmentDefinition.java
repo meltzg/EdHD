@@ -1,103 +1,103 @@
 package org.meltzg.edhd.assignment;
 
+import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
-
 public class AssignmentDefinition extends AssignmentSubmission {
-	
-	private Long dueDate;
-	private String name;
-	private String desc;
-	private Map<String, PropValue> primaryConfig;
-	private UUID primaryConfigLoc;
-	private String primarySrcName;
-	private UUID primarySrcLoc;
-	
-	public AssignmentDefinition(UUID id, String user, Long dueDate, String name, String desc, Map<String, PropValue> primaryConfig, UUID primaryConfigLoc,
-			Map<String, PropValue> config, UUID configLoc, String primarySrcName, UUID primarySrcLoc, String srcName, UUID srcLoc) {
-		super(id, user, config, configLoc, srcName, srcLoc);
-		this.dueDate = dueDate;
-		this.name = name;
-		this.desc = desc;
-		this.primaryConfig = primaryConfig;
-		this.primaryConfigLoc = primaryConfigLoc;
-		this.primarySrcName = primarySrcName;
-		this.primarySrcLoc = primarySrcLoc;
-	}
-	
-	public AssignmentDefinition() {
-	}
-	
-	public AssignmentDefinition(AssignmentDefinition other) {
-		super(other);
-		this.dueDate = other.dueDate;
-		this.name = other.name;
-		this.desc = other.desc;
-		this.primaryConfig = new HashMap<String, PropValue>();
-		for (Map.Entry<String, PropValue> entry : other.primaryConfig.entrySet()) {
-			this.primaryConfig.put(entry.getKey(), new PropValue(entry.getValue()));
-		}
-		this.primaryConfigLoc = other.primaryConfigLoc;
-		this.primarySrcName = other.primarySrcName;
-		this.primarySrcLoc = other.primarySrcLoc;
-	}
 
-	public Long getDueDate() {
-		return dueDate;
-	}
+    private Long dueDate;
+    private String name;
+    private String desc;
+    private Map<String, PropValue> primaryConfig;
+    private UUID primaryConfigLoc;
+    private String primarySrcName;
+    private UUID primarySrcLoc;
 
-	public void setDueDate(Long dueDate) {
-		this.dueDate = dueDate;
-	}
+    public AssignmentDefinition(UUID id, String user, Long dueDate, String name, String desc, Map<String, PropValue> primaryConfig, UUID primaryConfigLoc,
+                                Map<String, PropValue> config, UUID configLoc, String primarySrcName, UUID primarySrcLoc, String srcName, UUID srcLoc) {
+        super(id, user, config, configLoc, srcName, srcLoc);
+        this.dueDate = dueDate;
+        this.name = name;
+        this.desc = desc;
+        this.primaryConfig = primaryConfig;
+        this.primaryConfigLoc = primaryConfigLoc;
+        this.primarySrcName = primarySrcName;
+        this.primarySrcLoc = primarySrcLoc;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public AssignmentDefinition() {
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public AssignmentDefinition(AssignmentDefinition other) {
+        super(other);
+        this.dueDate = other.dueDate;
+        this.name = other.name;
+        this.desc = other.desc;
+        this.primaryConfig = new HashMap<String, PropValue>();
+        for (Map.Entry<String, PropValue> entry : other.primaryConfig.entrySet()) {
+            this.primaryConfig.put(entry.getKey(), new PropValue(entry.getValue()));
+        }
+        this.primaryConfigLoc = other.primaryConfigLoc;
+        this.primarySrcName = other.primarySrcName;
+        this.primarySrcLoc = other.primarySrcLoc;
+    }
 
-	public String getDesc() {
-		return desc;
-	}
+    public Long getDueDate() {
+        return dueDate;
+    }
 
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-	
-	public Map<String, PropValue> getPrimaryConfig() {
-		return primaryConfig;
-	}
+    public void setDueDate(Long dueDate) {
+        this.dueDate = dueDate;
+    }
 
-	public void setPrimaryConfig(Map<String, PropValue> primaryConfig) {
-		this.primaryConfig = primaryConfig;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public UUID getPrimaryConfigLoc() {
-		return primaryConfigLoc;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setPrimaryConfigLoc(UUID primaryConfigLoc) {
-		this.primaryConfigLoc = primaryConfigLoc;
-	}
+    public String getDesc() {
+        return desc;
+    }
 
-	public String getPrimarySrcName() {
-		return primarySrcName;
-	}
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
 
-	public void setPrimarySrcName(String primarySrcName) {
-		this.primarySrcName = primarySrcName;
-	}
+    public Map<String, PropValue> getPrimaryConfig() {
+        return primaryConfig;
+    }
 
-	public UUID getPrimarySrcLoc() {
-		return primarySrcLoc;
-	}
+    public void setPrimaryConfig(Map<String, PropValue> primaryConfig) {
+        this.primaryConfig = primaryConfig;
+    }
 
-	public void setPrimarySrcLoc(UUID primarySrcLoc) {
-		this.primarySrcLoc = primarySrcLoc;
-	}
+    public UUID getPrimaryConfigLoc() {
+        return primaryConfigLoc;
+    }
+
+    public void setPrimaryConfigLoc(UUID primaryConfigLoc) {
+        this.primaryConfigLoc = primaryConfigLoc;
+    }
+
+    public String getPrimarySrcName() {
+        return primarySrcName;
+    }
+
+    public void setPrimarySrcName(String primarySrcName) {
+        this.primarySrcName = primarySrcName;
+    }
+
+    public UUID getPrimarySrcLoc() {
+        return primarySrcLoc;
+    }
+
+    public void setPrimarySrcLoc(UUID primarySrcLoc) {
+        this.primarySrcLoc = primarySrcLoc;
+    }
 }
