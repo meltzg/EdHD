@@ -33,7 +33,7 @@ public class AssignmentController {
 	@Autowired
 	AbstractSubmissionService submissionService;
 
-	@RequestMapping(value = "/create-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
+	@RequestMapping(value = "/assignment/create", method = RequestMethod.POST, consumes = { "multipart/form-data" })
 	public ResponseEntity<Map<String, String>> createAssignment(Principal principal,
 			@RequestPart("properties") @Valid AssignmentDefinition props,
 			@RequestPart(name = "primarySrc", required = false) MultipartFile primarySrc,
@@ -62,7 +62,7 @@ public class AssignmentController {
 		}
 	}
 
-	@RequestMapping("/get-assignments")
+	@RequestMapping("/assignment/get")
 	public ResponseEntity<List<AssignmentDefinition>> getAllAssignments() {
 		try {
 			List<AssignmentDefinition> assignments = assignmentService.getAllAssignments();
@@ -73,7 +73,7 @@ public class AssignmentController {
 		}
 	}
 
-	@RequestMapping("/get-assignment/{id}")
+	@RequestMapping("/assignment/get/{id}")
 	public ResponseEntity<AssignmentDefinition> getAssignment(Principal principal, @PathVariable UUID id) {
 		try {
 			AssignmentDefinition assignment = assignmentService.getAssignment(id,
@@ -85,7 +85,7 @@ public class AssignmentController {
 		}
 	}
 
-	@RequestMapping(value = "/delete-assignment/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/assignment/delete/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Map<String, String>> deleteAssignment(Principal principal, @PathVariable UUID id) {
 		Map<String, String> returnBody = new HashMap<String, String>();
 		if (securityService.isAdmin(principal.getName())) {
@@ -102,7 +102,7 @@ public class AssignmentController {
 		}
 	}
 
-	@RequestMapping(value = "/submit-assignment", method = RequestMethod.POST, consumes = { "multipart/form-data" })
+	@RequestMapping(value = "/assignment/submit", method = RequestMethod.POST, consumes = { "multipart/form-data" })
 	public ResponseEntity<Map<String, String>> submitAssignment(Principal principal,
 			@RequestPart("properties") @Valid AssignmentSubmission submission,
 			@RequestPart(name = "src", required = true) MultipartFile src) {

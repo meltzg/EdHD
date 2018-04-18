@@ -132,7 +132,7 @@ class CreateAssignment extends Polymer.Element {
         if (this.editId && this.editId.length > 0) {
             this._set_isBusy(true);
             this.reset();
-            this.$.getAssignment.url = '/get-assignment/' + this.editId;
+            this.$.getAssignment.url = '/assignment/get/' + this.editId;
             let request = this.$.getAssignment.generateRequest();
             request.completes.then(function (event) {
                 let assignment = event.response;

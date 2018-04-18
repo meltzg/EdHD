@@ -48,12 +48,12 @@ public class SecurityController {
 		return ResponseEntity.ok().body(responseBody);
 	}
 
-	@RequestMapping("/is-admin/{user:.+}")
+	@RequestMapping("/admin/is/{user:.+}")
 	public Map<String, Boolean> isAdmin(@PathVariable String user) {
 		return Collections.singletonMap("isAdmin", securityService.isAdmin(user));
 	}
 
-	@RequestMapping(value = "/update-admin", method = RequestMethod.POST, consumes = "application/json")
+	@RequestMapping(value = "/admin/update", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<Map<String, Object>> updateUser(Principal principal, @RequestBody Map<String, String> body) {
 		boolean success = securityService.updateAdmin(principal.getName(), body);
 		Map<String, Object> returnBody = new HashMap<String, Object>();

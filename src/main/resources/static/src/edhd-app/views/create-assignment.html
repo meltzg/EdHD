@@ -40,8 +40,8 @@
             </template>
             <paper-button class="cell" on-click="reset" raised>Reset</paper-button>
         </div>
-        <iron-ajax id="createAssignment" url="/create-assignment" method="POST"></iron-ajax>
-        <iron-ajax id="getAssignment" url="/get-assignment"></iron-ajax>
+        <iron-ajax id="createAssignment" url="/assignment/create" method="POST"></iron-ajax>
+        <iron-ajax id="getAssignment" url="/assignment/get"></iron-ajax>
         <paper-toast id="errorToast" class="errorToast" always-on-top></paper-toast>
     </template>
     <script src="create-assignment.js"></script>

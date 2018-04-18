@@ -17,7 +17,7 @@
         <template is="dom-repeat" items="{{assignments}}">
             <assignment-card is-admin="[[isAdmin]]" assignment-props="[[item]]"></assignment-card>
         </template>
-        <iron-ajax id="refreshRequest" url="/get-assignments"></iron-ajax>
+        <iron-ajax id="refreshRequest" url="/assignment/get"></iron-ajax>
     </template>
     <script src="all-assignments.js"></script>
 </dom-module>

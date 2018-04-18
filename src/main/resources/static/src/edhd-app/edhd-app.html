@@ -86,7 +86,7 @@
         </app-drawer-layout>
         
         <iron-ajax id="requestUser" url="/user"></iron-ajax>
-        <iron-ajax id="isAdmin" url="/is-admin/{{_userInfo.name}}" on-response="handleIsAdmin"></iron-ajax>
+        <iron-ajax id="isAdmin" url="/admin/is/{{_userInfo.name}}" on-response="handleIsAdmin"></iron-ajax>
         <iron-ajax id="logout" url="/logout" method="POST" on-response="handleLogout"></iron-ajax>
     </template>
 
