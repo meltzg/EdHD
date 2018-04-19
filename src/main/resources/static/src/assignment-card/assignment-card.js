@@ -1,5 +1,7 @@
 class AssignmentCard extends Polymer.Element {
-    static get is() { return 'assignment-card'; }
+    static get is() {
+        return 'assignment-card';
+    }
     static get properties() {
         return {
             isAdmin: {
@@ -146,20 +148,58 @@ class AssignmentCard extends Polymer.Element {
         let request = this.$.submitAssignment.generateRequest();
 
         request.completes.then(function () {
-            this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
+            this.dispatchEvent(new CustomEvent('reload-assignments', {
+                bubbles: true,
+                composed: true
+            }));
         }.bind(this), function (rejected) {
             this.showError('Error submitting assignment ' + rejected);
         }.bind(this));
     }
     editAssignment() {
-        this.dispatchEvent(new CustomEvent('edit-assignment', { bubbles: true, composed: true, detail: { id: this.assignmentProps.id } }));
+        this.dispatchEvent(new CustomEvent('edit-assignment', {
+            bubbles: true,
+            composed: true,
+            detail: {
+                id: this.assignmentProps.id
+            }
+        }));
     }
     deleteAssignment() {
         let request = this.$.delete.generateRequest();
         request.completes.then(function () {
-            this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
+            this.dispatchEvent(new CustomEvent('reload-assignments', {
+                bubbles: true,
+                composed: true
+            }));
         }.bind(this), function () {
-            this.dispatchEvent(new CustomEvent('reload-assignments', { bubbles: true, composed: true }));
+            this.dispatchEvent(new CustomEvent('reload-assignments', {
+                bubbles: true,
+                composed: true
+            }));
+        }.bind(this));
+    }
+    downloadSubmissions() {
+        let request = this.$.getAssignmentSubmissions.generateRequest();
+        request.completes.then(function (event) {
+            let data = event.response;
+            let contentDisposition = event.xhr.getResponseHeader('content-disposition').split(';').map(elem => elem.split('='));
+            let cDispDict = {};
+            contentDisposition.forEach(elem => {
+                if (elem.length === 2) {
+                    cDispDict[elem[0]] = elem[1];
+                }
+            });
+
+            let filename = cDispDict.filename;
+            if (filename) {
+                let lastSlash = filename.lastIndexOf('/');
+                if (lastSlash != -1) {
+                    filename = filename.substr(lastSlash + 1);
+                }
+
+            }
+            saveAs(data, filename);
         }.bind(this));
     }
     refreshSubmissionIds() {
@@ -176,7 +216,9 @@ class AssignmentCard extends Polymer.Element {
     }
     showError(msg) {
         this.$.errorToast.fitInto = this;
-        this.$.errorToast.show({ text: msg });
+        this.$.errorToast.show({
+            text: msg
+        });
     }
 }
 

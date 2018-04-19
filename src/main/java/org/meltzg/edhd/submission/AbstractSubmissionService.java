@@ -38,4 +38,6 @@ public abstract class AbstractSubmissionService extends DBServiceBase {
     public abstract AssignmentSubmission getByUserAssignment(String user, UUID assignmentId, boolean isValidation);
 
     public abstract void revalidateSubmissions(AssignmentDefinition definition);
+
+    public abstract List<AssignmentSubmission> getSubmissions(UUID assignmentId, boolean includeValidator) throws SQLException, ClassNotFoundException, IOException;
 }

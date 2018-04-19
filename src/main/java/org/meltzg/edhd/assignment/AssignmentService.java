@@ -5,16 +5,19 @@ import org.meltzg.edhd.submission.AbstractSubmissionService;
 import org.meltzg.genmapred.conf.GenJobConfiguration;
 import org.meltzg.genmapred.conf.GenJobConfiguration.PropValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class AssignmentService extends AbstractAssignmentService {
@@ -30,6 +33,8 @@ public class AssignmentService extends AbstractAssignmentService {
     private AbstractSubmissionService submissionService;
     @Autowired
     private AbstractStorageService storageService;
+    @Value("${edhd.storageDir}")
+    private String storageDir;
 
     @PostConstruct
     public void init() throws Exception {
@@ -181,6 +186,44 @@ public class AssignmentService extends AbstractAssignmentService {
             e.printStackTrace();
         }
         return assignment;
+    }
+
+    @Override
+    public File getAssignmentSubmissionZip(UUID id) throws IOException, SQLException, ClassNotFoundException {
+        AssignmentDefinition definition = getAssignment(id, true);
+        List<AssignmentSubmission> submissions = submissionService.getSubmissions(id, false);
+        File archive = new File(this.storageDir + "/assignmentSubmissions-" + definition.getName() + ".zip");
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(archive));
+
+        addZipEntry(zos, "definition/primaryConfig.json", storageService.getFile(definition.getPrimaryConfigLoc()));
+        addZipEntry(zos, "definition/secondaryConfig.json", storageService.getFile(definition.getConfigLoc()));
+        if (definition.getPrimarySrcLoc() != null) {
+            addZipEntry(zos, "definition/" + definition.getPrimarySrcName(), storageService.getFile(definition.getPrimarySrcLoc()));
+        }
+        if (definition.getSrcLoc() != null) {
+            addZipEntry(zos, "definition/" + definition.getSrcName(), storageService.getFile(definition.getSrcLoc()));
+        }
+        for (AssignmentSubmission submission : submissions) {
+            String user = submission.getUser();
+            addZipEntry(zos, "submission/" + user + "/config.json", storageService.getFile(submission.getConfigLoc()));
+            addZipEntry(zos, "submission/" + user + "/" + submission.getSrcName(), storageService.getFile(submission.getSrcLoc()));
+        }
+        zos.close();
+        return archive;
+    }
+
+    private void addZipEntry(ZipOutputStream zos, String entryName, File file) throws IOException {
+        byte[] buffer = new byte[1024];
+        int len = 0;
+
+        ZipEntry entry = new ZipEntry(entryName);
+        zos.putNextEntry(entry);
+        InputStream is = new BufferedInputStream(new FileInputStream(file));
+        while ((len = is.read(buffer, 0, buffer.length)) != -1) {
+            zos.write(buffer, 0, len);
+        }
+        is.close();
+        zos.closeEntry();
     }
 
     private UUID commitDefinition(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc,

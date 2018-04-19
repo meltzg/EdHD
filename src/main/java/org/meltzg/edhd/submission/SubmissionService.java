@@ -294,6 +294,27 @@ public class SubmissionService extends AbstractSubmissionService {
         }
     }
 
+    @Override
+    public List<AssignmentSubmission> getSubmissions(UUID assignmentId, boolean includeValidator) throws SQLException, ClassNotFoundException, IOException {
+        List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>();
+        List<StatementParameter> params = new ArrayList<StatementParameter>();
+
+        params.add(new StatementParameter(assignmentId, DBType.UUID));
+        String query = "SELECT * FROM " + TABLE_NAME() + " WHERE " + ASSIGNMENTID + "=?";
+        if (!includeValidator) {
+            params.add(new StatementParameter(false, DBType.BOOLEAN));
+            query += " AND " + ISVALIDATION + "=?";
+        }
+        query += ";";
+
+        ResultSet rs = executeQuery(query, params);
+        while (rs.next()) {
+            submissions.add(extractSubmissionProps(rs));
+        }
+
+        return submissions;
+    }
+
     private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation, boolean deleteOldFiles)
             throws IOException, ClassNotFoundException, SQLException {
         UUID submissionId = UUID.randomUUID();

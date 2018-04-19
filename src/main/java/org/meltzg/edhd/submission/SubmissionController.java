@@ -38,7 +38,9 @@ public class SubmissionController {
         try {
             for (UUID submissionId : submissions) {
                 StatusProperties statusProps = submissionService.getStatus(submissionId, isAdmin, principal.getName());
-                statuses.add(statusProps);
+                if (statusProps != null) {
+                    statuses.add(statusProps);
+                }
             }
         } catch (ClassNotFoundException | SQLException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

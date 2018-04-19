@@ -1,5 +1,6 @@
 package org.meltzg.edhd.assignment;
 
+import org.apache.commons.io.IOUtils;
 import org.meltzg.edhd.security.AbstractSecurityService;
 import org.meltzg.edhd.submission.AbstractSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,14 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.Principal;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 public class AssignmentController {
@@ -105,13 +107,16 @@ public class AssignmentController {
         try {
             AssignmentDefinition definition = assignmentService.getAssignment(submission.getId(), false);
             if (definition != null) {
+                if (definition.getDueDate() < (new Date()).getTime() / 1000) {
+                    returnBody.put("message", "Assignment is no longer accepting submissions!");
+                }
                 submission.setUser(principal.getName());
                 if (submissionService.validatorPending(definition.getId())) {
-                    returnBody.put("message", "Cannopt submit assignment while validator is pending!");
+                    returnBody.put("message", "Cannot submit assignment while validator is pending!");
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(returnBody);
                 }
                 if (submissionService.submissionPending(definition.getId(), principal.getName())) {
-                    returnBody.put("message", "Cannopt submit assignment while previous submission is pending!");
+                    returnBody.put("message", "Cannot submit assignment while previous submission is pending!");
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(returnBody);
                 }
                 submissionId = submissionService.executeSubmission(definition, submission, src);
@@ -121,11 +126,30 @@ public class AssignmentController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(returnBody);
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
-            returnBody.put("message", "An error occured while creating the assignment");
+            returnBody.put("message", "An error occurred while creating the assignment");
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(returnBody);
         }
 
         return ResponseEntity.ok(returnBody);
+    }
+
+    @RequestMapping("/assignment/artifacts/{id}")
+    public void getAssignmentSubmissions(Principal principal, HttpServletResponse response, @PathVariable UUID id) throws IOException {
+        try {
+            if (securityService.isAdmin(principal.getName())) {
+                File archive = assignmentService.getAssignmentSubmissionZip(id);
+                response.addHeader("Content-disposition", "attachment;filename=" + archive.getName());
+                response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                IOUtils.copy(new FileInputStream(archive), response.getOutputStream());
+                response.flushBuffer();
+                archive.delete();
+            } else {
+                response.sendError(HttpStatus.UNAUTHORIZED.value());
+            }
+        } catch (IOException | SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+        }
     }
 }
