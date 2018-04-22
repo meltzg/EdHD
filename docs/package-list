@@ -1,0 +1,8 @@
+examples
+org.meltzg.edhd
+org.meltzg.edhd.assignment
+org.meltzg.edhd.db
+org.meltzg.edhd.hadoop
+org.meltzg.edhd.security
+org.meltzg.edhd.storage
+org.meltzg.edhd.submission
