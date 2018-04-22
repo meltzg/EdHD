@@ -19,6 +19,9 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * REST Controller for EdHD assignment interactions
+ */
 @RestController
 public class AssignmentController {
     @Autowired
@@ -28,6 +31,17 @@ public class AssignmentController {
     @Autowired
     private AbstractSecurityService securityService;
 
+
+    /**
+     * Assignment creation/update route.  If the AssignmentDefinition's ID is not null, it will attempt to update
+     * an existing assignment with the same ID.
+     *
+     * @param principal - (Automatic)
+     * @param props - (form-data.properties)
+     * @param primarySrc - (Optional) (form-data.primarySrc)
+     * @param secondarySrc - (Optional) (form-data.secondarySrc)
+     * @return A JSON object with the assignmnet_id or an error message
+     */
     @RequestMapping(value = "/assignment/create", method = RequestMethod.POST, consumes = {"multipart/form-data"})
     public ResponseEntity<Map<String, String>> createAssignment(Principal principal,
                                                                 @RequestPart("properties") @Valid AssignmentDefinition props,
@@ -35,6 +49,7 @@ public class AssignmentController {
                                                                 @RequestPart(name = "secondarySrc", required = false) MultipartFile secondarySrc) {
         Map<String, String> returnBody = new HashMap<String, String>();
 
+        // only admins can create assignments
         if (securityService.isAdmin(principal.getName())) {
             UUID assignmentId;
             try {
@@ -57,6 +72,11 @@ public class AssignmentController {
         }
     }
 
+    /**
+     * Assignment retrieval route.  Since this route does not require admin privileges, the AssignmentDefinitions
+     * should not contain the secondary config
+     * @return A list of all registered AssignmentDefinitions
+     */
     @RequestMapping("/assignment/get")
     public ResponseEntity<List<AssignmentDefinition>> getAllAssignments() {
         try {
@@ -68,6 +88,12 @@ public class AssignmentController {
         }
     }
 
+    /**
+     * Individual assignment definition retrieval route.  If the user is an admin, the secondary config info
+     * @param principal - (Automatic)
+     * @param id - ID of the assignment to retrieve
+     * @return
+     */
     @RequestMapping("/assignment/get/{id}")
     public ResponseEntity<AssignmentDefinition> getAssignment(Principal principal, @PathVariable UUID id) {
         try {
