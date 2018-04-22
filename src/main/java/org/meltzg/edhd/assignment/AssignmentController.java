@@ -36,7 +36,7 @@ public class AssignmentController {
      * Assignment creation/update route.  If the AssignmentDefinition's ID is not null, it will attempt to update
      * an existing assignment with the same ID.
      *
-     * @param principal - (Automatic)
+     * @param principal - (Automatic) (Requires Admin)
      * @param props - (form-data.properties)
      * @param primarySrc - (Optional) (form-data.primarySrc)
      * @param secondarySrc - (Optional) (form-data.secondarySrc)
@@ -106,6 +106,12 @@ public class AssignmentController {
         }
     }
 
+    /**
+     * Assignment deletion route
+     * @param principal - (Automatic) (Requires Admin)
+     * @param id - ID of the assignment to delete
+     * @return JSON object with error message if assignment could not be deleted successfully
+     */
     @RequestMapping(value = "/assignment/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Map<String, String>> deleteAssignment(Principal principal, @PathVariable UUID id) {
         Map<String, String> returnBody = new HashMap<String, String>();
@@ -123,6 +129,15 @@ public class AssignmentController {
         }
     }
 
+    /**
+     * Assignment submission route.
+     *
+     * @param principal - (Automatic)
+     * @param submission - (form-data.properties) AssignmentSubmission properties.  When submitting, the AssignmentSubmission's ID
+     *                   should be the ID of the assignment this submission is for
+     * @param src - (form-data.src) Assignment src Zip
+     * @return a JSON object with an appropriate error message or a submission_id if submission is successful
+     */
     @RequestMapping(value = "/assignment/submit", method = RequestMethod.POST, consumes = {"multipart/form-data"})
     public ResponseEntity<Map<String, String>> submitAssignment(Principal principal,
                                                                 @RequestPart("properties") @Valid AssignmentSubmission submission,
@@ -133,14 +148,19 @@ public class AssignmentController {
         try {
             AssignmentDefinition definition = assignmentService.getAssignment(submission.getId(), false);
             if (definition != null) {
+                // do not accept past due submissions
                 if (definition.getDueDate() < (new Date()).getTime() / 1000) {
                     returnBody.put("message", "Assignment is no longer accepting submissions!");
                 }
                 submission.setUser(principal.getName());
+
+                // do not accept submissions if the assignment's validator is still running
                 if (submissionService.validatorPending(definition.getId())) {
                     returnBody.put("message", "Cannot submit assignment while validator is pending!");
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(returnBody);
                 }
+
+                // do not accept submissions if user has a previous submission still running
                 if (submissionService.submissionPending(definition.getId(), principal.getName())) {
                     returnBody.put("message", "Cannot submit assignment while previous submission is pending!");
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(returnBody);
@@ -160,6 +180,14 @@ public class AssignmentController {
         return ResponseEntity.ok(returnBody);
     }
 
+    /**
+     * Route retrieves a zip archive with all of the submission artifacts for a requested assignment
+     *
+     * @param principal - (Automatic) (Requires Admin)
+     * @param response - (Automatic)
+     * @param id - ID of the assignment to retrieve submission artifacts for
+     * @throws IOException
+     */
     @RequestMapping("/assignment/artifacts/{id}")
     public void getAssignmentSubmissions(Principal principal, HttpServletResponse response, @PathVariable UUID id) throws IOException {
         try {

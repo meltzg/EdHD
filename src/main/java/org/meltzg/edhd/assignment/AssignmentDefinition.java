@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * A class to represent an assignment definition. The primary configuration represents the assignment
+ * that all users will have access to.  the configuration inherited from AssignmentSubmission is treated as
+ * the secondary configuration used to create the validation data
+ */
 public class AssignmentDefinition extends AssignmentSubmission {
 
     private Long dueDate;

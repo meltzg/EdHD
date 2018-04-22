@@ -1,5 +1,8 @@
 package org.meltzg.edhd.hadoop;
 
+/**
+ * Represents file status information for files/directories in HDFS
+ */
 public class HDFSEntry {
     private String group;
     private String owner;

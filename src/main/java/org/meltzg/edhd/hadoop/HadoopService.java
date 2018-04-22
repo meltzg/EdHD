@@ -113,11 +113,6 @@ public class HadoopService implements IHadoopService {
     }
 
     @Override
-    public String getDefaultFS() {
-        return defaultFS;
-    }
-
-    @Override
     public Configuration getConfiguration() {
         Configuration conf = new Configuration();
         String hadoopConfDir = System.getenv().get("HADOOP_CONF_DIR");
@@ -165,6 +160,7 @@ public class HadoopService implements IHadoopService {
     public boolean isJobSuccessful(String outputPath) throws IOException {
         Configuration conf = getConfiguration();
         FileSystem fs = FileSystem.get(URI.create(defaultFS), conf);
+        // job success is determined by the existance of the _SUCCESS file in the given outputPath
         Path successPath = new Path(defaultFS + "/" + outputPath + "/_SUCCESS");
 
         return fs.exists(successPath);

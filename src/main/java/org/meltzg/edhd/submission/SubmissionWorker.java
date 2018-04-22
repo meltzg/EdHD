@@ -28,6 +28,9 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * Executes an EdHD submission job and updates the submission's status
+ */
 public class SubmissionWorker implements Runnable {
 
     public static final String SUBMISSION_DIR = "/submission/";

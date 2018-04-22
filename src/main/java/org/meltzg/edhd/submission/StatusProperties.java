@@ -2,6 +2,9 @@ package org.meltzg.edhd.submission;
 
 import java.util.UUID;
 
+/**
+ * Represents a submission's status information
+ */
 public class StatusProperties {
     private UUID id;
     private String user;

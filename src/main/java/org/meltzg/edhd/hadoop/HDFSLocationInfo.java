@@ -2,6 +2,9 @@ package org.meltzg.edhd.hadoop;
 
 import java.util.List;
 
+/**
+ * Represents a locatino in HDFS
+ */
 public class HDFSLocationInfo {
     private String location;
     private List<HDFSEntry> children;

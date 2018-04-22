@@ -140,7 +140,7 @@ public class AssignmentService extends AbstractAssignmentService {
             ResultSet rs = executeQuery("SELECT " + PRIMARYCONFIGLOC + ", " + CONFIGLOC + ", " + PRIMARYSRCLOC + ", "
                     + SRCLOC + " FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
             if (rs.next()) {
-                deleteById(TABLE_NAME(), id);
+                deleteById(id);
                 submissionService.deleteByAssignment(id);
                 // delete associated files
                 storageService.deleteFile((UUID) rs.getObject(PRIMARYCONFIGLOC));
@@ -212,6 +212,13 @@ public class AssignmentService extends AbstractAssignmentService {
         return archive;
     }
 
+    /**
+     * Adds the specified file using the entryName to an existing ZipOutputStream
+     * @param zos
+     * @param entryName - name to give file in the Zip archive
+     * @param file - file to add to Zip archive
+     * @throws IOException
+     */
     private void addZipEntry(ZipOutputStream zos, String entryName, File file) throws IOException {
         byte[] buffer = new byte[1024];
         int len = 0;
@@ -226,6 +233,17 @@ public class AssignmentService extends AbstractAssignmentService {
         zos.closeEntry();
     }
 
+    /**
+     * Inserts or updates an assignment definition to the assignment database
+     *
+     * @param props - Definition to commit to the database
+     * @param primarySrc - Primary source zip associated with this definition or null
+     * @param secondarySrc - Secondary source zip associated with this definition or null
+     * @param id - ID of the assignment to create/update
+     * @param isUpdate - true if this call represents an update to an existing assignment
+     * @return The ID of the assignment that was created/updated or null if an error occurred
+     * @throws IOException
+     */
     private UUID commitDefinition(AssignmentDefinition props, MultipartFile primarySrc, MultipartFile secondarySrc,
                                   UUID id, boolean isUpdate) throws IOException {
         UUID primarySrcLoc = null;
@@ -236,12 +254,15 @@ public class AssignmentService extends AbstractAssignmentService {
         Map<String, PropValue> primaryConfig = props.getPrimaryConfig();
         Map<String, PropValue> secondaryConfig = props.getConfig();
 
+        // store the assignment configurations in the storageService
         if (primaryConfig != null) {
             primaryConfigLoc = storageService.putFile(new GenJobConfiguration(primaryConfig));
         }
         if (secondaryConfig != null) {
             secondaryConfigLoc = storageService.putFile(new GenJobConfiguration(secondaryConfig));
         }
+
+        // store the src Zips in the storageService
         if (primarySrc != null) {
             primarySrcLoc = storageService.putFile(primarySrc);
         } else {
@@ -295,6 +316,15 @@ public class AssignmentService extends AbstractAssignmentService {
         return null;
     }
 
+    /**
+     * Creates an AssignmentDefinition from the current row in the given ResultSet
+     * @param rs - database cursor
+     * @param includeSecondary - true if this should return the secondary (validation) configuration as
+     *                         part of the AssignmentDefinition
+     * @return the AssignmentDefinition extracted from rs's current position
+     * @throws SQLException
+     * @throws IOException
+     */
     private AssignmentDefinition extractAssignmentProps(ResultSet rs, boolean includeSecondary)
             throws SQLException, IOException {
         UUID id = (UUID) rs.getObject(ID);

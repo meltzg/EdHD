@@ -8,8 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Abstract utility class for creating Postgres SQL database services
+ */
 public abstract class DBServiceBase {
 
+    /**
+     * For all of the DBServiceBase methods to work, the table must have a UUID id column
+     */
     protected static final String ID = "id";
 
     @Value("${spring.datasource.url}")
@@ -24,8 +30,20 @@ public abstract class DBServiceBase {
     @Value("${edhd.dbName}")
     private String dbName;
 
+    /**
+     * @return The table name for this database service
+     */
     public abstract String TABLE_NAME();
 
+    /**
+     * Initializes the database.  If a connection can't be made to the dbName database,
+     * this will attempt to create the database.
+     *
+     * Derivative classes should override init (make sure to call super.init()) and initialize
+     * their table
+     *
+     * @throws Exception
+     */
     protected void init() throws Exception {
         Connection conn;
         try {
@@ -45,10 +63,21 @@ public abstract class DBServiceBase {
         }
     }
 
+    /**
+     * @return a connection to this service's database
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     protected Connection getConnection() throws ClassNotFoundException, SQLException {
         return getConnection(dbName);
     }
 
+    /**
+     * @param dbName - name of the database to connect to at dbUrl
+     * @return a connection to the requested database
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     protected Connection getConnection(String dbName) throws SQLException, ClassNotFoundException {
         Connection c = null;
         String fullUrl = dbUrl + "/" + dbName;
@@ -58,22 +87,58 @@ public abstract class DBServiceBase {
         return c;
     }
 
+    /**
+     * Executes a query (SELECT) on this service's table
+     *
+     * @param query - string query to use for creating a PreparedStatement
+     * @param params - query parameters to be inserted into the query
+     *               The parameters are inserted in the query in order
+     * @return Query's ResultSet
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     protected ResultSet executeQuery(String query, List<StatementParameter> params)
             throws SQLException, ClassNotFoundException {
         return (ResultSet) executeQuery(query, params, false);
     }
 
+    /**
+     * Executes an update query (INSERT, UPDATE, DELETE) on this service's table
+     * @param query
+     * @param params
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     protected int executeUpdate(String query, List<StatementParameter> params)
             throws SQLException, ClassNotFoundException {
         return (Integer) executeQuery(query, params, true);
     }
 
-    protected int deleteById(String tableName, UUID id) throws ClassNotFoundException, SQLException {
+    /**
+     * Deletes a row by its ID
+     *
+     * @param id - ID of the row to delete
+     * @return number of affected rows (should be 1)
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
+    protected int deleteById(UUID id) throws ClassNotFoundException, SQLException {
         List<StatementParameter> params = new ArrayList<StatementParameter>();
         params.add(new StatementParameter(id, DBType.UUID));
-        return executeUpdate("DELETE FROM " + tableName + " WHERE " + ID + " = ?;", params);
+        return executeUpdate("DELETE FROM " + TABLE_NAME() + " WHERE " + ID + " = ?;", params);
     }
 
+    /**
+     * Executes a query on this service's table
+     *
+     * @param query - query to execute
+     * @param params - parameters to insert into query
+     * @param isUpdate - whether this is a selection or an update
+     * @return Integer if isUpdate else ResultSet
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     private Object executeQuery(String query, List<StatementParameter> params, boolean isUpdate)
             throws SQLException, ClassNotFoundException {
         Object results = null;
@@ -91,6 +156,14 @@ public abstract class DBServiceBase {
         return results;
     }
 
+    /**
+     * Sets the PreParedStatement stmt's fields to the values in params
+     *
+     * @param stmt - PreparedStatement without its fields replaced with values
+     * @param params - values to insert into the PreparedStatement
+     * @param conn - database connection
+     * @throws SQLException
+     */
     private void setStatementParams(PreparedStatement stmt, List<StatementParameter> params, Connection conn)
             throws SQLException {
         if (params != null) {
@@ -128,6 +201,9 @@ public abstract class DBServiceBase {
         }
     }
 
+    /**
+     * Enum represents the SQL data types supported by the DBServiceBase
+     */
     protected enum DBType {
         ARRAY("array"), BIGINT("bigint"), BOOLEAN("boolean"), DOUBLE("double"), INT("integer"), UUID("uuid"), TEXT(
                 "text");
@@ -147,9 +223,15 @@ public abstract class DBServiceBase {
         }
     }
 
+    /**
+     * Represents a value to use in a PreparedStatement
+     */
     protected class StatementParameter {
         private Object value;
         private DBType type;
+        /**
+         * The type of elements if this's type is DBType.ARRAY
+         */
         private DBType itemsType;
 
         public StatementParameter(Object value, DBType type) {

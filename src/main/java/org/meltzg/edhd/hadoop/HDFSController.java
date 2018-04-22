@@ -19,6 +19,9 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * REST controller for HDFS interaction
+ */
 @RestController
 public class HDFSController {
 
@@ -27,6 +30,12 @@ public class HDFSController {
     @Autowired
     private IHadoopService hadoopService;
 
+    /**
+     * Route to retrieve information about a location in HDFS (equivalent to hdfs dfs -ls {path}
+     *
+     * @param path
+     * @return
+     */
     @RequestMapping("/hdfs/ls/{path}")
     public HDFSLocationInfo getChildren(@PathVariable String path) {
         try {
@@ -39,6 +48,14 @@ public class HDFSController {
         return null;
     }
 
+    /**
+     * Route to create a folder in HDFS
+     *
+     * @param principal - (Automatic) (Requires Admin)
+     * @param location - (Base64 encoded) path to put new folder in
+     * @param newDir - (Base64 encoded) name of folder to create
+     * @return true if folder successfully created
+     */
     @RequestMapping(value = "/hdfs/mkdir/{location}/{newDir}", method = RequestMethod.POST)
     public ResponseEntity<Boolean> mkDir(Principal principal, @PathVariable String location,
                                          @PathVariable String newDir) {
@@ -58,6 +75,13 @@ public class HDFSController {
         }
     }
 
+    /**
+     * Route to recursively delete file in HDFS
+     *
+     * @param principal - (Automatic) (Requires Admin)
+     * @param path - (Base64 encoded) path to delete
+     * @return true if location successfully deleted
+     */
     @RequestMapping(value = "/hdfs/rm/{path}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> delete(Principal principal, @PathVariable String path) {
         if (securityService.isAdmin(principal.getName())) {
@@ -75,6 +99,14 @@ public class HDFSController {
         }
     }
 
+    /**
+     * Route to create a folder in HDFS
+     *
+     * @param principal - (Automatic) (Requires Admin)
+     * @param location - (form-data.location) path to put file in
+     * @param file - (form-data.file) file to put into HDFS
+     * @return true if folder successfully created
+     */
     @RequestMapping(value = "/hdfs/put", method = RequestMethod.POST, consumes = {"multipart/form-data"})
     public ResponseEntity<Boolean> putFile(Principal principal,
                                            @RequestPart("location") @Valid HDFSLocationInfo location,
@@ -93,6 +125,12 @@ public class HDFSController {
         }
     }
 
+    /**
+     * Route to preview a file in HDFS
+     *
+     * @param path - (Base64 encoded) path to preview
+     * @return the first ${edhd.hadoop.hdfsFilePreview} lines of the requested file
+     */
     @RequestMapping(value = "/hdfs/preview/{path}", produces = "application/json")
     public ResponseEntity<Map<String, String>> getFilePreview(@PathVariable String path) {
         Map<String, String> responseBody = new HashMap<String, String>();
@@ -110,6 +148,11 @@ public class HDFSController {
         }
     }
 
+    /**
+     * Route to retrieve a file from HDFS
+     * @param response - (Automatic) HTTP response to attach the file to
+     * @param path - (Base64 encoded) file to retrieve
+     */
     @RequestMapping("/hdfs/get/{path}")
     public void getFile(HttpServletResponse response, @PathVariable String path) {
         try {

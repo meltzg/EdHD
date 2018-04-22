@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Represents an EdHD assignment submission
+ */
 public class AssignmentSubmission {
     protected UUID id;
     protected String user;

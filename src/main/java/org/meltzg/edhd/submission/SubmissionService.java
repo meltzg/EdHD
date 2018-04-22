@@ -187,7 +187,7 @@ public class SubmissionService extends AbstractSubmissionService {
         if (existingSubmission != null) {
             UUID srcLoc = existingSubmission.getSrcLoc();
             UUID configLoc = existingSubmission.getConfigLoc();
-            deleteById(TABLE_NAME(), existingSubmission.getId());
+            deleteById(existingSubmission.getId());
 
             if (deleteOldFiles) {
                 storageService.deleteFile(configLoc);
@@ -315,6 +315,16 @@ public class SubmissionService extends AbstractSubmissionService {
         return submissions;
     }
 
+    /**
+     * executes thegiven definition
+     * @param definition
+     * @param isValidation
+     * @param deleteOldFiles - if true, files from previous submissions by this user will be deleted
+     * @return submission ID
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     private UUID executeSubmission(AssignmentDefinition definition, boolean isValidation, boolean deleteOldFiles)
             throws IOException, ClassNotFoundException, SQLException {
         UUID submissionId = UUID.randomUUID();
@@ -339,6 +349,13 @@ public class SubmissionService extends AbstractSubmissionService {
         return executeSubmission(definition, statProps);
     }
 
+    /**
+     * Executes the given definition
+     * @param definition
+     * @param statProps - the status properties to associate with this submission
+     * @return
+     * @throws IOException
+     */
     private UUID executeSubmission(AssignmentDefinition definition, StatusProperties statProps) throws IOException {
         SubmissionWorker worker = new SubmissionWorker(statProps.getId(), definition, statProps, storageService, this,
                 hadoopService);
@@ -346,6 +363,10 @@ public class SubmissionService extends AbstractSubmissionService {
         return statProps.getId();
     }
 
+    /**
+     * @param id
+     * @return the AssignmentSubmission with the given submission ID
+     */
     private AssignmentSubmission getById(UUID id) {
         AssignmentSubmission submission = null;
         List<StatementParameter> params = new ArrayList<StatementParameter>();
@@ -362,6 +383,10 @@ public class SubmissionService extends AbstractSubmissionService {
         return submission;
     }
 
+    /**
+     * @param assignmentId
+     * @return List of all AssignmentSubmission for the requested assignment
+     */
     private List<AssignmentSubmission> getByAssignment(UUID assignmentId) {
         List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>();
         List<StatementParameter> params = new ArrayList<StatementParameter>();
@@ -379,12 +404,21 @@ public class SubmissionService extends AbstractSubmissionService {
         return submissions;
     }
 
+    /**
+     * Deletes a submission by ID, optionally deleting associated files in the storage service
+     * @param id
+     * @param deleteFiles
+     * @return
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     * @throws IOException
+     */
     private boolean deleteById(UUID id, boolean deleteFiles) throws ClassNotFoundException, SQLException, IOException {
         AssignmentSubmission existingSubmission = getById(id);
         if (existingSubmission != null) {
             UUID srcLoc = existingSubmission.getSrcLoc();
             UUID configLoc = existingSubmission.getConfigLoc();
-            deleteById(TABLE_NAME(), existingSubmission.getId());
+            deleteById(existingSubmission.getId());
 
             if (deleteFiles) {
                 storageService.deleteFile(configLoc);
