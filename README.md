@@ -78,4 +78,60 @@ Explanation:
 
 ### Assignments
 The assignment screen displays information about assignments registered with EdHD, allows for creating assignment submissions, and viewing submission status information.
- 
+It can be viewed by selecting `Assignments` in the side bar.  Except for due date, there are no other restrictions on submissions at this time.
+
+#### The Assignment Card
+Each assignment is represented by an assignment card with the following information:
+
+![Assignment Card](./img/assignment-card.PNG)
+
+1) Assignment name and due date
+2) Assignment description
+3) Submission status information
+4) Hides and shows the submission configuration form
+5) Submit assignment solution
+6) Admin Actions (requires admin privileges)
+    * Edit assignment.  This will open and load the assignment creation screen with the info for the selected assignment
+    * Delete assignment.  This will delete the assignment and all submissions for it.
+    * Download submissions.  This will collect and download all submissions for the assignment into a single zip archive
+    
+##### Configuring a submission
+If the user clicks `SHOW/HIDE CONFIGURATION`, they will see the submission configuration form.  This form is how users configure their submission and has the following parts:
+
+![Submission Configuration](./img/submission-config.PNG)
+
+1) Assignment source selection
+2) Standard job options
+3) Custom job options
+
+###### Assignment Source
+The Assignment source must be a zip file containing all the files needed to compile the submission.
+The Java source files must be in proper package directories.
+For example, if a submission contains the class `org.meltzg.WordCountMapper`, the archive must have the source file in `<zip file>/org/meltzg/WordCountMapper.java`
+This is necessary for submission compilation.
+
+###### Standard Job Options
+These fields represent the classes needed to run the submission.  Each MapReduce lifecycle class must be set using the fully qualified class name.
+See [GenMapred](https://github.com/meltzg/GenMapred) for more information about individual fields.  Fields that are greyed out are set in the assignment definition and cannot be overridden.
+
+###### Custom Job Options
+These fields are custom configuration properties that will be accessible vie the Job's Context's Configuration.  Users can add any fields they like here.
+Fields that are part of the assignment definition (shown in the table) can only be added again by the submitter if the field is marked as appendable.
+If the submitter adds an existing, appendable field, their value will be appended to the value in the definition with a `|` between.
+
+##### Submission Status Indicator
+![Status Indicator](./img/status-indicator.PNG)
+
+Along with the submitter's username, the status indicator shows:
+1) Compilation status
+2) Submission run status
+3) Submission validation status
+4) Submission complete status.
+
+Any stage marked as red is a failed stage.  Each indicator can be clicked to show more information.  For example,
+if compilation failed, the info dialog for that indicator would contain compiler errors.
+
+Only admins will see the status of all submissions.  Normal users will only see the status of the validator and their own submission.
+
+### Assignment Creation
+EdHD admins can create assignments via the `Create Assignment` view in the side bar
