@@ -134,4 +134,33 @@ if compilation failed, the info dialog for that indicator would contain compiler
 Only admins will see the status of all submissions.  Normal users will only see the status of the validator and their own submission.
 
 ### Assignment Creation
-EdHD admins can create assignments via the `Create Assignment` view in the side bar
+EdHD admins can create assignments via the `Create Assignment` view in the side bar.
+
+![Create Assignment](./img/create-assignment.PNG)
+
+1) Assignment Information
+    * Description supports multiple lines of text
+2) Assignment/Validation configuration selector - switches the configuration form between the assignment configuration and the validator configuration
+3) Assignment source selection (same restrictions as the src selector on the assignment card)
+4) Standard Options
+5) Custom Options
+6) Actions
+
+#### Assignment and Validation configurations
+The Assignment configuration form represents the configurations for the assignment that all submissions will use.
+The Validation configuration is analogous to the Submission configuration.  When the assignment is created,
+EdHD runs the Validation submission and later uses its output to validate user submissions.  Values set in the Assignment configuration will
+immediately be reflected in the Validation configuration and cannot be overridden.
+
+#### Updating Assignment Definitions
+As mentioned previously, assignment definitions can be updated by clicking the edit button on the assignment card.
+That will bring the user to this form with the fields filled with the current values.
+
+The `CREATE ASSIGNMENT` button will say `UPDATE ASSIGNMENT` instead.  If you change your mind, hitting the `RESET` button
+will clear the form and it will then be ready for creating a new assignment.
+
+When updating an assignment, Assignment Source sections that previously had values will display the name of the zip file used.
+
+![Assignment Source](./img/assignment-src.PNG)
+
+If you want to replace the archive, hit the `delete` icon, then select a new zip.
